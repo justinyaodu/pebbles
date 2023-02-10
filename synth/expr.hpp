@@ -12,8 +12,10 @@ private:
 	static const int32_t XOR = -3;
 	static const int32_t NOT = -4;
 
-	// AND, OR, XOR, NOT, or the index of a variable
+	// AND, OR, XOR, NOT, or the number of a variable (e.g. 2 for x2).
 	int32_t type;
+
+	// Left and right children, if present.
 	Expr* left;
 	Expr* right;
 
@@ -40,8 +42,8 @@ public:
 		return Expr(Expr::NOT, left, nullptr);
 	}
 
-	static Expr Var(int32_t variableNumber) {
-		return Expr(variableNumber, nullptr, nullptr);
+	static Expr Var(int32_t var_num) {
+		return Expr(var_num, nullptr, nullptr);
 	}
 
 	friend std::ostream& operator<< (std::ostream &out, const Expr &expr) {
