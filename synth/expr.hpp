@@ -19,13 +19,12 @@ private:
 	Expr* left;
 	Expr* right;
 
-	Expr(int32_t type, Expr* left, Expr* right) {
-		this->type = type;
-		this->left = left;
-		this->right = right;
-	}
+	Expr(int32_t type, Expr* left, Expr* right) :
+		type(type), left(left), right(right) {}
 
 public:
+	// Static helpers to construct various expressions.
+
 	static Expr And(Expr *left, Expr *right) {
 		return Expr(Expr::AND, left, right);
 	}
@@ -78,6 +77,7 @@ public:
 		}
 	}
 
+	// Evaluate an expression with the given variable values.
 	// The i'th element of vars is the value of the i'th variable.
 	bool eval(const std::vector<bool> &vars) {
 		switch (this->type) {
