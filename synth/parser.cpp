@@ -5,6 +5,9 @@
 #include <algorithm>
 using namespace std;
 
+/**
+ * Java styled ReplaceAll, taken from StackOverflow
+*/
 std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
     size_t start_pos = 0;
     while((start_pos = str.find(from, start_pos)) != std::string::npos) {
@@ -14,6 +17,9 @@ std::string ReplaceAll(std::string str, const std::string& from, const std::stri
     return str;
 }
 
+/**
+ * Java styled pop for a stack; pops and returns the value
+*/
 bool popVal(stack<bool> &st) {
     bool val=st.top();
     st.pop();
@@ -21,9 +27,11 @@ bool popVal(stack<bool> &st) {
 }
 
 bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
+    // replace all variables with their values
     for(int i=0; i<names.size(); i++) {
         expr = ReplaceAll(expr, names[i], vals[i]?"T":"F");
     }
+    // replace all gates with single letters so it's easier to parse
     expr = ReplaceAll(expr, "xor", "^");
     expr = ReplaceAll(expr, "or", "|");
     expr = ReplaceAll(expr, "and", "&");
@@ -31,8 +39,11 @@ bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
 
     cout<<" "<<expr;
 
+    // use a stack to track operators like in postfix expressions
     stack<bool> st;
 
+    // push any boolean values to the stack. once it finds an operator,
+    // pop the necessary number of operators and push that to the stack
     for(int i=expr.length()-1; i>=0; i--) {
         if(expr[i]=='T') st.push(true);
         if(expr[i]=='F') st.push(false);
@@ -42,6 +53,7 @@ bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
         if(expr[i]=='!') st.push(!popVal(st));
     }
 
+    // should only ever be one value left, and that's the return
     return st.top();
 }
 
@@ -50,9 +62,12 @@ int power(int x, int y) {
 }
 
 vector<bool> truthTable(string expr, vector<string> names, vector<bool> vals) {
+    // set up the vector to return
     vector<bool> retVal;
+    // will be 2^n options
     for(int i=0; i<power(2, names.size()); i++) {
         for(int j=0; j<vals.size(); j++) {
+            // get the jth bit
             vals[j]=(i>>j)&1;
             cout << vals[j];
         }
