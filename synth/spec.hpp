@@ -1,6 +1,9 @@
 #ifndef SPEC_H
 #define SPEC_H
 
+#include <cstdint>
+#include <vector>
+
 class Spec {
 public:
 	// Number of variables.

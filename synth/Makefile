@@ -1,2 +1,2 @@
-reference : reference.cpp expr.hpp
+reference : reference.cpp expr.hpp spec.hpp
 	g++ -O3 -Wall -Wextra $^ -o $@
