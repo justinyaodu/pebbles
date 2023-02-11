@@ -45,19 +45,46 @@ public:
         return new Expr(var_num, nullptr, nullptr);
     }
 
-    friend std::ostream& operator<< (std::ostream &out, const Expr &expr) {
-        switch (expr.type) {
+    void print(std::ostream &out, std::vector<std::string> *var_names) const {
+        switch (type) {
             case Expr::AND:
-                return out << "(" << *(expr.left) << " && " << *(expr.right) << ")";
+                out << "(";
+                left->print(out, var_names);
+                out << " && ";
+                right->print(out, var_names);
+                out << ")";
+                break;
             case Expr::OR:
-                return out << "(" << *(expr.left) << " || " << *(expr.right) << ")";
+                out << "(";
+                left->print(out, var_names);
+                out << " || ";
+                right->print(out, var_names);
+                out << ")";
+                break;
             case Expr::XOR:
-                return out << "(" << *(expr.left) << " ^ " << *(expr.right) << ")";
+                out << "(";
+                left->print(out, var_names);
+                out << " ^ ";
+                right->print(out, var_names);
+                out << ")";
+                break;
             case Expr::NOT:
-                return out << "!" << *(expr.left);
+                out << "!";
+                left->print(out, var_names);
+                break;
             default:
-                return out << "x" << expr.type;
+                if (var_names == nullptr) {
+                    out << "x" << type;
+                } else {
+                    out << (*var_names)[type];
+                }
+                break;
         }
+    }
+
+    friend std::ostream& operator<< (std::ostream &out, const Expr &expr) {
+        expr.print(out, nullptr);
+        return out;
     }
 
     // Evaluate an expression with the given variable values.

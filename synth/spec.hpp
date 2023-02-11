@@ -14,6 +14,9 @@ public:
     // Number of input/output examples.
     uint32_t num_examples;
 
+    // The i'th element is the name of the i'th variable.
+    std::vector<std::string> var_names;
+
     // The i'th element is the depth of the i'th variable.
     std::vector<uint32_t> var_depths;
 
@@ -30,6 +33,7 @@ public:
     Spec(
         uint32_t num_vars,
         uint32_t num_examples,
+        std::vector<std::string> var_names,
         std::vector<uint32_t> var_depths,
         std::vector<uint32_t> var_values,
         uint32_t sol_result,
@@ -37,6 +41,7 @@ public:
     ) :
         num_vars(num_vars),
         num_examples(num_examples),
+        var_names(var_names),
         var_depths(var_depths),
         var_values(var_values),
         sol_result(sol_result),
@@ -45,6 +50,11 @@ public:
     friend std::ostream& operator<< (std::ostream &out, const Spec &spec) {
         out << "num_vars: " << spec.num_vars
             << ", num_examples: " << spec.num_examples;
+
+        out << ", var_names:";
+        for (auto name : spec.var_names) {
+            out << " " << name;
+        }
 
         out << ", var_depths:";
         for (auto depth : spec.var_depths) {

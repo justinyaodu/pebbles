@@ -233,33 +233,19 @@ public:
         for (size_t depth = 0; depth < banks.size(); depth++) {
             out << "depth " << depth << ":\n";
             for (size_t i = 0; i < banks[depth].size(); i++) {
-                out << "\t" << *reconstruct(depth, i) << "\n";
+                out << "\t";
+                reconstruct(depth, i)->print(out, &spec.var_names);
+                out << "\n";
             }
         }
     }
 };
 
 int main(void) {
-    // Testing boolean expressions.
-
-    Expr* x0 = Expr::Var(0);
-    Expr* x1 = Expr::Var(1);
-    Expr* x2 = Expr::Var(2);
-    Expr* x3 = Expr::Var(3);
-    Expr* not_zero = Expr::Not(x0);
-    Expr* not_zero_xor_one = Expr::Xor(not_zero, x1);
-    Expr* two_and_three = Expr::And(x2, x3);
-    Expr* top = Expr::Or(not_zero_xor_one, two_and_three);
-    std::cout << *top << std::endl;
-
-    // x0 = false, x1 = false, x2 = true, x3 = false
-    std::vector<bool> var_values { false, false, true, false };
-    std::cout << top->eval(var_values) << std::endl;
-
-    // Testing the synthesizer.
     Spec spec(
         2,
         4,
+        std::vector<std::string> { "b1", "b2" },
         std::vector<uint32_t> { 0, 0 },
         std::vector<uint32_t> { 0b0011, 0b0101 },
         0b1011,
@@ -269,7 +255,9 @@ int main(void) {
 
     Synthesizer synthesizer(spec);
     Expr* expr = synthesizer.synthesize();
-    std::cout << "solution: " << *expr << std::endl;
+    std::cout << "solution: ";
+    expr->print(std::cout, &spec.var_names);
+    std::cout << std::endl;
 
     synthesizer.print_banks(std::cout);
 }
