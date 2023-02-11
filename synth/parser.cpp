@@ -20,7 +20,6 @@ bool popVal(stack<bool> &st) {
     return val;
 }
 
-
 bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
     for(int i=0; i<names.size(); i++) {
         expr = ReplaceAll(expr, names[i], vals[i]?"T":"F");
@@ -30,7 +29,7 @@ bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
     expr = ReplaceAll(expr, "and", "&");
     expr = ReplaceAll(expr, "not", "!");
 
-    cout<<expr;
+    cout<<" "<<expr;
 
     stack<bool> st;
 
@@ -46,7 +45,22 @@ bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
     return st.top();
 }
 
+int power(int x, int y) {
+    return (y==0)?1:x*power(x, y-1);
+}
 
+vector<bool> truthTable(string expr, vector<string> names, vector<bool> vals) {
+    vector<bool> retVal;
+    for(int i=0; i<power(2, names.size()); i++) {
+        for(int j=0; j<vals.size(); j++) {
+            vals[j]=(i>>j)&1;
+            cout << vals[j];
+        }
+        retVal.push_back(evalExpr(expr, names, vals));
+        cout<<" "<<retVal.back()<<"\n";
+    }
+    return retVal;
+}
 
 int main()
 {
@@ -110,6 +124,7 @@ int main()
     vals.push_back(true);
     vals.push_back(false);
     vals.push_back(false);
-    cout << evalExpr(expr, vars, vals);
+
+    truthTable(expr, vars, vals);
 }
 
