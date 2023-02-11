@@ -225,6 +225,9 @@ public:
                     remaining_depth -= 2;
                 }
 
+                std::cerr << "validating solution" << std::endl;
+                spec.validate(expr);
+
                 return expr;
             }
         }
@@ -252,7 +255,7 @@ int main(void) {
         std::vector<uint32_t> { 0, 0 },
         std::vector<uint32_t> { 0b0011, 0b0101 },
         0b1011,
-        2
+        4
     );
     std::cout << spec << std::endl;
 

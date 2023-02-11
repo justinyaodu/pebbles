@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 
+#include "expr.hpp"
+
 class Spec {
 public:
     // Number of variables.
@@ -46,6 +48,18 @@ public:
         var_values(var_values),
         sol_result(sol_result),
         sol_depth(sol_depth) {}
+
+    void validate(Expr* solution) {
+        solution->assert_depth(sol_depth, var_depths);
+        for (uint32_t example = 0; example < num_examples; example++) {
+            std::vector<bool> vars;
+            for (uint32_t var = 0; var < num_vars; var++) {
+                vars.push_back((var_values[var] >> example) & 1);
+            }
+            bool expected = (sol_result >> example) & 1;
+            assert(solution->eval(vars) == expected);
+        }
+    }
 
     friend std::ostream& operator<< (std::ostream &out, const Spec &spec) {
         out << "num_vars: " << spec.num_vars

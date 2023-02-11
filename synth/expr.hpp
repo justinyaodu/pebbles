@@ -1,6 +1,7 @@
 #ifndef EXPR_H
 #define EXPR_H
 
+#include <cassert>
 #include <cstdint>
 #include <iostream>
 #include <vector>
@@ -82,6 +83,23 @@ public:
         }
     }
 
+    void assert_depth(uint32_t depth, const std::vector<uint32_t> &var_depths) {
+        switch (type) {
+            case Expr::NOT:
+                left->assert_depth(depth - 1, var_depths);
+                break;
+            case Expr::AND:
+            case Expr::OR:
+            case Expr::XOR:
+                left->assert_depth(depth - 1, var_depths);
+                right->assert_depth(depth - 1, var_depths);
+                break;
+            default:
+                assert(type >= 0 && (size_t) type < var_depths.size());
+                assert(var_depths[type] == depth);
+        }
+    }
+
     friend std::ostream& operator<< (std::ostream &out, const Expr &expr) {
         expr.print(out, nullptr);
         return out;
@@ -90,17 +108,18 @@ public:
     // Evaluate an expression with the given variable values.
     // The i'th element of vars is the value of the i'th variable.
     bool eval(const std::vector<bool> &vars) {
-        switch (this->type) {
+        switch (type) {
             case Expr::AND:
-                return this->left->eval(vars) && this->right->eval(vars);
+                return left->eval(vars) && right->eval(vars);
             case Expr::OR:
-                return this->left->eval(vars) || this->right->eval(vars);
+                return left->eval(vars) || right->eval(vars);
             case Expr::XOR:
-                return this->left->eval(vars) ^ this->right->eval(vars);
+                return left->eval(vars) ^ right->eval(vars);
             case Expr::NOT:
-                return !this->left->eval(vars);
+                return !left->eval(vars);
             default:
-                return vars[this->type];
+                assert(type >= 0 && (size_t) type < vars.size());
+                return vars[type];
         }
     }
 };
