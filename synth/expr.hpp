@@ -25,24 +25,24 @@ private:
 public:
     // Static helpers to construct various expressions.
 
-    static Expr And(Expr *left, Expr *right) {
-        return Expr(Expr::AND, left, right);
+    static Expr* And(Expr *left, Expr *right) {
+        return new Expr(Expr::AND, left, right);
     }
 
-    static Expr Or(Expr *left, Expr *right) {
-        return Expr(Expr::OR, left, right);
+    static Expr* Or(Expr *left, Expr *right) {
+        return new Expr(Expr::OR, left, right);
     }
 
-    static Expr Xor(Expr *left, Expr *right) {
-        return Expr(Expr::XOR, left, right);
+    static Expr* Xor(Expr *left, Expr *right) {
+        return new Expr(Expr::XOR, left, right);
     }
 
-    static Expr Not(Expr *left) {
-        return Expr(Expr::NOT, left, nullptr);
+    static Expr* Not(Expr *left) {
+        return new Expr(Expr::NOT, left, nullptr);
     }
 
-    static Expr Var(int32_t var_num) {
-        return Expr(var_num, nullptr, nullptr);
+    static Expr* Var(int32_t var_num) {
+        return new Expr(var_num, nullptr, nullptr);
     }
 
     friend std::ostream& operator<< (std::ostream &out, const Expr &expr) {
