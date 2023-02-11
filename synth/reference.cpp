@@ -102,6 +102,8 @@ public:
         result_mask(max_distinct_terms - 1) {}
 
     Expr* reconstruct(uint32_t depth, uint32_t index) {
+        assert(banks[depth].section_boundaries.size() == 5);
+
         uint32_t left = banks[depth].get_left(index);
 
         if (index < banks[depth].section_boundaries[0]) {
@@ -129,6 +131,7 @@ public:
             return Expr::Xor(left_expr, right_expr);
         }
 
+        // Index out of range.
         assert(false);
         return nullptr;
     }
@@ -254,10 +257,15 @@ int main(void) {
     std::cout << spec << std::endl;
 
     Synthesizer synthesizer(spec);
+
     Expr* expr = synthesizer.synthesize();
-    std::cout << "solution: ";
-    expr->print(std::cout, &spec.var_names);
-    std::cout << std::endl;
+    if (expr == nullptr) {
+        std::cout << "no solution" << std::endl;
+    } else {
+        std::cout << "solution: ";
+        expr->print(std::cout, &spec.var_names);
+        std::cout << std::endl;
+    }
 
     synthesizer.print_banks(std::cout);
 }
