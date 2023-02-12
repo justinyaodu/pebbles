@@ -6,6 +6,7 @@
 
 #include "expr.hpp"
 #include "spec.hpp"
+#include "parser.hpp"
 
 class Bank {
 private:
@@ -248,7 +249,7 @@ public:
 };
 
 int main(void) {
-    Spec spec(
+    /*Spec spec(
         2,
         4,
         std::vector<std::string> { "b1", "b2" },
@@ -256,7 +257,8 @@ int main(void) {
         std::vector<uint32_t> { 0b0011, 0b0101 },
         0b1011,
         4
-    );
+    );*/
+    Spec spec = Parser::parseInput("input.sl");
     std::cout << spec << std::endl;
 
     Synthesizer synthesizer(spec);
