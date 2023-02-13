@@ -158,7 +158,7 @@ public:
         return nullptr;
     }
 
-    Expr* synthesize() {
+    Expr* synthesize(std::ostream &out) {
         for (uint32_t depth = 0; depth <= spec.sol_depth; depth++) {
             //std::cerr << "synthesizing depth " << depth << std::endl;
 
@@ -258,6 +258,7 @@ public:
                 //std::cerr << "validating solution" << std::endl;
                 spec.validate(expr);
 
+                out << "bank size: " << banks[depth].size() << endl;
                 return expr;
             }
         }
@@ -302,7 +303,7 @@ int main(void) {
 
         Synthesizer synthesizer(spec);
 
-        Expr* expr = synthesizer.synthesize();
+        Expr* expr = synthesizer.synthesize(outputFile);
         if (expr == nullptr) {
             outputFile << "no solution" << std::endl;
         } else {
@@ -310,6 +311,8 @@ int main(void) {
             expr->print(outputFile, &spec.var_names);
             outputFile << std::endl;
         }
+
+        outputFile << std::endl;
 
         //synthesizer.print_banks(std::cout);
     }
