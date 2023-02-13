@@ -118,11 +118,12 @@ Spec Parser::parseInput(string inputFileName) {
 
     //open SyGuS-formatted input file
     ifstream inputFile;
-    inputFile.open("input.sl");
+    inputFile.open(inputFileName);
     int lineNumber = 1;
     string line;
 
     //where we are in the file:
+    bool startedGrammar = false;
     bool finishedGrammar = false;
     bool originalCircuitLine = false;
     int depth = 0;
@@ -135,34 +136,57 @@ Spec Parser::parseInput(string inputFileName) {
 
     while (getline(inputFile, line))
     {
-        if (originalCircuitLine)
+        if (line.size() > 0 && line.at(0) == ';')
+        {
+            //cout << "in a comment" << endl;
+            // this line must be a comment
+        } else if (originalCircuitLine)
         {
             originalCircuitLine = false;
             //line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
             origCir = line;
-        } else if (line.find("define-fun origCir") != string::npos)
+            //cout << origCir << endl;
+        } else if (line.find("define-fun origCir") != string::npos || line.find("define-fun Spec") != string::npos)
         {
+            //cout << "about to get the original circuit" << endl;
             originalCircuitLine = true;//next time
-        } else if (lineNumber > 10 && !finishedGrammar)
+        } else if (line.find("synth-fun") != string::npos)
+        {
+            //cout << "about to get the grammar" << endl;
+            startedGrammar = true;//next time
+        } if (startedGrammar && !finishedGrammar)
         {
             //we are in the grammar-defining portion
             if (line == ")")
             {
+                //cout << "finished the grammar" << endl;
                 finishedGrammar = true;
             } else if (line.find("(depth") != string::npos)
             {
+                //cout << "depth going up!" << endl;
                 depth++;
             } else if (line.find("(") == string::npos && line.find(")") == string::npos)
             {
+                //cout << "new variable" << endl;
                 line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
                 var_depths.push_back(depth);
                 var_names.push_back(line);
+            } else {
+                //cout << "something else" << endl;
             }
         }
         lineNumber++;
     }
     maxDepth = depth;
     numVariables = var_names.size();
+    if (numVariables > 5) {
+        //we can't handle this many variables
+        return Spec(numVariables,0,std::vector<std::string>(),
+        std::vector<uint32_t>(),
+        std::vector<uint32_t>(),
+        0,
+        0);
+    }
     num_examples = power(2,numVariables);
     inputFile.close();
 
@@ -172,9 +196,8 @@ Spec Parser::parseInput(string inputFileName) {
         var_depths[i] = maxDepth - var_depths[i];
     }
 
-    /*
     //print out all the variables
-    for (int i = 0; i < numVariables; i++)
+    /*for (int i = 0; i < numVariables; i++)
     {
         cout << var_names[i] << ": depth " << var_depths[i] << endl;
     }*/
@@ -186,7 +209,7 @@ Spec Parser::parseInput(string inputFileName) {
     //truthTable(origCir, var_names, vals);
     sol_result = truthTableIntResult(origCir, var_names, vals);
 
-    return Spec(numVariables, num_examples, var_names, var_depths, getVarValues(numVariables, num_examples), sol_result, maxDepth+1);
+    return Spec(numVariables, num_examples, var_names, var_depths, getVarValues(numVariables, num_examples), sol_result, maxDepth);
 }
 
 

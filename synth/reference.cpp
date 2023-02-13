@@ -3,6 +3,10 @@
 #include <bitset>
 #include <cassert>
 #include <vector>
+#include <string>
+#include <iostream>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #include "expr.hpp"
 #include "spec.hpp"
@@ -53,6 +57,14 @@ public:
     // Add a variable or NOT term to the bank, unless another term evaluating
     // to the same value has been seen before.
     bool insert_unary(uint32_t result, uint32_t left) {
+        /*if (result == 169) {
+            std::cout << "Trying to insert a matching solution (not)!" << std::endl;
+            std::cout << "Seen before: " << seen[result] << std::endl;
+        }*/
+        if (result >= seen.size()) {
+            std::cout << result << std::endl;
+            std::cout << seen.size() << std::endl;
+        }
         assert(result < seen.size());
         if (seen[result]) {
             return false;
@@ -66,6 +78,10 @@ public:
     // Add an AND, OR, or XOR term to the bank, unless another term evaluating
     // to the same value has been seen before.
     bool insert_binary(uint32_t result, uint32_t left, uint32_t right) {
+        /*if (result == 169) {
+            std::cout << "Trying to insert a matching solution!" << std::endl;
+            std::cout << "Seen before: " << seen[result] << std::endl;
+        }*/
         assert(result < seen.size());
         if (seen[result]) {
             return false;
@@ -99,7 +115,7 @@ private:
 public:
     Synthesizer(Spec spec) :
         spec(spec),
-        max_distinct_terms(1L << spec.num_examples),
+        max_distinct_terms(1ULL << spec.num_examples),
         result_mask(max_distinct_terms - 1) {}
 
     Expr* reconstruct(uint32_t depth, uint32_t index) {
@@ -114,6 +130,7 @@ public:
         Expr* left_expr = reconstruct(depth - 1, left);
 
         if (index < banks[depth].section_boundaries[1]) {
+            //std::cout << "depth " << depth << ", picking NOT" << std::endl;
             return Expr::Not(left_expr);
         }
 
@@ -121,14 +138,18 @@ public:
         Expr* right_expr = reconstruct(depth - 1, right);
 
         if (index < banks[depth].section_boundaries[2]) {
+            //std::cout << "depth " << depth << ", picking AND" << std::endl;
             return Expr::And(left_expr, right_expr);
         }
 
         if (index < banks[depth].section_boundaries[3]) {
+            //std::cout << "depth " << depth << ", picking OR" << std::endl;
+            //std::cout << "(index: " << index << ", boundary: " << banks[depth].section_boundaries[3] << std::endl;
             return Expr::Or(left_expr, right_expr);
         }
 
         if (index < banks[depth].section_boundaries[4]) {
+            //std::cout << "depth " << depth << ", picking XOR" << std::endl;
             return Expr::Xor(left_expr, right_expr);
         }
 
@@ -139,7 +160,7 @@ public:
 
     Expr* synthesize() {
         for (uint32_t depth = 0; depth <= spec.sol_depth; depth++) {
-            std::cerr << "synthesizing depth " << depth << std::endl;
+            //std::cerr << "synthesizing depth " << depth << std::endl;
 
             banks.push_back(Bank(max_distinct_terms));
 
@@ -165,7 +186,9 @@ public:
             // Synthesize NOT terms.
             for (uint32_t left = 0; !found && left < banks[depth - 1].size(); left++) {
                 uint32_t result = ~banks[depth - 1].get_results(left);
-                banks[depth].insert_unary(result & result_mask, left);
+                //update the result to only have the relevant bits
+                result = result & result_mask;
+                banks[depth].insert_unary(result, left);
                 if (result == spec.sol_result) {
                     found = true;
                 }
@@ -177,7 +200,9 @@ public:
                 for (uint32_t right = 0; !found && right <= left; right++) {
                     uint32_t result = banks[depth - 1].get_results(left)
                         & banks[depth - 1].get_results(right);
-                    banks[depth].insert_binary(result & result_mask, left, right);
+                    //update the result to only have the relevant bits
+                    result = result & result_mask;
+                    banks[depth].insert_binary(result, left, right);
                     if (result == spec.sol_result) {
                         found = true;
                     }
@@ -190,7 +215,9 @@ public:
                 for (uint32_t right = 0; !found && right <= left; right++) {
                     uint32_t result = banks[depth - 1].get_results(left)
                         | banks[depth - 1].get_results(right);
-                    banks[depth].insert_binary(result & result_mask, left, right);
+                    //update the result to only have the relevant bits
+                    result = result & result_mask;
+                    banks[depth].insert_binary(result, left, right);
                     if (result == spec.sol_result) {
                         found = true;
                     }
@@ -203,7 +230,9 @@ public:
                 for (uint32_t right = 0; !found && right <= left; right++) {
                     uint32_t result = banks[depth - 1].get_results(left)
                         ^ banks[depth - 1].get_results(right);
-                    banks[depth].insert_binary(result & result_mask, left, right);
+                    //update the result to only have the relevant bits
+                    result = result & result_mask;
+                    banks[depth].insert_binary(result, left, right);
                     if (result == spec.sol_result) {
                         found = true;
                     }
@@ -226,7 +255,7 @@ public:
                     remaining_depth -= 2;
                 }
 
-                std::cerr << "validating solution" << std::endl;
+                //std::cerr << "validating solution" << std::endl;
                 spec.validate(expr);
 
                 return expr;
@@ -249,28 +278,41 @@ public:
 };
 
 int main(void) {
-    /*Spec spec(
-        2,
-        4,
-        std::vector<std::string> { "b1", "b2" },
-        std::vector<uint32_t> { 0, 0 },
-        std::vector<uint32_t> { 0b0011, 0b0101 },
-        0b1011,
-        4
-    );*/
-    Spec spec = Parser::parseInput("input.sl");
-    std::cout << spec << std::endl;
+    ofstream outputFile;
+    outputFile.open("output.txt");
 
-    Synthesizer synthesizer(spec);
+    std::string dir_path = "./inputs/";
+    std::string current_path;
+    for (const auto & entry : fs::directory_iterator(dir_path)) {
+        current_path = entry.path().string();
 
-    Expr* expr = synthesizer.synthesize();
-    if (expr == nullptr) {
-        std::cout << "no solution" << std::endl;
-    } else {
-        std::cout << "solution: ";
-        expr->print(std::cout, &spec.var_names);
-        std::cout << std::endl;
+        outputFile << current_path << endl;
+
+        Spec spec = Parser::parseInput(current_path);
+
+        if (spec.num_vars > 5) {
+            outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << endl;
+            continue;
+        }
+
+        //std::cout << spec << std::endl;
+
+        //std::cout << "look at: " << (1L << spec.num_examples) << std::endl;
+        //std::cout << "look at: " << (1ULL << 32) << std::endl;
+
+        Synthesizer synthesizer(spec);
+
+        Expr* expr = synthesizer.synthesize();
+        if (expr == nullptr) {
+            outputFile << "no solution" << std::endl;
+        } else {
+            outputFile << "solution: ";
+            expr->print(outputFile, &spec.var_names);
+            outputFile << std::endl;
+        }
+
+        //synthesizer.print_banks(std::cout);
     }
 
-    synthesizer.print_banks(std::cout);
+    outputFile.close();
 }

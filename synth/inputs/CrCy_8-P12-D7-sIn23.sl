@@ -1,12 +1,13 @@
+
 (set-logic BV)
 
 
-(define-fun origCir ( (LN1 Bool) (LN33 Bool) (LN221 Bool)  )  Bool    
-          (xor (not (and  LN1 LN33 ) ) LN221 )
+(define-fun origCir ( (LN198 Bool) (LN205 Bool) (LN367 Bool)  )  Bool    
+          (not (not (xor (not (xor  LN198 LN205 ) ) LN367 ) ) )
 )
 
 
-(synth-fun skel ( (LN1 Bool) (LN33 Bool) (LN221 Bool)  )  Bool    
+(synth-fun skel ( (LN198 Bool) (LN205 Bool) (LN367 Bool)  )  Bool    
           ((Start Bool (
 		                                  (and depth1 depth1)
 		                                  (not depth1)
@@ -24,26 +25,39 @@
 		                                  (not depth3)
 		                                  (or depth3 depth3)
 		                                  (xor depth3 depth3)
-		                                  LN221
           ))
           (depth3 Bool (
 		                                  (and depth4 depth4)
 		                                  (not depth4)
 		                                  (or depth4 depth4)
 		                                  (xor depth4 depth4)
-		                                  LN33
           ))
           (depth4 Bool (
-		                                  LN1
+		                                  (and depth5 depth5)
+		                                  (not depth5)
+		                                  (or depth5 depth5)
+		                                  (xor depth5 depth5)
+		                                  LN367
+          ))
+          (depth5 Bool (
+		                                  (and depth6 depth6)
+		                                  (not depth6)
+		                                  (or depth6 depth6)
+		                                  (xor depth6 depth6)
+		                                  LN198
+          ))
+          (depth6 Bool (
+		                                  LN205
           )))
 )
 
 
-(declare-var LN1 Bool)
-(declare-var LN33 Bool)
-(declare-var LN221 Bool)
+(declare-var LN198 Bool)
+(declare-var LN205 Bool)
+(declare-var LN367 Bool)
 
-(constraint (= (origCir LN1 LN33 LN221 ) (skel LN1 LN33 LN221 )))
+(constraint (= (origCir LN198 LN205 LN367 ) (skel LN198 LN205 LN367 )))
 
 
 (check-synth)
+

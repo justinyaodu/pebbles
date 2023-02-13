@@ -1,12 +1,13 @@
+
 (set-logic BV)
 
 
-(define-fun origCir ( (LN1 Bool) (LN33 Bool) (LN221 Bool)  )  Bool    
-          (xor (not (and  LN1 LN33 ) ) LN221 )
+(define-fun origCir ( (LN32 Bool) (LN39 Bool) (k4 Bool) (LN43 Bool) (LN46 Bool)  )  Bool    
+          (xor (xor (xor (xor  LN32 LN39 ) k4 ) LN43 ) LN46 )
 )
 
 
-(synth-fun skel ( (LN1 Bool) (LN33 Bool) (LN221 Bool)  )  Bool    
+(synth-fun skel ( (LN32 Bool) (LN39 Bool) (k4 Bool) (LN43 Bool) (LN46 Bool)  )  Bool    
           ((Start Bool (
 		                                  (and depth1 depth1)
 		                                  (not depth1)
@@ -24,26 +25,31 @@
 		                                  (not depth3)
 		                                  (or depth3 depth3)
 		                                  (xor depth3 depth3)
-		                                  LN221
+		                                  LN32
           ))
           (depth3 Bool (
 		                                  (and depth4 depth4)
 		                                  (not depth4)
 		                                  (or depth4 depth4)
 		                                  (xor depth4 depth4)
-		                                  LN33
+		                                  LN39
+		                                  LN43
+		                                  LN46
           ))
           (depth4 Bool (
-		                                  LN1
+		                                  k4
           )))
 )
 
 
-(declare-var LN1 Bool)
-(declare-var LN33 Bool)
-(declare-var LN221 Bool)
+(declare-var LN32 Bool)
+(declare-var LN39 Bool)
+(declare-var k4 Bool)
+(declare-var LN43 Bool)
+(declare-var LN46 Bool)
 
-(constraint (= (origCir LN1 LN33 LN221 ) (skel LN1 LN33 LN221 )))
+(constraint (= (origCir LN32 LN39 k4 LN43 LN46 ) (skel LN32 LN39 k4 LN43 LN46 )))
 
 
 (check-synth)
+
