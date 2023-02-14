@@ -258,11 +258,12 @@ public:
                 //std::cerr << "validating solution" << std::endl;
                 spec.validate(expr);
 
-                out << "bank size: " << banks[depth].size() << endl;
+                out << "bank size: " << banks[depth].size() << std::endl;
                 return expr;
             }
         }
 
+        out << "bank size: " << banks[spec.sol_depth].size() << std::endl;
         return nullptr;
     }
 
@@ -287,12 +288,12 @@ int main(void) {
     for (const auto & entry : fs::directory_iterator(dir_path)) {
         current_path = entry.path().string();
 
-        outputFile << current_path << endl;
+        outputFile << current_path << std::endl;
 
         Spec spec = Parser::parseInput(current_path);
 
         if (spec.num_vars > 5) {
-            outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << endl;
+            outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
             continue;
         }
 

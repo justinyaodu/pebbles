@@ -51,14 +51,14 @@ public:
             case Expr::AND:
                 out << "(";
                 left->print(out, var_names);
-                out << " && ";
+                out << " & ";
                 right->print(out, var_names);
                 out << ")";
                 break;
             case Expr::OR:
                 out << "(";
                 left->print(out, var_names);
-                out << " || ";
+                out << " | ";
                 right->print(out, var_names);
                 out << ")";
                 break;

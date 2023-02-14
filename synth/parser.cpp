@@ -33,7 +33,7 @@ bool popVal(stack<bool> &st) {
 
 bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
     // replace all variables with their values
-    for(int i=0; i<names.size(); i++) {
+    for(uint32_t i=0; i<names.size(); i++) {
         expr = ReplaceAll(expr, names[i], vals[i]?"T":"F");
     }
     // replace all gates with single letters so it's easier to parse
@@ -71,7 +71,7 @@ vector<bool> truthTable(string expr, vector<string> names, vector<bool> vals) {
     vector<bool> retVal;
     // will be 2^n options
     for(int i=0; i<power(2, names.size()); i++) {
-        for(int j=0; j<vals.size(); j++) {
+        for(uint32_t j=0; j<vals.size(); j++) {
             // get the jth bit
             vals[j]=(i>>j)&1;
             cout << vals[j];
@@ -87,7 +87,7 @@ uint32_t truthTableIntResult(string expr, vector<string> names, vector<bool> val
     uint32_t retVal = 0;
     // will be 2^n options
     for(int i=0; i<power(2, names.size()); i++) {
-        for(int j=0; j<vals.size(); j++) {
+        for(uint32_t j=0; j<vals.size(); j++) {
             // get the jth bit
             vals[j]=(i>>j)&1;
         }
@@ -99,9 +99,9 @@ uint32_t truthTableIntResult(string expr, vector<string> names, vector<bool> val
 vector<uint32_t> Parser::getVarValues(uint32_t numVariables, uint32_t numExamples) {
     uint32_t currVar;
     vector<uint32_t> varValues;
-    for (int i = 0; i < numVariables; i++) {
+    for (uint32_t i = 0; i < numVariables; i++) {
         currVar = 0;
-        for (int j = 0; j < numExamples; j++) {
+        for (uint32_t j = 0; j < numExamples; j++) {
             currVar = (currVar << 1) | ((j >> i) % 2 == 0 ? 0 : 1);
         }
         varValues.push_back(currVar);
@@ -191,7 +191,7 @@ Spec Parser::parseInput(string inputFileName) {
     inputFile.close();
 
     //Flip depths to be "weight"s instead
-    for (int i = 0; i < numVariables; i++)
+    for (uint32_t i = 0; i < numVariables; i++)
     {
         var_depths[i] = maxDepth - var_depths[i];
     }
@@ -203,7 +203,7 @@ Spec Parser::parseInput(string inputFileName) {
     }*/
 
     vector<bool> vals;
-    for (int i = 0; i < numVariables; i++) {
+    for (uint32_t i = 0; i < numVariables; i++) {
         vals.push_back(true);
     }
     //truthTable(origCir, var_names, vals);
@@ -213,7 +213,7 @@ Spec Parser::parseInput(string inputFileName) {
 }
 
 
-int testParser()
+void testParser()
 {
     vector<string> vars;
     vars.push_back("b1");
@@ -221,9 +221,10 @@ int testParser()
     vars.push_back("b3");
     vars.push_back("b4");
     vector<bool> vals;
-    for (int i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < 4; i++) {
         vals.push_back(true);
     }
+
     cout << Parser::parseInput("input.sl") << endl;
     /*<uint32_t> temp = Parser::getVarValues(4,16);
     for (int i = 0; i < temp.size(); i++) {
