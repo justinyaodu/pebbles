@@ -46,7 +46,7 @@ public:
         return new Expr(var_num, nullptr, nullptr);
     }
 
-    void print(std::ostream &out, std::vector<std::string> *var_names) const {
+    void print(std::ostream &out, const std::vector<std::string> *var_names) const {
         switch (type) {
             case Expr::AND:
                 out << "(";
@@ -83,20 +83,20 @@ public:
         }
     }
 
-    void assert_depth(uint32_t depth, const std::vector<uint32_t> &var_depths) {
+    void assert_height(uint32_t height, const std::vector<uint32_t> &var_heights) {
         switch (type) {
             case Expr::NOT:
-                left->assert_depth(depth - 1, var_depths);
+                left->assert_height(height - 1, var_heights);
                 break;
             case Expr::AND:
             case Expr::OR:
             case Expr::XOR:
-                left->assert_depth(depth - 1, var_depths);
-                right->assert_depth(depth - 1, var_depths);
+                left->assert_height(height - 1, var_heights);
+                right->assert_height(height - 1, var_heights);
                 break;
             default:
-                assert(type >= 0 && (size_t) type < var_depths.size());
-                assert(var_depths[type] == depth);
+                assert(type >= 0 && (size_t) type < var_heights.size());
+                assert(var_heights[type] == height);
         }
     }
 

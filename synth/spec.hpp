@@ -11,46 +11,46 @@
 class Spec {
 public:
     // Number of variables.
-    uint32_t num_vars;
+    const uint32_t num_vars;
 
     // Number of input/output examples.
-    uint32_t num_examples;
+    const uint32_t num_examples;
 
     // The i'th element is the name of the i'th variable.
-    std::vector<std::string> var_names;
+    const std::vector<std::string> var_names;
 
-    // The i'th element is the depth of the i'th variable.
-    std::vector<uint32_t> var_depths;
+    // The i'th element is the height of the i'th variable.
+    const std::vector<uint32_t> var_heights;
 
     // The i'th element specifies the values of the i'th variable,
     // where the j'th bit of that integer is the variable's value in example j.
-    std::vector<uint32_t> var_values;
+    const std::vector<uint32_t> var_values;
 
     // The i'th bit is the desired output in example i.
-    uint32_t sol_result;
+    const uint32_t sol_result;
 
-    // The depth of the solution circuit.
-    uint32_t sol_depth;
+    // The height of the solution circuit.
+    const uint32_t sol_height;
 
     Spec(
         uint32_t num_vars,
         uint32_t num_examples,
         std::vector<std::string> var_names,
-        std::vector<uint32_t> var_depths,
+        std::vector<uint32_t> var_heights,
         std::vector<uint32_t> var_values,
         uint32_t sol_result,
-        uint32_t sol_depth
+        uint32_t sol_height
     ) :
         num_vars(num_vars),
         num_examples(num_examples),
         var_names(var_names),
-        var_depths(var_depths),
+        var_heights(var_heights),
         var_values(var_values),
         sol_result(sol_result),
-        sol_depth(sol_depth) {}
+        sol_height(sol_height) {}
 
     void validate(Expr* solution) {
-        solution->assert_depth(sol_depth, var_depths);
+        solution->assert_height(sol_height, var_heights);
         for (uint32_t example = 0; example < num_examples; example++) {
             std::vector<bool> vars;
             for (uint32_t var = 0; var < num_vars; var++) {
@@ -70,9 +70,9 @@ public:
             out << " " << name;
         }
 
-        out << ", var_depths:";
-        for (auto depth : spec.var_depths) {
-            out << " " << depth;
+        out << ", var_heights:";
+        for (auto height : spec.var_heights) {
+            out << " " << height;
         }
 
         out << ", var_values:";
@@ -82,7 +82,7 @@ public:
 
         out
             << ", sol_result: " << std::bitset<32>(spec.sol_result)
-            << ", sol_depth: " << spec.sol_depth;
+            << ", sol_height: " << spec.sol_height;
 
         return out;
     }

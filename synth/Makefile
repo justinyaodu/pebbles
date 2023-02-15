@@ -1,2 +1,5 @@
-reference : reference.cpp parser.cpp expr.hpp spec.hpp
-	g++ -O3 -Wall -Wextra $^ -o $@
+CXXFLAGS = -Wall -Wextra
+SHARED_HEADERS = expr.hpp spec.hpp
+
+reference : reference.cpp parser.cpp $(SHARED_HEADERS)
+	g++ -O3 $(CXXFLAGS) $^ -o $@

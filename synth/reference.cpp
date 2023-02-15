@@ -103,13 +103,13 @@ class Synthesizer {
 private:
     Spec spec;
 
-    // The maximum number of observationally distinct terms by depth.
+    // The maximum number of observationally distinct terms by height.
     const size_t max_distinct_terms;
 
     // Bitmask indicating which bits contain valid examples.
     const uint32_t result_mask;
 
-    // Banks of terms for each depth.
+    // Banks of terms for each height.
     std::vector<Bank> banks;
 
 public:
@@ -118,38 +118,38 @@ public:
         max_distinct_terms(1ULL << spec.num_examples),
         result_mask(max_distinct_terms - 1) {}
 
-    Expr* reconstruct(uint32_t depth, uint32_t index) {
-        assert(banks[depth].section_boundaries.size() == 5);
+    Expr* reconstruct(uint32_t height, uint32_t index) {
+        assert(banks[height].section_boundaries.size() == 5);
 
-        uint32_t left = banks[depth].get_left(index);
+        uint32_t left = banks[height].get_left(index);
 
-        if (index < banks[depth].section_boundaries[0]) {
+        if (index < banks[height].section_boundaries[0]) {
             return Expr::Var(left);
         }
 
-        Expr* left_expr = reconstruct(depth - 1, left);
+        Expr* left_expr = reconstruct(height - 1, left);
 
-        if (index < banks[depth].section_boundaries[1]) {
-            //std::cout << "depth " << depth << ", picking NOT" << std::endl;
+        if (index < banks[height].section_boundaries[1]) {
+            //std::cout << "height " << height << ", picking NOT" << std::endl;
             return Expr::Not(left_expr);
         }
 
-        uint32_t right = banks[depth].get_right(index);
-        Expr* right_expr = reconstruct(depth - 1, right);
+        uint32_t right = banks[height].get_right(index);
+        Expr* right_expr = reconstruct(height - 1, right);
 
-        if (index < banks[depth].section_boundaries[2]) {
-            //std::cout << "depth " << depth << ", picking AND" << std::endl;
+        if (index < banks[height].section_boundaries[2]) {
+            //std::cout << "height " << height << ", picking AND" << std::endl;
             return Expr::And(left_expr, right_expr);
         }
 
-        if (index < banks[depth].section_boundaries[3]) {
-            //std::cout << "depth " << depth << ", picking OR" << std::endl;
-            //std::cout << "(index: " << index << ", boundary: " << banks[depth].section_boundaries[3] << std::endl;
+        if (index < banks[height].section_boundaries[3]) {
+            //std::cout << "height " << height << ", picking OR" << std::endl;
+            //std::cout << "(index: " << index << ", boundary: " << banks[height].section_boundaries[3] << std::endl;
             return Expr::Or(left_expr, right_expr);
         }
 
-        if (index < banks[depth].section_boundaries[4]) {
-            //std::cout << "depth " << depth << ", picking XOR" << std::endl;
+        if (index < banks[height].section_boundaries[4]) {
+            //std::cout << "height " << height << ", picking XOR" << std::endl;
             return Expr::Xor(left_expr, right_expr);
         }
 
@@ -159,23 +159,23 @@ public:
     }
 
     Expr* synthesize(std::ostream &out) {
-        for (uint32_t depth = 0; depth <= spec.sol_depth; depth++) {
-            //std::cerr << "synthesizing depth " << depth << std::endl;
+        for (uint32_t height = 0; height <= spec.sol_height; height++) {
+            std::cerr << "synthesizing height " << height << std::endl;
 
             banks.push_back(Bank(max_distinct_terms));
 
-            // Insert variables with the current depth.
+            // Insert variables with the current height.
             for (uint32_t i = 0; i < spec.num_vars; i++) {
-                if (spec.var_depths[i] == depth) {
-                    banks[depth].insert_unary(spec.var_values[i], i);
+                if (spec.var_heights[i] == height) {
+                    banks[height].insert_unary(spec.var_values[i], i);
                 }
             }
-            banks[depth].end_section();
+            banks[height].end_section();
 
-            if (depth == 0) {
+            if (height == 0) {
                 // Skip NOT, AND, OR, and XOR.
                 for (uint32_t i = 0; i < 4; i++) {
-                    banks[depth].end_section();
+                    banks[height].end_section();
                 }
                 continue;
             }
@@ -184,95 +184,95 @@ public:
             bool found = false;
 
             // Synthesize NOT terms.
-            for (uint32_t left = 0; !found && left < banks[depth - 1].size(); left++) {
-                uint32_t result = ~banks[depth - 1].get_results(left);
+            for (uint32_t left = 0; !found && left < banks[height - 1].size(); left++) {
+                uint32_t result = ~banks[height - 1].get_results(left);
                 //update the result to only have the relevant bits
                 result = result & result_mask;
-                banks[depth].insert_unary(result, left);
+                banks[height].insert_unary(result, left);
                 if (result == spec.sol_result) {
                     found = true;
                 }
             }
-            banks[depth].end_section();
+            banks[height].end_section();
 
             // Synthesize AND terms.
-            for (uint32_t left = 0; !found && left < banks[depth - 1].size(); left++) {
+            for (uint32_t left = 0; !found && left < banks[height - 1].size(); left++) {
                 for (uint32_t right = 0; !found && right <= left; right++) {
-                    uint32_t result = banks[depth - 1].get_results(left)
-                        & banks[depth - 1].get_results(right);
+                    uint32_t result = banks[height - 1].get_results(left)
+                        & banks[height - 1].get_results(right);
                     //update the result to only have the relevant bits
                     result = result & result_mask;
-                    banks[depth].insert_binary(result, left, right);
+                    banks[height].insert_binary(result, left, right);
                     if (result == spec.sol_result) {
                         found = true;
                     }
                 }
             }
-            banks[depth].end_section();
+            banks[height].end_section();
 
             // Synthesize OR terms.
-            for (uint32_t left = 0; !found && left < banks[depth - 1].size(); left++) {
+            for (uint32_t left = 0; !found && left < banks[height - 1].size(); left++) {
                 for (uint32_t right = 0; !found && right <= left; right++) {
-                    uint32_t result = banks[depth - 1].get_results(left)
-                        | banks[depth - 1].get_results(right);
+                    uint32_t result = banks[height - 1].get_results(left)
+                        | banks[height - 1].get_results(right);
                     //update the result to only have the relevant bits
                     result = result & result_mask;
-                    banks[depth].insert_binary(result, left, right);
+                    banks[height].insert_binary(result, left, right);
                     if (result == spec.sol_result) {
                         found = true;
                     }
                 }
             }
-            banks[depth].end_section();
+            banks[height].end_section();
 
             // Synthesize XOR terms.
-            for (uint32_t left = 0; !found && left < banks[depth - 1].size(); left++) {
+            for (uint32_t left = 0; !found && left < banks[height - 1].size(); left++) {
                 for (uint32_t right = 0; !found && right <= left; right++) {
-                    uint32_t result = banks[depth - 1].get_results(left)
-                        ^ banks[depth - 1].get_results(right);
+                    uint32_t result = banks[height - 1].get_results(left)
+                        ^ banks[height - 1].get_results(right);
                     //update the result to only have the relevant bits
                     result = result & result_mask;
-                    banks[depth].insert_binary(result, left, right);
+                    banks[height].insert_binary(result, left, right);
                     if (result == spec.sol_result) {
                         found = true;
                     }
                 }
             }
-            banks[depth].end_section();
+            banks[height].end_section();
 
             if (found) {
-                Expr* expr = reconstruct(depth, banks[depth].size() - 1);
+                Expr* expr = reconstruct(height, banks[height].size() - 1);
 
-                // This expression might not be the desired depth, but we can
+                // This expression might not be the desired height, but we can
                 // AND it with itself and NOT it twice until it's deep enough.
-                uint32_t remaining_depth = spec.sol_depth - depth;
-                if (remaining_depth % 2 == 1) {
+                uint32_t remaining_height = spec.sol_height - height;
+                if (remaining_height % 2 == 1) {
                     expr = Expr::And(expr, expr);
-                    remaining_depth--;
+                    remaining_height--;
                 }
-                while (remaining_depth > 0) {
+                while (remaining_height > 0) {
                     expr = Expr::Not(Expr::Not(expr));
-                    remaining_depth -= 2;
+                    remaining_height -= 2;
                 }
 
                 //std::cerr << "validating solution" << std::endl;
                 spec.validate(expr);
 
-                out << "bank size: " << banks[depth].size() << std::endl;
+                out << "bank size: " << banks[height].size() << std::endl;
                 return expr;
             }
         }
 
-        out << "bank size: " << banks[spec.sol_depth].size() << std::endl;
+        out << "bank size: " << banks[spec.sol_height].size() << std::endl;
         return nullptr;
     }
 
     void print_banks(std::ostream &out) {
-        for (size_t depth = 0; depth < banks.size(); depth++) {
-            out << "depth " << depth << ":\n";
-            for (size_t i = 0; i < banks[depth].size(); i++) {
+        for (size_t height = 0; height < banks.size(); height++) {
+            out << "height " << height << ":\n";
+            for (size_t i = 0; i < banks[height].size(); i++) {
                 out << "\t";
-                reconstruct(depth, i)->print(out, &spec.var_names);
+                reconstruct(height, i)->print(out, &spec.var_names);
                 out << "\n";
             }
         }
