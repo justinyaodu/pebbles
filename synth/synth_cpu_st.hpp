@@ -173,17 +173,21 @@ public:
     }
 
 private:
+    int64_t alloc_term() {
+        return num_terms++;
+    }
+
     void add_unary_term(uint32_t result, uint32_t left) {
-        term_results[num_terms] = result;
-        term_lefts[num_terms] = left;
-        num_terms++;
+        int64_t index = alloc_term();
+        term_results[index] = result;
+        term_lefts[index] = left;
     }
 
     void add_binary_term(uint32_t result, uint32_t left, uint32_t right) {
-        term_results[num_terms] = result;
-        term_lefts[num_terms] = left;
-        term_rights[num_terms] = right;
-        num_terms++;
+        int64_t index = alloc_term();
+        term_results[index] = result;
+        term_lefts[index] = left;
+        term_rights[index] = right;
     }
 
     // Return the index of the first term with the given height.
