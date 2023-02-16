@@ -33,8 +33,17 @@ public:
         assert(index < size);
 
         uint8_t byte = bytes[index / 8];
-        bytes[index / 8] = byte | (1 << (index % 8));
-        return (byte >> (index % 8)) & 1;
+        uint8_t mask = 1 << (index % 8);
+
+        // Return 1 if bit is already set, to avoid unnecessary writes.
+        if (byte & mask) {
+            return 1;
+        }
+
+        bytes[index / 8] = byte | mask;
+
+        // byte still contains the value right before the or operation.
+        return (byte & mask) >> (index % 8);
     }
 };
 
@@ -47,11 +56,10 @@ public:
     bool test_and_set(uint32_t index) {
         assert(index < size);
 
+        // This fetch isn't atomic, but if the bit is already 1, we save an
+        // unnecessary atomic operation.
         uint8_t byte = bytes[index / 8];
         uint8_t mask = 1 << (index % 8);
-
-        // Return 1 if bit is already set, to avoid unnecessary atomic
-        // operations.
         if (byte & mask) {
             return 1;
         }
