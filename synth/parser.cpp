@@ -96,6 +96,24 @@ uint32_t truthTableIntResult(string expr, vector<string> names, vector<bool> val
     return retVal;
 }
 
+uint32_t min(int a, int b) {
+    return (a<b)?a:b;
+}
+
+uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &vals) {
+    uint32_t retVal = 0;
+    for(int i=0; i<power(2, names.size()); i++) {
+        int x=(3*i)%32;
+        vector<bool> input;
+        for(uint32_t j=0; j<min(names.size(), 32); j++) {
+            vals[j] = (vals[j] << 1) | ((x>>j)&1);
+            input.push_back((x>>j)&1);
+        }
+        retVal = (retVal << 1) | evalExpr(expr, names, input);
+    }
+    return retVal;
+}
+
 vector<uint32_t> Parser::getVarValues(uint32_t numVariables, uint32_t numExamples) {
     uint32_t currVar;
     vector<uint32_t> varValues;
@@ -188,6 +206,7 @@ Spec Parser::parseInput(string inputFileName) {
         0);
     }
     num_examples = power(2,numVariables);
+    if(num_examples>32) num_examples=32;
     inputFile.close();
 
     //Flip depths to be "weight"s instead
@@ -202,14 +221,20 @@ Spec Parser::parseInput(string inputFileName) {
         cout << var_names[i] << ": depth " << var_depths[i] << endl;
     }*/
 
-    vector<bool> vals;
+    vector<uint32_t> vals;
     for (uint32_t i = 0; i < numVariables; i++) {
-        vals.push_back(true);
+        vals.push_back(0);
     }
-    //truthTable(origCir, var_names, vals);
-    sol_result = truthTableIntResult(origCir, var_names, vals);
 
-    return Spec(numVariables, num_examples, var_names, var_depths, getVarValues(numVariables, num_examples), sol_result, maxDepth);
+    sol_result = truthTableWithVec(origCir, var_names, vals);
+
+    return Spec(numVariables, 
+                num_examples, 
+                var_names, 
+                var_depths, 
+                vals, 
+                sol_result, 
+                maxDepth);
 }
 
 
