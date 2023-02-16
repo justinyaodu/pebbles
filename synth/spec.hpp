@@ -20,7 +20,7 @@ public:
     const std::vector<std::string> var_names;
 
     // The i'th element is the height of the i'th variable.
-    const std::vector<uint32_t> var_heights;
+    const std::vector<int32_t> var_heights;
 
     // The i'th element specifies the values of the i'th variable,
     // where the j'th bit of that integer is the variable's value in example j.
@@ -30,16 +30,16 @@ public:
     const uint32_t sol_result;
 
     // The height of the solution circuit.
-    const uint32_t sol_height;
+    const int32_t sol_height;
 
     Spec(
         uint32_t num_vars,
         uint32_t num_examples,
         std::vector<std::string> var_names,
-        std::vector<uint32_t> var_heights,
+        std::vector<int32_t> var_heights,
         std::vector<uint32_t> var_values,
         uint32_t sol_result,
-        uint32_t sol_height
+        int32_t sol_height
     ) :
         num_vars(num_vars),
         num_examples(num_examples),
@@ -49,8 +49,8 @@ public:
         sol_result(sol_result),
         sol_height(sol_height) {}
 
-    void validate(Expr* solution) {
-        solution->assert_height(sol_height, var_heights);
+    void validate(const Expr* solution) {
+        solution->assert_constant_height(sol_height, var_heights);
         for (uint32_t example = 0; example < num_examples; example++) {
             std::vector<bool> vars;
             for (uint32_t var = 0; var < num_vars; var++) {

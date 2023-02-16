@@ -1,3 +1,5 @@
 reference
 .vscode/
 output.txt
+synth_*
+!synth_*.*

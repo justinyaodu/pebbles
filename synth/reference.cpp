@@ -118,7 +118,7 @@ public:
         max_distinct_terms(1ULL << spec.num_examples),
         result_mask(max_distinct_terms - 1) {}
 
-    Expr* reconstruct(uint32_t height, uint32_t index) {
+    const Expr* reconstruct(int32_t height, uint32_t index) {
         assert(banks[height].section_boundaries.size() == 5);
 
         uint32_t left = banks[height].get_left(index);
@@ -127,7 +127,7 @@ public:
             return Expr::Var(left);
         }
 
-        Expr* left_expr = reconstruct(height - 1, left);
+        const Expr* left_expr = reconstruct(height - 1, left);
 
         if (index < banks[height].section_boundaries[1]) {
             //std::cout << "height " << height << ", picking NOT" << std::endl;
@@ -135,7 +135,7 @@ public:
         }
 
         uint32_t right = banks[height].get_right(index);
-        Expr* right_expr = reconstruct(height - 1, right);
+        const Expr* right_expr = reconstruct(height - 1, right);
 
         if (index < banks[height].section_boundaries[2]) {
             //std::cout << "height " << height << ", picking AND" << std::endl;
@@ -158,8 +158,8 @@ public:
         return nullptr;
     }
 
-    Expr* synthesize(std::ostream &out) {
-        for (uint32_t height = 0; height <= spec.sol_height; height++) {
+    const Expr* synthesize(std::ostream &out) {
+        for (int32_t height = 0; height <= spec.sol_height; height++) {
             std::cerr << "synthesizing height " << height << std::endl;
 
             banks.push_back(Bank(max_distinct_terms));
@@ -241,7 +241,7 @@ public:
             banks[height].end_section();
 
             if (found) {
-                Expr* expr = reconstruct(height, banks[height].size() - 1);
+                const Expr* expr = reconstruct(height, banks[height].size() - 1);
 
                 // This expression might not be the desired height, but we can
                 // AND it with itself and NOT it twice until it's deep enough.
@@ -304,7 +304,7 @@ int main(void) {
 
         Synthesizer synthesizer(spec);
 
-        Expr* expr = synthesizer.synthesize(outputFile);
+        const Expr* expr = synthesizer.synthesize(outputFile);
         if (expr == nullptr) {
             outputFile << "no solution" << std::endl;
         } else {
