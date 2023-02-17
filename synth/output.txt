@@ -1,9 +1,11 @@
 ./inputs/CrCy_10-sbox2-D5-sIn26.sl
 bank size: 705
+Candidate: ((((LN1 & LN1) & LN33) ^ !LN62) ^ LN231)
 solution: ((((LN1 & LN1) & LN33) ^ !LN62) ^ LN231)
 
 ./inputs/CrCy_10-sbox2-D5-sIn77.sl
-Skipping this one because it has too many (7) variables
+bank size: 5401918
+no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn84.sl
 bank size: 70311
@@ -14,21 +16,40 @@ bank size: 396
 no solution
 
 ./inputs/CrCy_6-P10-D7-sIn3.sl
-Skipping this one because it has too many (6) variables
+bank size: 32910651
+Candidate: !!(((LN60 ^ LN56) ^ !LN64) ^ !((k4 ^ k3) ^ LN67))
+solution: !!(((LN60 ^ LN56) ^ !LN64) ^ !((k4 ^ k3) ^ LN67))
 
 ./inputs/CrCy_10-sbox2-D5-sIn12.sl
 bank size: 31899
+Candidate: (((LN56 & LN56) ^ LN65) ^ (((LN1 & LN1) ^ LN39) & LN166))
 solution: (((LN56 & LN56) ^ LN65) ^ (((LN1 & LN1) ^ LN39) & LN166))
 
 ./inputs/CrCy_8-P12-D5-sIn3.sl
-Skipping this one because it has too many (7) variables
+bank size: 46754396
+Candidate: (((LN20 ^ LN3) ^ !LN23) ^ ((LN17 ^ LN7) ^ !(k1 | k4)))
+bank size: 5911043
+Candidate: (((LN17 | LN3) ^ !!k4) & ((!k4 ^ LN20) & ((k1 | k4) | LN23)))
+bank size: 7317288
+Candidate: ((((k4 & k4) | LN20) ^ (LN17 | LN3)) & ((LN17 | LN3) ^ (!k1 & LN7)))
+bank size: 30484927
+Candidate: ((((k1 & k1) | LN3) | (LN23 | LN17)) ^ ((LN20 | LN7) | !!k4))
+bank size: 8228037
+Candidate: (((LN23 ^ LN17) ^ !(k1 & k1)) & ((!k4 ^ LN20) & (LN7 ^ LN3)))
+bank size: 36917628
+Candidate: (((LN20 ^ LN3) ^ !LN23) ^ ((LN17 ^ LN7) ^ !(k1 ^ k4)))
+solution: (((LN20 ^ LN3) ^ !LN23) ^ ((LN17 ^ LN7) ^ !(k1 ^ k4)))
 
 ./inputs/CrCy_7-P11-D5-sIn4.sl
 bank size: 11258
+Candidate: ((!LN48 ^ LN39) ^ !((k7 & k7) & LN1))
 solution: ((!LN48 ^ LN39) ^ !((k7 & k7) & LN1))
 
 ./inputs/CrCy_10-sbox2-D7-sIn1.sl
-Skipping this one because it has too many (8) variables
+bank size: 14040756
+Candidate: (((!LN34 ^ LN65) | ((LN56 ^ LN34) | (LN40 & LN34))) & ((((LN17 & LN17) ^ LN34) | (LN40 & LN40)) & (!(LN17 & LN17) | LN47)))
+bank size: 1060421458
+no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn53.sl
 bank size: 60
@@ -36,26 +57,32 @@ no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn94.sl
 bank size: 42606
+Candidate: (((LN208 ^ LN70) ^ ((LN206 ^ LN55) & (LN206 | LN55))) & LN78)
 solution: (((LN208 ^ LN70) ^ ((LN206 ^ LN55) & (LN206 | LN55))) & LN78)
 
 ./inputs/CrCy_10-sbox2-D5-sIn67.sl
 bank size: 8
+Candidate: (!!(LN44 & LN44) & LN88)
 solution: (!!(LN44 & LN44) & LN88)
 
 ./inputs/CrCy_10-sbox2-D5-sIn36.sl
 bank size: 27
+Candidate: (!(!LN4 ^ LN44) & LN90)
 solution: (!(!LN4 ^ LN44) & LN90)
 
 ./inputs/CrCy_10-sbox2-D5-sIn16.sl
 bank size: 6861
+Candidate: ((LN63 ^ LN52) ^ (((LN4 & LN4) ^ LN44) & LN170))
 solution: ((LN63 ^ LN52) ^ (((LN4 & LN4) ^ LN44) & LN170))
 
 ./inputs/CrCy_6-P10-D7-sIn7.sl
 bank size: 808
+Candidate: ((!(((k3 & k3) & LN24) ^ LN121) ^ LN131) & (!(((k3 & k3) & LN24) ^ LN121) ^ LN131))
 solution: ((!(((k3 & k3) & LN24) ^ LN121) ^ LN131) & (!(((k3 & k3) & LN24) ^ LN121) ^ LN131))
 
 ./inputs/CrCy_10-sbox2-D5-sIn47.sl
 bank size: 8
+Candidate: (!!(LN1 & LN1) & LN92)
 solution: (!!(LN1 & LN1) & LN92)
 
 ./inputs/CrCy_10-sbox2-D5-sIn73.sl
@@ -64,6 +91,7 @@ no solution
 
 ./inputs/CrCy_6-P10-D5-sIn8.sl
 bank size: 44
+Candidate: !(((k3 & k3) & LN24) ^ LN103)
 solution: !(((k3 & k3) & LN24) ^ LN103)
 
 ./inputs/CrCy_10-sbox2-D5-sIn22.sl
@@ -72,18 +100,22 @@ no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn80.sl
 bank size: 1119872
+Candidate: (((LN236 & LN70) ^ !LN73) ^ ((!LN253 ^ LN252) | !LN70))
 solution: (((LN236 & LN70) ^ !LN73) ^ ((!LN253 ^ LN252) | !LN70))
 
 ./inputs/CrCy_7-P11-D9-sIn3.sl
 bank size: 52
+Candidate: !!((!!((k8 & k8) & LN33) ^ LN82) & (!!((k8 & k8) & LN33) ^ LN82))
 solution: !!((!!((k8 & k8) & LN33) ^ LN82) & (!!((k8 & k8) & LN33) ^ LN82))
 
 ./inputs/CrCy_8-P12-D9-sIn4.sl
 bank size: 57
+Candidate: !!!!(((LN68 & LN68) & !!k4) ^ LN244)
 solution: !!!!(((LN68 & LN68) & !!k4) ^ LN244)
 
 ./inputs/CrCy_8-P12-D7-sIn8.sl
 bank size: 158203
+Candidate: !!(((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
 solution: !!(((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
 
 ./inputs/CrCy_8-P12-D5-sIn7.sl
@@ -91,7 +123,8 @@ bank size: 396
 no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn90.sl
-Skipping this one because it has too many (6) variables
+bank size: 1530887
+no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn32.sl
 bank size: 396
@@ -107,14 +140,17 @@ no solution
 
 ./inputs/CrCy_6-P10-D7-sIn6.sl
 bank size: 8383278
+Candidate: (((!LN118 ^ LN123) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))) & ((!LN118 ^ LN123) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))))
 solution: (((!LN118 ^ LN123) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))) & ((!LN118 ^ LN123) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))))
 
 ./inputs/CrCy_10-sbox2-D5-sIn17.sl
 bank size: 392
+Candidate: ((((LN7 & LN7) & LN34) ^ LN214) ^ LN213)
 solution: ((((LN7 & LN7) & LN34) ^ LN214) ^ LN213)
 
 ./inputs/CrCy_2-P6-D7-sIn1.sl
 bank size: 204
+Candidate: !!((((LN20 & LN20) & LN19) ^ !!LN13) & (((LN20 & LN20) & LN19) ^ !!LN13))
 solution: !!((((LN20 & LN20) & LN19) ^ !!LN13) & (((LN20 & LN20) & LN19) ^ !!LN13))
 
 ./inputs/CrCy_10-sbox2-D5-sIn46.sl
@@ -123,6 +159,7 @@ no solution
 
 ./inputs/CrCy_6-P10-D5-sIn9.sl
 bank size: 158203
+Candidate: (((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
 solution: (((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
 
 ./inputs/CrCy_10-sbox2-D5-sIn72.sl
@@ -131,30 +168,37 @@ no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn23.sl
 bank size: 44
+Candidate: !(((LN1 & LN1) & LN33) ^ LN221)
 solution: !(((LN1 & LN1) & LN33) ^ LN221)
 
 ./inputs/CrCy_10-sbox2-D5-sIn81.sl
 bank size: 3598234
+Candidate: ((!LN222 ^ LN318) ^ !((LN213 ^ LN196) ^ !LN259))
 solution: ((!LN222 ^ LN318) ^ !((LN213 ^ LN196) ^ !LN259))
 
 ./inputs/CrCy_7-P11-D9-sIn2.sl
 bank size: 8383278
+Candidate: !!(((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))) & ((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))))
 solution: !!(((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))) & ((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))))
 
 ./inputs/CrCy_8-P12-D7-sIn9.sl
 bank size: 8383280
+Candidate: (((!LN275 ^ LN278) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))) & ((!LN275 ^ LN278) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))))
 solution: (((!LN275 ^ LN278) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))) & ((!LN275 ^ LN278) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))))
 
 ./inputs/CrCy_7-P11-D5-sIn1.sl
 bank size: 1149546
+Candidate: ((((k6 & k6) & LN1) ^ !LN25) ^ !(LN32 ^ LN30))
 solution: ((((k6 & k6) & LN1) ^ !LN25) ^ !(LN32 ^ LN30))
 
 ./inputs/CrCy_8-P12-D5-sIn6.sl
 bank size: 11258
+Candidate: ((!LN17 ^ LN234) ^ !((k4 & k4) & LN8))
 solution: ((!LN17 ^ LN234) ^ !((k4 & k4) & LN8))
 
 ./inputs/CrCy_10-sbox2-D5-sIn91.sl
-Skipping this one because it has too many (6) variables
+bank size: 1530887
+no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn33.sl
 bank size: 396
@@ -162,6 +206,7 @@ no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn62.sl
 bank size: 8
+Candidate: (!!(LN39 & LN39) & LN89)
 solution: (!!(LN39 & LN39) & LN89)
 
 ./inputs/CrCy_10-sbox2-D5-sIn56.sl
@@ -170,645 +215,115 @@ no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn27.sl
 bank size: 11208
+Candidate: ((!LN33 ^ LN234) ^ !((LN10 & LN10) & LN49))
 solution: ((!LN33 ^ LN234) ^ !((LN10 & LN10) & LN49))
 
 ./inputs/CrCy_10-sbox2-D5-sIn76.sl
-Skipping this one because it has too many (7) variables
+bank size: 5401918
+no solution
 
 ./inputs/CrCy_10-sbox2-D5-sIn85.sl
 bank size: 640
+Candidate: !(((LN231 ^ LN218) ^ LN240) & (LN252 & LN252))
 solution: !(((LN231 ^ LN218) ^ LN240) & (LN252 & LN252))
 
 ./inputs/CrCy_10-sbox2-D5-sIn42.sl
 bank size: 27
+Candidate: (!(!LN1 ^ LN39) & LN87)
 solution: (!(!LN1 ^ LN39) & LN87)
 
 ./inputs/CrCy_10-sbox2-D5-sIn13.sl
 bank size: 25316
+Candidate: ((((LN17 ^ LN4) ^ LN16) ^ LN65) ^ LN55)
 solution: ((((LN17 ^ LN4) ^ LN16) ^ LN65) ^ LN55)
 
 ./inputs/CrCy_6-P10-D7-sIn2.sl
 bank size: 8383278
+Candidate: (((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))) & ((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))))
 solution: (((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))) & ((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))))
 
 ./inputs/CrCy_8-P12-D9-sIn1.sl
-Skipping this one because it has too many (6) variables
+bank size: 3887
+Candidate: !!!!((((k4 & k4) ^ LN3) ^ (LN81 ^ LN7)) & (((k4 & k4) ^ LN3) ^ (LN81 ^ LN7)))
+solution: !!!!((((k4 & k4) ^ LN3) ^ (LN81 ^ LN7)) & (((k4 & k4) ^ LN3) ^ (LN81 ^ LN7)))
 
 ./inputs/CrCy_8-P12-D5-sIn2.sl
-Skipping this one because it has too many (6) variables
+bank size: 32910651
+Candidate: (((LN60 ^ LN56) ^ !LN64) ^ !((k4 ^ k3) ^ LN67))
+solution: (((LN60 ^ LN56) ^ !LN64) ^ !((k4 ^ k3) ^ LN67))
 
 ./inputs/CrCy_9-pprmAll-D5-sIn1.sl
-Skipping this one because it has too many (10) variables
-
-./inputs/CrCy_7-P11-D5-sIn5.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn52.sl
-bank size: 8
-solution: (!!(LN16 & LN16) & LN94)
-
-./inputs/CrCy_10-sbox2-D5-sIn95.sl
-bank size: 25316
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn66.sl
-bank size: 48
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn37.sl
-bank size: 47343
-no solution
-
-./inputs/CrCy_2-P6-D5-sIn1.sl
-bank size: 57
-solution: (((LN19 & LN19) & !!LN20) ^ LN3)
-
-./inputs/CrCy_6-P10-D5-sIn6.sl
-bank size: 11258
-solution: ((!LN17 ^ LN100) ^ !((k4 & k4) & LN8))
-
-./inputs/CrCy_2-P6_2-P6.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn49.sl
-bank size: 8
-solution: (!!(LN7 & LN7) & LN93)
-
-./inputs/CrCy_6-P10-D7-sIn.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_6-P10-D7-sIn9.sl
-bank size: 8383280
-solution: (((!LN141 ^ LN144) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))) & ((!LN141 ^ LN144) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))))
-
-./inputs/CrCy_10-sbox2-D5-sIn18.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn59.sl
-bank size: 8
-solution: (!!(LN33 & LN33) & LN92)
-
-./inputs/CrCy_6-P10-D9-sIn5.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn4.sl
-bank size: 68
-solution: ((!!k7 ^ LN16) & (LN45 & LN45))
-
-./inputs/CrCy_10-sbox2-D5-sIn103.sl
-bank size: 734
-solution: (((LN252 ^ LN236) ^ !(LN253 & LN253)) ^ LN375)
-
-./inputs/CrCy_1-P5-D5-sIn3.sl
-bank size: 47
-solution: ((!!LN41 ^ LN32) ^ LN10)
-
-./inputs/CrCy_7-P11-D7-sIn1.sl
-bank size: 1149546
-solution: !!((((k6 & k6) & LN1) ^ !LN25) ^ !(LN32 ^ LN30))
-
-./inputs/CrCy_8-P12-D7-sIn11.sl
-bank size: 8383278
-solution: (((!LN290 ^ LN294) ^ !(((k7 & k7) & LN87) ^ (LN108 & LN108))) & ((!LN290 ^ LN294) ^ !(((k7 & k7) & LN87) ^ (LN108 & LN108))))
-
-./inputs/CrCy_8-P12-D5-sIn9.sl
-bank size: 44
-solution: !(((k3 & k3) & LN24) ^ LN237)
-
-./inputs/CrCy_8-P12-D7-sIn25.sl
-bank size: 39
-solution: !!!!((LN165 ^ LN162) ^ LN155)
-
-./inputs/CrCy_8-P12-D7-sIn6.sl
-bank size: 8383278
-solution: (((!LN252 ^ LN257) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))) & ((!LN252 ^ LN257) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))))
-
-./inputs/CrCy_10-sbox2-D5-sIn79.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_1-P5_1-P5.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_6-P10-D5-sIn2.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn28.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn38.sl
-bank size: 47343
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn69.sl
-bank size: 8
-solution: (!!(LN190 & LN190) & LN89)
-
-./inputs/CrCy_8-P12-D7-sIn21.sl
-bank size: 44
-solution: !!((((k8 & k8) & LN147) ^ LN197) & (((k8 & k8) & LN147) ^ LN197))
-
-./inputs/CrCy_8-P12-D7-sIn2.sl
-bank size: 8383278
-solution: (((!LN222 ^ LN226) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))) & ((!LN222 ^ LN226) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))))
-
-./inputs/CrCy_7-P11-D7-sIn5.sl
-bank size: 392
-solution: (!((((k8 & k8) & LN4) ^ LN90) ^ LN93) & !((((k8 & k8) & LN4) ^ LN90) ^ LN93))
-
-./inputs/CrCy_8-P12-D7-sIn15.sl
-bank size: 44
-solution: !!((((k8 & k8) & LN84) ^ LN134) & (((k8 & k8) & LN84) ^ LN134))
-
-./inputs/CrCy_9-pprmAll-D7-sIn1.sl
-Skipping this one because it has too many (34) variables
-
-./inputs/CrCy_4-P8_4-P8.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_6-P10-D5-sIn3.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn78.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_3-P7-D5-sIn.sl
-bank size: 876
-solution: ((((LN45 ^ LN44) ^ LN46) & !(LN44 ^ LN44)) ^ r4)
-
-./inputs/CrCy_10-sbox2-D5-sIn29.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn39.sl
-bank size: 738
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn68.sl
-bank size: 8
-solution: (!!(LN184 & LN184) & LN90)
-
-./inputs/CrCy_8-P12-D7-sIn20.sl
-bank size: 392
-solution: (!((((k8 & k8) & LN150) ^ LN353) ^ LN356) & !((((k8 & k8) & LN150) ^ LN353) ^ LN356))
-
-./inputs/CrCy_8-P12-D7-sIn3.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_7-P11-D7-sIn4.sl
-bank size: 11258
-solution: !!((!LN48 ^ LN39) ^ !((k7 & k7) & LN1))
-
-./inputs/CrCy_8-P12-D7-sIn14.sl
-bank size: 392
-solution: (!((((k8 & k8) & LN87) ^ LN312) ^ LN315) & !((((k8 & k8) & LN87) ^ LN312) ^ LN315))
-
-./inputs/CrCy_6-P10-D5-sIn.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_6-P10-D5-sIn7.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn48.sl
-bank size: 8
-solution: (!!(LN10 & LN10) & LN95)
-
-./inputs/CrCy_10-sbox2-D5-sIn19.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_6-P10-D7-sIn8.sl
-bank size: 158203
-solution: !!(((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
-
-./inputs/CrCy_6-P10-D9-sIn.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn58.sl
-bank size: 60
-no solution
-
-./inputs/CrCy_6-P10-D9-sIn4.sl
-bank size: 57
-solution: !!!!(((LN68 & LN68) & !!k4) ^ LN110)
-
-./inputs/CrCy_10-sbox2-D5-sIn5.sl
-bank size: 2307
-solution: ((LN40 ^ LN34) ^ !(!k7 ^ LN17))
-
-./inputs/CrCy_10-sbox2-D5-sIn102.sl
-bank size: 3598237
-solution: ((!LN222 ^ LN72) ^ !((LN213 ^ LN196) ^ (LN259 & LN259)))
-
-./inputs/CrCy_1-P5-D5-sIn2.sl
-bank size: 12
-solution: (!!(LN13 & LN13) ^ LN32)
-
-./inputs/CrCy_8-P12-D7-sIn10.sl
-bank size: 1149546
-solution: !!((((k6 & k6) & LN84) ^ !LN108) ^ !(LN115 ^ LN113))
-
-./inputs/CrCy_8-P12-D5-sIn8.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_8-P12-D7-sIn24.sl
-bank size: 39
-solution: !!!!((LN102 ^ LN99) ^ LN92)
-
-./inputs/CrCy_8-P12-D7-sIn7.sl
-bank size: 808
-solution: ((!(((k3 & k3) & LN24) ^ LN255) ^ LN265) & (!(((k3 & k3) & LN24) ^ LN255) ^ LN265))
-
-./inputs/CrCy_10-sbox2-D5-sIn88.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn98.sl
-bank size: 385230
-solution: ((((LN231 ^ LN218) ^ LN240) & (LN252 & LN252)) ^ !LN350)
-
-./inputs/CrCy_10-sbox2-D5-sIn2.sl
-bank size: 7905
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn105.sl
-bank size: 160577
-solution: (((LN208 ^ LN70) ^ ((LN206 ^ LN55) & (LN206 | LN55))) & (LN386 & LN386))
-
-./inputs/CrCy_6-P10-D9-sIn3.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_8-P12-D7-sIn23.sl
-bank size: 47
-solution: !!(((!LN205 ^ LN198) ^ LN367) & ((!LN205 ^ LN198) ^ LN367))
-
-./inputs/CrCy_7-P11-D5-sIn8.sl
-bank size: 47
-solution: (((!LN59 ^ LN52) ^ LN92) & ((!LN59 ^ LN52) ^ LN92))
-
-./inputs/CrCy_7-P11-D7-sIn7.sl
-bank size: 47
-solution: !!(((!LN59 ^ LN52) ^ LN104) & ((!LN59 ^ LN52) ^ LN104))
-
-./inputs/CrCy_8-P12-D7-sIn17.sl
-bank size: 8383278
-solution: (((!LN331 ^ LN335) ^ !(((k7 & k7) & LN150) ^ (LN171 & LN171))) & ((!LN331 ^ LN335) ^ !(((k7 & k7) & LN150) ^ (LN171 & LN171))))
-
-./inputs/CrCy_5-P9-D5-sIn.sl
-bank size: 203
-solution: ((((k3 & k3) & LN4) ^ !!k1) & (((k3 & k3) & LN4) ^ !!k1))
-
-./inputs/CrCy_6-P10-D5-sIn4.sl
-bank size: 11258
-solution: ((!LN75 ^ LN88) ^ !((k4 & k4) & LN8))
-
-./inputs/CrCy_2-P6-D5-sIn3.sl
-bank size: 876
-solution: ((((LN42 ^ LN30) ^ LN32) & !(LN30 ^ LN30)) ^ LN10)
-
-./inputs/CrCy_5-P9_5-P9.sl
-bank size: 107
-solution: ((k2 ^ k1) ^ (k3 | k2))
-
-./inputs/CrCy_6-P10-D9-sIn7.sl
-bank size: 808
-solution: !!((!(((k3 & k3) & LN24) ^ LN129) ^ LN141) & (!(((k3 & k3) & LN24) ^ LN129) ^ LN141))
-
-./inputs/CrCy_1-P5-D5-sIn1.sl
-bank size: 392
-solution: ((((LN20 & LN20) & LN19) ^ LN29) ^ LN3)
-
-./inputs/CrCy_7-P11-D5-sIn11.sl
-bank size: 12
-solution: !!((LN81 & LN81) ^ LN70)
-
-./inputs/CrCy_10-sbox2-D5-sIn6.sl
-bank size: 358
-solution: ((((k7 & k7) ^ LN17) & LN44) ^ LN58)
-
-./inputs/CrCy_10-sbox2-D5-sIn101.sl
-bank size: 85460
-solution: (((!LN196 ^ LN222) ^ !(LN259 ^ LN213)) ^ LN80)
-
-./inputs/CrCy_7-P11-D7-sIn3.sl
-bank size: 52
-solution: ((!!((k8 & k8) & LN33) ^ LN80) & (!!((k8 & k8) & LN33) ^ LN80))
-
-./inputs/CrCy_8-P12-D7-sIn13.sl
-bank size: 11258
-solution: !!((!LN131 ^ LN122) ^ !((k7 & k7) & LN84))
-
-./inputs/CrCy_8-P12-D7-sIn4.sl
-bank size: 57
-solution: !!(((LN68 & LN68) & !!k4) ^ LN240)
-
-./inputs/CrCy_6-P10-D5-sIn5.sl
-bank size: 57
-solution: (((LN68 & LN68) & !!k4) ^ LN96)
-
-./inputs/CrCy_2-P6-D5-sIn2.sl
-bank size: 12
-solution: (!!(LN13 & LN13) ^ LN33)
-
-./inputs/CrCy_6-P10-D9-sIn6.sl
-bank size: 8383278
-solution: !!(((!LN126 ^ LN131) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))) & ((!LN126 ^ LN131) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))))
-
-./inputs/CrCy_7-P11-D5-sIn10.sl
-bank size: 12
-solution: !!((LN86 & LN86) ^ LN85)
-
-./inputs/CrCy_10-sbox2-D5-sIn7.sl
-bank size: 43
-solution: ((!!k7 & LN39) ^ LN50)
-
-./inputs/CrCy_10-sbox2-D5-sIn100.sl
-bank size: 8008
-solution: ((LN336 & LN336) | !((LN231 ^ LN218) ^ LN240))
-
-./inputs/CrCy_7-P11-D7-sIn2.sl
-bank size: 8383278
-solution: (((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))) & ((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))))
-
-./inputs/CrCy_8-P12-D7-sIn12.sl
-bank size: 52
-solution: ((!!((k8 & k8) & LN116) ^ LN302) & (!!((k8 & k8) & LN116) ^ LN302))
-
-./inputs/CrCy_8-P12-D7-sIn5.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_3-P7_3-P7.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn89.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn99.sl
-bank size: 25316
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn3.sl
-bank size: 950
-solution: ((((k7 & k7) ^ LN17) ^ LN34) & (LN40 & LN40))
-
-./inputs/CrCy_10-sbox2-D5-sIn104.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_6-P10-D9-sIn2.sl
-bank size: 8383278
-solution: !!(((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))) & ((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))))
-
-./inputs/CrCy_8-P12-D7-sIn1.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_8-P12-D7-sIn22.sl
-bank size: 47
-solution: !!(((!LN142 ^ LN135) ^ LN326) & ((!LN142 ^ LN135) ^ LN326))
-
-./inputs/CrCy_7-P11-D5-sIn9.sl
-bank size: 39
-solution: !!((LN19 ^ LN16) ^ LN9)
-
-./inputs/CrCy_7-P11-D7-sIn6.sl
-bank size: 44
-solution: !!((((k8 & k8) & LN1) ^ LN51) & (((k8 & k8) & LN1) ^ LN51))
-
-./inputs/CrCy_8-P12-D7-sIn16.sl
-bank size: 1149546
-solution: !!((((k6 & k6) & LN147) ^ !LN171) ^ !(LN178 ^ LN176))
-
-./inputs/CrCy_10-sbox2-D5-sIn45.sl
-bank size: 48
-no solution
-
-./inputs/CrCy_6-P10-D7-sIn5.sl
-Skipping this one because it has too many (7) variables
-
-./inputs/CrCy_10-sbox2-D5-sIn14.sl
-bank size: 483766
-solution: ((!LN61 ^ LN200) ^ ((!LN17 ^ LN16) | !(LN4 & LN4)))
-
-./inputs/CrCy_10-sbox2-D5-sIn82.sl
-bank size: 70311
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn20.sl
-bank size: 44
-solution: !(((LN1 & LN1) & LN33) ^ LN200)
-
-./inputs/CrCy_10-sbox2-D5-sIn71.sl
-bank size: 48
-no solution
-
-./inputs/CrCy_7-P11-D9-sIn1.sl
-bank size: 1149546
-solution: !!!!((((k6 & k6) & LN1) ^ !LN25) ^ !(LN32 ^ LN30))
-
-./inputs/CrCy_7-P11-D5-sIn2.sl
-bank size: 11258
-solution: ((!LN25 ^ LN68) ^ !((k7 & k7) & LN4))
-
-./inputs/CrCy_8-P12-D5-sIn5.sl
-bank size: 57
-solution: (((LN68 & LN68) & !!k4) ^ LN230)
-
-./inputs/CrCy_10-sbox2-D5-sIn8.sl
-bank size: 27
-solution: ((!!k7 ^ LN16) & LN90)
-
-./inputs/CrCy_10-sbox2-D5-sIn61.sl
-bank size: 8
-solution: (!!(LN34 & LN34) & LN93)
-
-./inputs/CrCy_10-sbox2-D5-sIn30.sl
-bank size: 44
-solution: !(((LN10 & LN10) & LN49) ^ LN238)
-
-./inputs/CrCy_8-P12-D5-sIn10.sl
-bank size: 158203
-solution: (((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
-
-./inputs/CrCy_10-sbox2-D5-sIn92.sl
-bank size: 1119872
-solution: (((LN236 & LN70) ^ !LN71) ^ ((!LN253 ^ LN252) | !LN70))
-
-./inputs/CrCy_10-sbox2-D5-sIn55.sl
-bank size: 60
-no solution
-
-./inputs/CrCy_6-P10-D9-sIn9.sl
-bank size: 8383280
-solution: !!(((!LN155 ^ LN158) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))) & ((!LN155 ^ LN158) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))))
-
-./inputs/CrCy_10-sbox2-D5-sIn86.sl
-bank size: 25316
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn75.sl
-bank size: 8
-solution: (!!(LN193 & LN193) & LN87)
-
-./inputs/CrCy_10-sbox2-D5-sIn24.sl
-bank size: 2307
-solution: ((LN63 ^ LN50) ^ !(!LN25 ^ LN16))
-
-./inputs/CrCy_10-sbox2-D5-sIn10.sl
-bank size: 8
-solution: (!!(k7 & k7) & LN89)
-
-./inputs/CrCy_10-sbox2-D5-sIn41.sl
-bank size: 27
-solution: (!(!LN17 ^ LN16) & LN91)
-
-./inputs/CrCy_8-P12-D9-sIn2.sl
-bank size: 8383278
-solution: !!(((!LN222 ^ LN226) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))) & ((!LN222 ^ LN226) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))))
-
-./inputs/CrCy_9-pprmAll-D9-sIn1.sl
-Skipping this one because it has too many (130) variables
-
-./inputs/CrCy_8-P12-D7-sIn19.sl
-bank size: 11258
-solution: !!((!LN194 ^ LN185) ^ !((k7 & k7) & LN147))
-
-./inputs/CrCy_8-P12-D5-sIn1.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_7-P11-D5-sIn6.sl
-bank size: 44
-solution: !(((k8 & k8) & LN4) ^ LN83)
-
-./inputs/CrCy_10-sbox2-D5-sIn51.sl
-bank size: 8
-solution: (!!(LN31 & LN31) & LN94)
-
-./inputs/CrCy_10-sbox2-D5-sIn34.sl
-bank size: 44
-solution: !(((LN7 & LN7) & LN34) ^ LN250)
-
-./inputs/CrCy_10-sbox2-D5-sIn65.sl
-bank size: 48
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn96.sl
-bank size: 357
-solution: !(((LN206 ^ LN55) ^ LN208) ^ LN339)
-
-./inputs/CrCy_10-sbox2-D5-sIn87.sl
-bank size: 8008
-solution: ((LN315 & LN315) | !((LN231 ^ LN218) ^ LN240))
-
-./inputs/CrCy_10-sbox2-D5-sIn74.sl
-bank size: 8
-solution: (!!(LN187 & LN187) & LN88)
-
-./inputs/CrCy_10-sbox2-D5-sIn25.sl
-bank size: 706
-solution: ((((LN1 & LN1) & LN33) ^ (LN62 & LN62)) ^ LN68)
-
-./inputs/CrCy_10-sbox2-D5-sIn11.sl
-bank size: 200
-solution: ((((k7 & k7) ^ LN17) ^ LN34) & LN87)
-
-./inputs/CrCy_10-sbox2-D5-sIn40.sl
-bank size: 738
-no solution
-
-./inputs/CrCy_8-P12-D9-sIn3.sl
-Skipping this one because it has too many (6) variables
-
-./inputs/CrCy_7-P11-D9-sIn4.sl
-bank size: 11258
-solution: !!!!((!LN48 ^ LN39) ^ !((k7 & k7) & LN1))
-
-./inputs/CrCy_7-P11-D7-sIn8.sl
-bank size: 39
-solution: !!!!((LN19 ^ LN16) ^ LN9)
-
-./inputs/CrCy_8-P12-D7-sIn18.sl
-bank size: 52
-solution: ((!!((k8 & k8) & LN179) ^ LN343) & (!!((k8 & k8) & LN179) ^ LN343))
-
-./inputs/CrCy_7-P11-D5-sIn7.sl
-bank size: 44
-solution: ((((k8 & k8) & LN1) ^ LN51) & (((k8 & k8) & LN1) ^ LN51))
-
-./inputs/CrCy_10-sbox2-D5-sIn50.sl
-bank size: 8
-solution: (!!(LN4 & LN4) & LN91)
-
-./inputs/CrCy_10-sbox2-D5-sIn35.sl
-bank size: 395
-solution: (((!LN1 ^ LN39) ^ LN174) ^ LN69)
-
-./inputs/CrCy_10-sbox2-D5-sIn64.sl
-bank size: 48
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn97.sl
-bank size: 482458
-solution: ((!LN240 ^ LN347) ^ !((LN231 ^ LN218) ^ LN345))
-
-./inputs/CrCy_10-sbox2-D5-sIn44.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn15.sl
-bank size: 483766
-solution: ((!LN61 ^ LN197) ^ ((!LN17 ^ LN16) | !(LN4 & LN4)))
-
-./inputs/CrCy_6-P10-D7-sIn4.sl
-bank size: 57
-solution: !!(((LN68 & LN68) & !!k4) ^ LN106)
-
-./inputs/CrCy_10-sbox2-D5-sIn83.sl
-bank size: 70311
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn21.sl
-bank size: 396
-no solution
-
-./inputs/CrCy_10-sbox2-D5-sIn70.sl
-bank size: 48
-no solution
-
-./inputs/CrCy_7-P11-D5-sIn3.sl
-bank size: 57
-solution: (((LN33 & LN33) & !!k8) ^ LN70)
-
-./inputs/CrCy_8-P12-D5-sIn4.sl
-bank size: 11258
-solution: ((!LN75 ^ LN222) ^ !((k4 & k4) & LN8))
-
-./inputs/CrCy_10-sbox2-D5-sIn9.sl
-bank size: 27
-solution: (!(!k7 ^ LN17) & LN88)
-
-./inputs/CrCy_10-sbox2-D5-sIn60.sl
-bank size: 8
-solution: (!!(LN49 & LN49) & LN95)
-
-./inputs/CrCy_10-sbox2-D5-sIn31.sl
-bank size: 11212
-solution: ((!LN34 ^ LN178) ^ !((LN7 & LN7) ^ LN56))
-
-./inputs/CrCy_4-P8-D5-sIn.sl
-bank size: 396
-solution: ((((LN38 & LN38) ^ LN44) ^ LN45) ^ r4)
-
-./inputs/CrCy_10-sbox2-D5-sIn93.sl
-bank size: 25316
-solution: ((((LN206 ^ LN55) ^ LN208) ^ LN89) ^ LN79)
-
-./inputs/CrCy_10-sbox2-D5-sIn54.sl
-bank size: 60
-no solution
-
-./inputs/CrCy_6-P10-D9-sIn8.sl
-bank size: 158203
-solution: !!!!(((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
-
+bank size: 10033
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) & ((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)))
+bank size: 28603929
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k4 & k3))
+bank size: 34037232
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k5 & k3))
+bank size: 46169359
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k5 & k4))
+bank size: 60231382
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k6 & k3))
+bank size: 74585634
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k6 & k4))
+bank size: 38496156
+Candidate: ((((k5 ^ k4) | LN2254) ^ ((k6 ^ k3) & !k7)) & (((k4 | k3) ^ LN2262) | (LN2288 ^ LN2262)))
+bank size: 77910178
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k6 & k5))
+bank size: 89292535
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k7 & k3))
+bank size: 93441173
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k7 & k4))
+bank size: 99670214
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k7 & k5))
+bank size: 131644284
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k7 & k6))
+bank size: 169554580
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | ((LN2254 & LN2254) & !!k4))
+bank size: 209969347
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | ((LN2254 & LN2254) & !!k5))
+bank size: 253719873
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | ((LN2254 & LN2254) & !!k6))
+bank size: 297685943
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | ((LN2254 & LN2254) & !!k7))
+bank size: 330619918
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k3 & k3) & LN2254) & !!k4))
+bank size: 345204999
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k3 & k3) & LN2254) & !!k5))
+bank size: 333563539
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k3 & k3) & LN2254) & !!k6))
+bank size: 331553336
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k3 & k3) & LN2254) & !!k7))
+bank size: 321524673
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k4 & k3) & LN2254) & !!k5))
+bank size: 345799775
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k4 & k3) & LN2254) & !!k6))
+bank size: 416743477
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k4 & k3) & LN2254) & !!k7))
+bank size: 30672873
+Candidate: (((LN2275 ^ LN2262) | ((k6 & k5) | LN2288)) & ((LN2262 | LN2254) & !LN2301))
+bank size: 241789406
+Candidate: (((LN2275 ^ LN2262) ^ ((k3 & k3) | LN2288)) & (((k6 & k5) | !k3) & !LN2301))
+bank size: 295117102
+Candidate: (((LN2301 | LN2275) ^ (LN2288 | LN2262)) | (((k6 & k3) | LN2262) & ((k5 & k3) | LN2288)))
+bank size: 364565334
+Candidate: (((LN2275 ^ LN2262) ^ (LN2288 & LN2288)) | (((k5 & k3) | LN2301) & !(k6 ^ k3)))
+bank size: 320965269
+Candidate: (((LN2275 ^ LN2262) ^ (LN2301 | LN2288)) | (((k5 & k3) & LN2254) & !!k6))
+bank size: 321832933
+Candidate: (((LN2288 ^ LN2262) ^ (LN2301 | LN2275)) | (((k5 & k3) & LN2254) & !!k6))
+bank size: 155421945
+Candidate: (((LN2275 ^ LN2262) ^ ((k3 & k3) | LN2301)) & (((k6 & k5) | !k3) & !LN2288))
+bank size: 255801598
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 | LN2275)) | (((k5 & k3) & LN2254) & !!k6))
+bank size: 216400028
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & LN2254) & !!k6))
+bank size: 323199207
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & LN2254) & !!k7))
+bank size: 364812
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) & ((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)))
+bank size: 352879320
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & (k4 & k3)) & !!k6))
+bank size: 396951596
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & (k4 & k3)) & !!k7))
+bank size: 394674545
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k4) & LN2254) & !!k6))

@@ -32,6 +32,10 @@ public:
     // The depth of the solution circuit.
     uint32_t sol_depth;
 
+    std::vector<std::vector<bool>> all_inputs;
+
+    std::vector<bool> all_sols;
+
     Spec(
         uint32_t num_vars,
         uint32_t num_examples,
@@ -39,7 +43,9 @@ public:
         std::vector<uint32_t> var_depths,
         std::vector<uint32_t> var_values,
         uint32_t sol_result,
-        uint32_t sol_depth
+        uint32_t sol_depth,
+        std::vector<std::vector<bool>> all_inputs,
+        std::vector<bool> all_sols
     ) :
         num_vars(num_vars),
         num_examples(num_examples),
@@ -47,7 +53,9 @@ public:
         var_depths(var_depths),
         var_values(var_values),
         sol_result(sol_result),
-        sol_depth(sol_depth) {}
+        sol_depth(sol_depth),
+        all_inputs(all_inputs),
+        all_sols(all_sols) {}
 
     void validate(Expr* solution) {
         solution->assert_depth(sol_depth, var_depths);
@@ -59,6 +67,15 @@ public:
             bool expected = (sol_result >> example) & 1;
             assert(solution->eval(vars) == expected);
         }
+    }
+
+    int counterexample(Expr* solution) {
+        for(uint32_t example=0; example<all_inputs.size(); example++) {
+            if(solution->eval(all_inputs[example])!=all_sols[example]) {
+                return example;
+            }
+        }
+        return -1;
     }
 
     friend std::ostream& operator<< (std::ostream &out, const Spec &spec) {

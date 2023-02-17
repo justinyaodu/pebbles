@@ -102,14 +102,27 @@ uint32_t min(int a, int b) {
 
 uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &vals) {
     uint32_t retVal = 0;
-    for(int i=0; i<power(2, names.size()); i++) {
-        int x=(3*i)%32;
+    for(uint32_t i=0; i<min(power(2, names.size()), 32); i++) {
+        int x=(3*i)%power(2, names.size());
         vector<bool> input;
-        for(uint32_t j=0; j<min(names.size(), 32); j++) {
+        for(uint32_t j=0; j<names.size(); j++) {
             vals[j] = (vals[j] << 1) | ((x>>j)&1);
             input.push_back((x>>j)&1);
         }
         retVal = (retVal << 1) | evalExpr(expr, names, input);
+    }
+    return retVal;
+}
+
+vector<bool> truthTableFull(string expr, vector<string> names, vector<vector<bool>> &vals) {
+    vector<bool> retVal;
+    for(int i=0; i<power(2, names.size()); i++) {
+        vector<bool> newVec;
+        vals.push_back(newVec);
+        for(uint32_t j=0; j<names.size(); j++) {
+            vals[i].push_back((i>>j)&1);
+        }
+        retVal.push_back(evalExpr(expr, names, vals[i]));
     }
     return retVal;
 }
@@ -197,14 +210,14 @@ Spec Parser::parseInput(string inputFileName) {
     }
     maxDepth = depth;
     numVariables = var_names.size();
-    if (numVariables > 5) {
-        //we can't handle this many variables
-        return Spec(numVariables,0,std::vector<std::string>(),
-        std::vector<uint32_t>(),
-        std::vector<uint32_t>(),
-        0,
-        0);
-    }
+    // if (numVariables > 5) {
+    //     //we can't handle this many variables
+    //     return Spec(numVariables,0,std::vector<std::string>(),
+    //     std::vector<uint32_t>(),
+    //     std::vector<uint32_t>(),
+    //     0,
+    //     0);
+    // }
     num_examples = power(2,numVariables);
     if(num_examples>32) num_examples=32;
     inputFile.close();
@@ -226,7 +239,16 @@ Spec Parser::parseInput(string inputFileName) {
         vals.push_back(0);
     }
 
+    cout<<"wot";
+
     sol_result = truthTableWithVec(origCir, var_names, vals);
+
+    cout<<"spec making";
+
+    vector<vector<bool>> all_inputs;
+    vector<bool> full_sol = truthTableFull(origCir, var_names, all_inputs);
+
+    cout<<"spec made";
 
     return Spec(numVariables, 
                 num_examples, 
@@ -234,7 +256,9 @@ Spec Parser::parseInput(string inputFileName) {
                 var_depths, 
                 vals, 
                 sol_result, 
-                maxDepth);
+                maxDepth,
+                all_inputs,
+                full_sol);
 }
 
 
