@@ -6,15 +6,16 @@
 
 #ifndef SYNTH_VARIANT
 #error "SYNTH_VARIANT must be defined. See the Makefile."
-#elif SYNTH_VARIANT == CPU_ST
+#elif SYNTH_VARIANT == 1
 #include "synth_cpu_st.hpp"
-#elif SYNTH_VARIANT == CPU_MT
+#elif SYNTH_VARIANT == 2
 #include "synth_cpu_mt.hpp"
 #else
 #error "Unsupported SYNTH_VARIANT."
 #endif
 
 int main(void) {
+    /*
     Spec spec(
         4,
         16,
@@ -28,6 +29,23 @@ int main(void) {
             0b0101010101010101 //0101010101010101
         },
         0b1011110100111000,
+        32
+    );
+    */
+
+    Spec spec(
+        5,
+        32,
+        std::vector<std::string> {"a", "b", "c", "d", "e"},
+        std::vector<int32_t> {0, 0, 0, 0, 4},
+        std::vector<uint32_t> {
+            0b00000000000000001111111111111111,
+            0b00000000111111110000000011111111,
+            0b00001111000011110000111100001111,
+            0b00110011001100110011001100110011,
+            0b01010101010101010101010101010101
+        },
+        0b10100000110111011110100011110001,
         32
     );
 

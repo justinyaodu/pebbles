@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <omp.h>
 
 #include "alloc.hpp"
 #include "bitset.hpp"
@@ -22,7 +23,12 @@ private:
 
 public:
     Synthesizer(Spec spec) : AbstractSynthesizer(spec),
-        seen(ThreadSafeBitset(max_distinct_terms)) {}
+            seen(ThreadSafeBitset(max_distinct_terms)) {
+        // Cancellation must be enabled for best performance, to enable early
+        // termination of parallel loops when a solution is found.
+        assert(omp_get_cancellation());
+        std::cerr << "Using multi-threaded CPU synthesizer" << std::endl;
+    }
 
     // Return an Expr satisfying spec, or nullptr if it cannot be found.
     const Expr* synthesize() {
@@ -74,17 +80,20 @@ private:
         return __atomic_fetch_add(&num_terms, count, __ATOMIC_SEQ_CST);
     }
 
-    void add_unary_terms(int64_t count, uint32_t *results, uint32_t *lefts) {
+    int64_t add_unary_terms(int64_t count, uint32_t *results, uint32_t *lefts) {
         int64_t start = alloc_terms(count);
         memcpy(&term_results[start], results, count * sizeof(uint32_t));
         memcpy(&term_lefts[start], lefts, count * sizeof(uint32_t));
+        return start;
     }
 
-    void add_binary_terms(int64_t count, uint32_t *results, uint32_t *lefts, uint32_t *rights) {
+    int64_t add_binary_terms(int64_t count, uint32_t *results, uint32_t *lefts,
+            uint32_t *rights) {
         int64_t start = alloc_terms(count);
         memcpy(&term_results[start], results, count * sizeof(uint32_t));
         memcpy(&term_lefts[start], lefts, count * sizeof(uint32_t));
         memcpy(&term_rights[start], rights, count * sizeof(uint32_t));
+        return start;
     }
 
     // Add variables to the bank.
@@ -122,7 +131,10 @@ private:
 
         int64_t lefts_end = num_terms;
 
-// #pragma omp parallel for
+        int64_t solution = NOT_FOUND;
+
+        #pragma omp parallel
+        #pragma omp for
         for (int64_t left = lefts_start; left < lefts_end; left++) {
             uint32_t result = result_mask & (~term_results[left]);
             if (seen.test_and_set(result)) {
@@ -130,35 +142,41 @@ private:
             }
 
             uint32_t left_cast = left;
-            add_unary_terms(1, &result, &left_cast);
+            int64_t index = add_unary_terms(1, &result, &left_cast);
 
             if (result == spec.sol_result) {
-                return num_terms - 1;
+                #pragma omp critical
+                { solution = index; }
+                #pragma omp cancel for
             }
         }
 
-        return NOT_FOUND;
+        return solution;
     }
 
 // See trapezoid_indexing.py for details.
-#define TRAPEZOID_LOOP(K, N, BODY) \
-for (int64_t b = 0; b < K * (N - K) + (N - K) * (N - K + 1) / 2; b++) { \
-    int64_t left = N - 1 - b % (N % K);     \
-    int64_t right = b / (N - K);            \
-    if (right > left) {                     \
-        left = N - (left - K) - 1;          \
-        right= N - (left - (K + 1)) - 1;    \
-    }                                       \
-    BODY                                    \
+#define TRAPEZOID_LOOP \
+for (int64_t b = 0; b < k * (n - k) + (n - k) * (n - k + 1) / 2; b++)
+
+#define TRAPEZOID_LOOP_SETUP \
+int64_t left = n - 1 - b % (n - k);     \
+int64_t right = b / (n - k);            \
+if (right > left) {                     \
+    left = n - (left - k) - 1;          \
+    right = n - (right - (k + 1)) - 1;  \
 }
 
     // Add AND terms to the bank.
     int64_t pass_And(int32_t height) {
-        int64_t lefts_start = terms_with_height_start(height - 1);
-        int64_t lefts_end = terms_with_height_end(height - 1);
+        int64_t k = terms_with_height_start(height - 1);
+        int64_t n = terms_with_height_end(height - 1);
+        int64_t solution = NOT_FOUND;
 
-// #pragma omp parallel for
-        TRAPEZOID_LOOP(lefts_start, lefts_end, {
+        #pragma omp parallel
+        #pragma omp for
+        TRAPEZOID_LOOP {
+            TRAPEZOID_LOOP_SETUP
+
             uint32_t result = result_mask &
                     (term_results[left] & term_results[right]);
             if (seen.test_and_set(result)) {
@@ -167,64 +185,78 @@ for (int64_t b = 0; b < K * (N - K) + (N - K) * (N - K + 1) / 2; b++) { \
 
             uint32_t left_cast = left;
             uint32_t right_cast = right;
-            add_binary_terms(1, &result, &left_cast, &right_cast);
+            int64_t index = add_binary_terms(1, &result, &left_cast, &right_cast);
 
             if (result == spec.sol_result) {
-                return num_terms - 1;
+                #pragma omp critical
+                { solution = index; }
+                #pragma omp cancel for
             }
-        })
+        }
 
-        return NOT_FOUND;
+        return solution;
     }
 
     // Add OR terms to the bank.
     int64_t pass_Or(int32_t height) {
-        int64_t lefts_start = terms_with_height_start(height - 1);
-        int64_t lefts_end = terms_with_height_end(height - 1);
+        int64_t k = terms_with_height_start(height - 1);
+        int64_t n = terms_with_height_end(height - 1);
+        int64_t solution = NOT_FOUND;
 
-// #pragma omp parallel for
-        TRAPEZOID_LOOP(lefts_start, lefts_end, {
+        #pragma omp parallel
+        #pragma omp for
+        TRAPEZOID_LOOP {
+            TRAPEZOID_LOOP_SETUP
+
             uint32_t result = result_mask &
-                    (term_results[left] & term_results[right]);
+                    (term_results[left] | term_results[right]);
             if (seen.test_and_set(result)) {
                 continue;
             }
 
             uint32_t left_cast = left;
             uint32_t right_cast = right;
-            add_binary_terms(1, &result, &left_cast, &right_cast);
+            int64_t index = add_binary_terms(1, &result, &left_cast, &right_cast);
 
             if (result == spec.sol_result) {
-                return num_terms - 1;
+                #pragma omp critical
+                { solution = index; }
+                #pragma omp cancel for
             }
-        })
+        }
 
-        return NOT_FOUND;
+        return solution;
     }
 
     // Add XOR terms to the bank.
     int64_t pass_Xor(int32_t height) {
-        int64_t lefts_start = terms_with_height_start(height - 1);
-        int64_t lefts_end = terms_with_height_end(height - 1);
+        int64_t k = terms_with_height_start(height - 1);
+        int64_t n = terms_with_height_end(height - 1);
+        int64_t solution = NOT_FOUND;
 
-// #pragma omp parallel for
-        TRAPEZOID_LOOP(lefts_start, lefts_end, {
+        #pragma omp parallel
+        #pragma omp for
+        TRAPEZOID_LOOP {
+            TRAPEZOID_LOOP_SETUP
+
             uint32_t result = result_mask &
-                    (term_results[left] & term_results[right]);
+                    (term_results[left] ^ term_results[right]);
             if (seen.test_and_set(result)) {
                 continue;
             }
 
             uint32_t left_cast = left;
             uint32_t right_cast = right;
-            add_binary_terms(1, &result, &left_cast, &right_cast);
+            int64_t index = add_binary_terms(1, &result, &left_cast, &right_cast);
 
             if (result == spec.sol_result) {
-                return num_terms - 1;
+                #pragma omp critical
+                { solution = index; }
+                #pragma omp cancel for
             }
-        });
+        }
 
-        return NOT_FOUND;
+        return solution;
     }
 };
 
