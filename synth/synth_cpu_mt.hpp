@@ -26,8 +26,10 @@ public:
             seen(ThreadSafeBitset(max_distinct_terms)) {
         // Cancellation must be enabled for best performance, to enable early
         // termination of parallel loops when a solution is found.
-        assert(omp_get_cancellation());
-        std::cerr << "Using multi-threaded CPU synthesizer" << std::endl;
+        if (!omp_get_cancellation()) {
+            std::cerr << "Environment variable OMP_CANCELLATION=true is required." << std::endl;
+            assert(false);
+        }
     }
 
     // Return an Expr satisfying spec, or nullptr if it cannot be found.

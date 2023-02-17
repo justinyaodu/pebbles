@@ -8,13 +8,17 @@
 #error "SYNTH_VARIANT must be defined. See the Makefile."
 #elif SYNTH_VARIANT == 1
 #include "synth_cpu_st.hpp"
+#define VARIANT_DESCRIPTION "CPU, single threaded"
 #elif SYNTH_VARIANT == 2
 #include "synth_cpu_mt.hpp"
+#define VARIANT_DESCRIPTION "CPU, multi-threaded"
 #else
 #error "Unsupported SYNTH_VARIANT."
 #endif
 
 int main(void) {
+    std::cerr << "Synthesizer variant: " << VARIANT_DESCRIPTION << std::endl;
+
     /*
     Spec spec(
         4,
