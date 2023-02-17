@@ -33,6 +33,7 @@ public:
     // Return an Expr satisfying spec, or nullptr if it cannot be found.
     const Expr* synthesize() {
         int64_t sol_index = NOT_FOUND;
+        Timer timer;
 
         for (int32_t height = 0; height <= spec.sol_height; height++) {
 
@@ -41,15 +42,15 @@ public:
 {                                           \
     int64_t prev_num_terms = num_terms;     \
     std::cerr << "height " << height        \
-        << ", " #TYPE " pass" << std::endl;    \
+        << ", " #TYPE " pass" << std::endl; \
                                             \
-    Timer timer;                            \
+    Timer pass_timer;                       \
     sol_index = pass_ ## TYPE(height);      \
-    uint64_t ms = timer.ms();               \
+    uint64_t ms = pass_timer.ms();          \
     record_pass(PassType::TYPE, height);    \
                                             \
-    std::cerr << ms << " ms, "              \
-        << (num_terms - prev_num_terms) << " new term(s), "   \
+    std::cerr << "\t" << ms << " ms, "      \
+        << (num_terms - prev_num_terms) << " new term(s), " \
         << num_terms << " total term(s)"    \
         << std::endl;                       \
                                             \
@@ -71,6 +72,11 @@ public:
 
 #undef DO_PASS
         }
+
+        uint64_t ms = timer.ms();
+        std::cerr << ms << " ms, "
+            << num_terms << " terms, "
+            << (uint64_t) (1.0 * num_terms / ms) << " terms/ms" << std::endl;
 
         return sol_index == NOT_FOUND ? nullptr : reconstruct(sol_index);
     }
@@ -159,11 +165,11 @@ private:
 for (int64_t b = 0; b < k * (n - k) + (n - k) * (n - k + 1) / 2; b++)
 
 #define TRAPEZOID_LOOP_SETUP \
-int64_t left = n - 1 - b % (n - k);     \
-int64_t right = b / (n - k);            \
-if (right > left) {                     \
-    left = n - (left - k) - 1;          \
-    right = n - (right - (k + 1)) - 1;  \
+int64_t left = b / (n - k);             \
+int64_t right = n - 1 - b % (n - k);    \
+if (left > right) {                     \
+    left = n - (left - (k + 1)) - 1;    \
+    right = n - (right - k) - 1;        \
 }
 
     // Add AND terms to the bank.

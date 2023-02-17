@@ -26,6 +26,7 @@ public:
     // Return an Expr satisfying spec, or nullptr if it cannot be found.
     const Expr* synthesize() {
         int64_t sol_index = NOT_FOUND;
+        Timer timer;
 
         for (int32_t height = 0; height <= spec.sol_height; height++) {
 
@@ -34,15 +35,15 @@ public:
 {                                           \
     int64_t prev_num_terms = num_terms;     \
     std::cerr << "height " << height        \
-        << ", " #TYPE " pass" << std::endl;    \
+        << ", " #TYPE " pass" << std::endl; \
                                             \
-    Timer timer;                            \
+    Timer pass_timer;                       \
     sol_index = pass_ ## TYPE(height);      \
-    uint64_t ms = timer.ms();               \
+    uint64_t ms = pass_timer.ms();          \
     record_pass(PassType::TYPE, height);    \
                                             \
-    std::cerr << ms << " ms, "              \
-        << (num_terms - prev_num_terms) << " new term(s), "   \
+    std::cerr << "\t" << ms << " ms, "      \
+        << (num_terms - prev_num_terms) << " new term(s), " \
         << num_terms << " total term(s)"    \
         << std::endl;                       \
                                             \
@@ -64,6 +65,11 @@ public:
 
 #undef DO_PASS
         }
+
+        uint64_t ms = timer.ms();
+        std::cerr << ms << " ms, "
+            << num_terms << " terms, "
+            << (uint64_t) (1.0 * num_terms / ms) << " terms/ms" << std::endl;
 
         return sol_index == NOT_FOUND ? nullptr : reconstruct(sol_index);
     }
