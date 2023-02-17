@@ -12,7 +12,6 @@ void* alloc(size_t size) {
         nullptr,
         size,
         PROT_READ | PROT_WRITE,
-        // TODO: consider MAP_HUGE_1GB and MAP_NORESERVE
         MAP_PRIVATE | MAP_ANONYMOUS,
         -1,
         0

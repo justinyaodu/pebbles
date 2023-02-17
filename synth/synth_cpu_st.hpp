@@ -69,7 +69,7 @@ public:
         uint64_t ms = timer.ms();
         std::cerr << ms << " ms, "
             << num_terms << " terms, "
-            << (uint64_t) (1.0 * num_terms / ms) << " terms/ms" << std::endl;
+            << std::endl;
 
         return sol_index == NOT_FOUND ? nullptr : reconstruct(sol_index);
     }
@@ -124,7 +124,7 @@ private:
             }
         }
 
-        int64_t lefts_end = num_terms;
+        int64_t lefts_end = terms_with_height_end(height - 1);
 
         for (int64_t left = lefts_start; left < lefts_end; left++) {
             uint32_t result = result_mask & (~term_results[left]);

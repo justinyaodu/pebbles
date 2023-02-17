@@ -15,6 +15,9 @@
 #include "synth_cpu.hpp"
 #include "timer.hpp"
 
+// Set experimentally.
+#define TILE_SIZE 64
+
 class Synthesizer : AbstractSynthesizer {
 private:
     // The i'th bit is on iff the bank contains a term whose bitvector
@@ -23,14 +26,7 @@ private:
 
 public:
     Synthesizer(Spec spec) : AbstractSynthesizer(spec),
-            seen(ThreadSafeBitset(max_distinct_terms)) {
-        // Cancellation must be enabled for best performance, to enable early
-        // termination of parallel loops when a solution is found.
-        if (!omp_get_cancellation()) {
-            std::cerr << "Environment variable OMP_CANCELLATION=true is required." << std::endl;
-            assert(false);
-        }
-    }
+            seen(ThreadSafeBitset(max_distinct_terms)) {}
 
     // Return an Expr satisfying spec, or nullptr if it cannot be found.
     const Expr* synthesize() {
@@ -78,7 +74,7 @@ public:
         uint64_t ms = timer.ms();
         std::cerr << ms << " ms, "
             << num_terms << " terms, "
-            << (uint64_t) (1.0 * num_terms / ms) << " terms/ms" << std::endl;
+            << std::endl;
 
         return sol_index == NOT_FOUND ? nullptr : reconstruct(sol_index);
     }
@@ -128,77 +124,128 @@ private:
     }
 
     // Add NOT terms to the bank.
-    int64_t pass_Not(int32_t height __attribute__((unused))) {
+    int64_t pass_Not(int32_t height) {
         // Start at the first term after the preceding NOT pass (if any).
-        int64_t lefts_start = 0;
+        // This avoids synthesizing terms like NOT (NOT x), which would be
+        // equivalent to the existing term x.
+        int64_t all_lefts_start = 0;
         for (size_t i = 0; i < pass_types.size(); i++) {
             if (pass_types[i] == PassType::Not) {
-                lefts_start = pass_ends[i];
+                all_lefts_start = pass_ends[i];
             }
         }
 
-        int64_t lefts_end = num_terms;
+        int64_t all_lefts_end = terms_with_height_end(height - 1);
 
         int64_t solution = NOT_FOUND;
 
         #pragma omp parallel
         #pragma omp for
-        for (int64_t left = lefts_start; left < lefts_end; left++) {
-            uint32_t result = result_mask & (~term_results[left]);
-            if (seen.test_and_set(result)) {
+        for (int64_t lefts_tile = all_lefts_start / TILE_SIZE;
+                lefts_tile < CEIL_DIV(all_lefts_end, TILE_SIZE);
+                lefts_tile++) {
+            if (solution != NOT_FOUND) {
                 continue;
             }
 
-            uint32_t left_cast = left;
-            int64_t index = add_unary_terms(1, &result, &left_cast);
+            int32_t batch_size = 0;
+            uint32_t batch_results[TILE_SIZE];
+            uint32_t batch_lefts[TILE_SIZE];
 
-            if (result == spec.sol_result) {
-                #pragma omp critical
-                { solution = index; }
-                #pragma omp cancel for
+            for (int64_t left = std::max(lefts_tile * TILE_SIZE, all_lefts_start);
+                    left < std::min((lefts_tile + 1) * TILE_SIZE, all_lefts_end);
+                    left++) {
+                uint32_t result = result_mask & (~term_results[left]);
+                if (seen.test_and_set(result)) {
+                    continue;
+                }
+
+                batch_results[batch_size] = result;
+                batch_lefts[batch_size] = left;
+                batch_size++;
+            }
+
+            if (batch_size == 0) {
+                continue;
+            }
+
+            int64_t bank_index = add_unary_terms(batch_size, batch_results, batch_lefts);
+            for (int32_t i = 0; i < batch_size; i++) {
+                if (batch_results[i] == spec.sol_result) {
+                    // No synchronization needed, because if two threads find a
+                    // solution simultaneously, it doesn't matter which we use.
+                    solution = bank_index + i;
+                }
             }
         }
 
         return solution;
     }
 
-// See trapezoid_indexing.py for details.
-#define TRAPEZOID_LOOP \
-for (int64_t b = 0; b < k * (n - k) + (n - k) * (n - k + 1) / 2; b++)
-
-#define TRAPEZOID_LOOP_SETUP \
-int64_t left = b / (n - k);             \
-int64_t right = n - 1 - b % (n - k);    \
-if (left > right) {                     \
-    left = n - (left - (k + 1)) - 1;    \
-    right = n - (right - k) - 1;        \
-}
-
     // Add AND terms to the bank.
     int64_t pass_And(int32_t height) {
-        int64_t k = terms_with_height_start(height - 1);
-        int64_t n = terms_with_height_end(height - 1);
+        int64_t all_lefts_end = terms_with_height_end(height - 1);
+
+        int64_t all_rights_start = terms_with_height_start(height - 1);
+        int64_t all_rights_end = all_lefts_end;
+
         int64_t solution = NOT_FOUND;
 
+        // See trapezoid_indexing.py for details.
+        int64_t k = all_rights_start / TILE_SIZE;
+        int64_t n = CEIL_DIV(all_rights_end, TILE_SIZE);
         #pragma omp parallel
         #pragma omp for
-        TRAPEZOID_LOOP {
-            TRAPEZOID_LOOP_SETUP
-
-            uint32_t result = result_mask &
-                    (term_results[left] & term_results[right]);
-            if (seen.test_and_set(result)) {
+        for (int64_t b = 0; b < k * (n - k) + (n - k) * (n - k + 1) / 2; b++) {
+            if (solution != NOT_FOUND) {
                 continue;
             }
 
-            uint32_t left_cast = left;
-            uint32_t right_cast = right;
-            int64_t index = add_binary_terms(1, &result, &left_cast, &right_cast);
+            int64_t lefts_tile = b / (n - k);
+            int64_t rights_tile = n - 1 - b % (n - k);
+            if (lefts_tile > rights_tile) {
+                lefts_tile = n - (lefts_tile - (k + 1)) - 1;
+                rights_tile = n - (rights_tile - k) - 1;
+            }
 
-            if (result == spec.sol_result) {
-                #pragma omp critical
-                { solution = index; }
-                #pragma omp cancel for
+            int32_t batch_size = 0;
+            uint32_t batch_results[TILE_SIZE * TILE_SIZE];
+            uint32_t batch_lefts[TILE_SIZE * TILE_SIZE];
+            uint32_t batch_rights[TILE_SIZE * TILE_SIZE];
+
+            // No max needed on next line because all_lefts_start = 0.
+            for (int64_t left = lefts_tile * TILE_SIZE;
+                    left < std::min((lefts_tile + 1) * TILE_SIZE, all_lefts_end);
+                    left++) {
+                uint32_t left_result = term_results[left];
+                for (int64_t right = std::max(rights_tile * TILE_SIZE, all_rights_start);
+                        right < std::min((rights_tile + 1) * TILE_SIZE, all_rights_end);
+                        right++) {
+                    uint32_t right_result = term_results[right];
+                    uint32_t result = result_mask & (left_result & right_result);
+                    if (seen.test_and_set(result)) {
+                        continue;
+                    }
+
+                    batch_results[batch_size] = result;
+                    batch_lefts[batch_size] = left;
+                    batch_rights[batch_size] = right;
+                    batch_size++;
+                }
+            }
+
+            if (batch_size == 0) {
+                continue;
+            }
+
+            int64_t bank_index = add_binary_terms(
+                    batch_size, batch_results, batch_lefts, batch_rights);
+            for (int32_t i = 0; i < batch_size; i++) {
+                if (batch_results[i] == spec.sol_result) {
+                    // No synchronization needed, because if two threads find a
+                    // solution simultaneously, it doesn't matter which we use.
+                    solution = bank_index + i;
+                }
             }
         }
 
@@ -207,29 +254,68 @@ if (left > right) {                     \
 
     // Add OR terms to the bank.
     int64_t pass_Or(int32_t height) {
-        int64_t k = terms_with_height_start(height - 1);
-        int64_t n = terms_with_height_end(height - 1);
+        int64_t all_lefts_end = terms_with_height_end(height - 1);
+
+        int64_t all_rights_start = terms_with_height_start(height - 1);
+        int64_t all_rights_end = all_lefts_end;
+
         int64_t solution = NOT_FOUND;
 
+        // See trapezoid_indexing.py for details.
+        int64_t k = all_rights_start / TILE_SIZE;
+        int64_t n = CEIL_DIV(all_rights_end, TILE_SIZE);
         #pragma omp parallel
         #pragma omp for
-        TRAPEZOID_LOOP {
-            TRAPEZOID_LOOP_SETUP
-
-            uint32_t result = result_mask &
-                    (term_results[left] | term_results[right]);
-            if (seen.test_and_set(result)) {
+        for (int64_t b = 0; b < k * (n - k) + (n - k) * (n - k + 1) / 2; b++) {
+            if (solution != NOT_FOUND) {
                 continue;
             }
 
-            uint32_t left_cast = left;
-            uint32_t right_cast = right;
-            int64_t index = add_binary_terms(1, &result, &left_cast, &right_cast);
+            int64_t lefts_tile = b / (n - k);
+            int64_t rights_tile = n - 1 - b % (n - k);
+            if (lefts_tile > rights_tile) {
+                lefts_tile = n - (lefts_tile - (k + 1)) - 1;
+                rights_tile = n - (rights_tile - k) - 1;
+            }
 
-            if (result == spec.sol_result) {
-                #pragma omp critical
-                { solution = index; }
-                #pragma omp cancel for
+            int32_t batch_size = 0;
+            uint32_t batch_results[TILE_SIZE * TILE_SIZE];
+            uint32_t batch_lefts[TILE_SIZE * TILE_SIZE];
+            uint32_t batch_rights[TILE_SIZE * TILE_SIZE];
+
+            // No max needed on next line because all_lefts_start = 0.
+            for (int64_t left = lefts_tile * TILE_SIZE;
+                    left < std::min((lefts_tile + 1) * TILE_SIZE, all_lefts_end);
+                    left++) {
+                uint32_t left_result = term_results[left];
+                for (int64_t right = std::max(rights_tile * TILE_SIZE, all_rights_start);
+                        right < std::min((rights_tile + 1) * TILE_SIZE, all_rights_end);
+                        right++) {
+                    uint32_t right_result = term_results[right];
+                    uint32_t result = result_mask & (left_result | right_result);
+                    if (seen.test_and_set(result)) {
+                        continue;
+                    }
+
+                    batch_results[batch_size] = result;
+                    batch_lefts[batch_size] = left;
+                    batch_rights[batch_size] = right;
+                    batch_size++;
+                }
+            }
+
+            if (batch_size == 0) {
+                continue;
+            }
+
+            int64_t bank_index = add_binary_terms(
+                    batch_size, batch_results, batch_lefts, batch_rights);
+            for (int32_t i = 0; i < batch_size; i++) {
+                if (batch_results[i] == spec.sol_result) {
+                    // No synchronization needed, because if two threads find a
+                    // solution simultaneously, it doesn't matter which we use.
+                    solution = bank_index + i;
+                }
             }
         }
 
@@ -238,29 +324,68 @@ if (left > right) {                     \
 
     // Add XOR terms to the bank.
     int64_t pass_Xor(int32_t height) {
-        int64_t k = terms_with_height_start(height - 1);
-        int64_t n = terms_with_height_end(height - 1);
+        int64_t all_lefts_end = terms_with_height_end(height - 1);
+
+        int64_t all_rights_start = terms_with_height_start(height - 1);
+        int64_t all_rights_end = all_lefts_end;
+
         int64_t solution = NOT_FOUND;
 
+        // See trapezoid_indexing.py for details.
+        int64_t k = all_rights_start / TILE_SIZE;
+        int64_t n = CEIL_DIV(all_rights_end, TILE_SIZE);
         #pragma omp parallel
         #pragma omp for
-        TRAPEZOID_LOOP {
-            TRAPEZOID_LOOP_SETUP
-
-            uint32_t result = result_mask &
-                    (term_results[left] ^ term_results[right]);
-            if (seen.test_and_set(result)) {
+        for (int64_t b = 0; b < k * (n - k) + (n - k) * (n - k + 1) / 2; b++) {
+            if (solution != NOT_FOUND) {
                 continue;
             }
 
-            uint32_t left_cast = left;
-            uint32_t right_cast = right;
-            int64_t index = add_binary_terms(1, &result, &left_cast, &right_cast);
+            int64_t lefts_tile = b / (n - k);
+            int64_t rights_tile = n - 1 - b % (n - k);
+            if (lefts_tile > rights_tile) {
+                lefts_tile = n - (lefts_tile - (k + 1)) - 1;
+                rights_tile = n - (rights_tile - k) - 1;
+            }
 
-            if (result == spec.sol_result) {
-                #pragma omp critical
-                { solution = index; }
-                #pragma omp cancel for
+            int32_t batch_size = 0;
+            uint32_t batch_results[TILE_SIZE * TILE_SIZE];
+            uint32_t batch_lefts[TILE_SIZE * TILE_SIZE];
+            uint32_t batch_rights[TILE_SIZE * TILE_SIZE];
+
+            // No max needed on next line because all_lefts_start = 0.
+            for (int64_t left = lefts_tile * TILE_SIZE;
+                    left < std::min((lefts_tile + 1) * TILE_SIZE, all_lefts_end);
+                    left++) {
+                uint32_t left_result = term_results[left];
+                for (int64_t right = std::max(rights_tile * TILE_SIZE, all_rights_start);
+                        right < std::min((rights_tile + 1) * TILE_SIZE, all_rights_end);
+                        right++) {
+                    uint32_t right_result = term_results[right];
+                    uint32_t result = result_mask & (left_result ^ right_result);
+                    if (seen.test_and_set(result)) {
+                        continue;
+                    }
+
+                    batch_results[batch_size] = result;
+                    batch_lefts[batch_size] = left;
+                    batch_rights[batch_size] = right;
+                    batch_size++;
+                }
+            }
+
+            if (batch_size == 0) {
+                continue;
+            }
+
+            int64_t bank_index = add_binary_terms(
+                    batch_size, batch_results, batch_lefts, batch_rights);
+            for (int32_t i = 0; i < batch_size; i++) {
+                if (batch_results[i] == spec.sol_result) {
+                    // No synchronization needed, because if two threads find a
+                    // solution simultaneously, it doesn't matter which we use.
+                    solution = bank_index + i;
+                }
             }
         }
 
