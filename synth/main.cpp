@@ -3,7 +3,16 @@
 #include <vector>
 
 #include "spec.hpp"
+
+#ifndef SYNTH_VARIANT
+#error "SYNTH_VARIANT must be defined. See the Makefile."
+#elif SYNTH_VARIANT == CPU_ST
 #include "synth_cpu_st.hpp"
+#elif SYNTH_VARIANT == CPU_MT
+#include "synth_cpu_mt.hpp"
+#else
+#error "Unsupported SYNTH_VARIANT."
+#endif
 
 int main(void) {
     Spec spec(

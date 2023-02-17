@@ -1,9 +1,10 @@
-// Single-threaded CPU-based synthesizer.
+// Multi-threaded CPU-based synthesizer.
 
-#ifndef SYNTH_CPU_ST_H
-#define SYNTH_CPU_ST_H
+#ifndef SYNTH_CPU_MT_H
+#define SYNTH_CPU_MT_H
 
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 
 #include "alloc.hpp"
@@ -17,11 +18,11 @@ class Synthesizer : AbstractSynthesizer {
 private:
     // The i'th bit is on iff the bank contains a term whose bitvector
     // of evaluation results is equal to i.
-    SingleThreadedBitset seen;
+    ThreadSafeBitset seen;
 
 public:
     Synthesizer(Spec spec) : AbstractSynthesizer(spec),
-        seen(SingleThreadedBitset(max_distinct_terms)) {}
+        seen(ThreadSafeBitset(max_distinct_terms)) {}
 
     // Return an Expr satisfying spec, or nullptr if it cannot be found.
     const Expr* synthesize() {
@@ -69,21 +70,21 @@ public:
     }
 
 private:
-    int64_t alloc_term() {
-        return num_terms++;
+    int64_t alloc_terms(int64_t count) {
+        return __atomic_fetch_add(&num_terms, count, __ATOMIC_SEQ_CST);
     }
 
-    void add_unary_term(uint32_t result, uint32_t left) {
-        int64_t index = alloc_term();
-        term_results[index] = result;
-        term_lefts[index] = left;
+    void add_unary_terms(int64_t count, uint32_t *results, uint32_t *lefts) {
+        int64_t start = alloc_terms(count);
+        memcpy(&term_results[start], results, count * sizeof(uint32_t));
+        memcpy(&term_lefts[start], lefts, count * sizeof(uint32_t));
     }
 
-    void add_binary_term(uint32_t result, uint32_t left, uint32_t right) {
-        int64_t index = alloc_term();
-        term_results[index] = result;
-        term_lefts[index] = left;
-        term_rights[index] = right;
+    void add_binary_terms(int64_t count, uint32_t *results, uint32_t *lefts, uint32_t *rights) {
+        int64_t start = alloc_terms(count);
+        memcpy(&term_results[start], results, count * sizeof(uint32_t));
+        memcpy(&term_lefts[start], lefts, count * sizeof(uint32_t));
+        memcpy(&term_rights[start], rights, count * sizeof(uint32_t));
     }
 
     // Add variables to the bank.
@@ -98,7 +99,8 @@ private:
                 continue;
             }
 
-            add_unary_term(result, i);
+            uint32_t left_cast = i;
+            add_unary_terms(1, &result, &left_cast);
 
             if (result == spec.sol_result) {
                 return num_terms - 1;
@@ -120,13 +122,15 @@ private:
 
         int64_t lefts_end = num_terms;
 
+// #pragma omp parallel for
         for (int64_t left = lefts_start; left < lefts_end; left++) {
             uint32_t result = result_mask & (~term_results[left]);
             if (seen.test_and_set(result)) {
                 continue;
             }
 
-            add_unary_term(result, left);
+            uint32_t left_cast = left;
+            add_unary_terms(1, &result, &left_cast);
 
             if (result == spec.sol_result) {
                 return num_terms - 1;
@@ -136,27 +140,39 @@ private:
         return NOT_FOUND;
     }
 
+// See trapezoid_indexing.py for details.
+#define TRAPEZOID_LOOP(K, N, BODY) \
+for (int64_t b = 0; b < K * (N - K) + (N - K) * (N - K + 1) / 2; b++) { \
+    int64_t left = N - 1 - b % (N % K);     \
+    int64_t right = b / (N - K);            \
+    if (right > left) {                     \
+        left = N - (left - K) - 1;          \
+        right= N - (left - (K + 1)) - 1;    \
+    }                                       \
+    BODY                                    \
+}
+
     // Add AND terms to the bank.
     int64_t pass_And(int32_t height) {
         int64_t lefts_start = terms_with_height_start(height - 1);
         int64_t lefts_end = terms_with_height_end(height - 1);
 
-        for (int64_t left = lefts_start; left < lefts_end; left++) {
-            // AND uses < instead of <= because ANDing a term with itself is useless.
-            for (int64_t right = 0; right < left; right++) {
-                uint32_t result = result_mask &
-                        (term_results[left] & term_results[right]);
-                if (seen.test_and_set(result)) {
-                    continue;
-                }
-
-                add_binary_term(result, left, right);
-
-                if (result == spec.sol_result) {
-                    return num_terms - 1;
-                }
+// #pragma omp parallel for
+        TRAPEZOID_LOOP(lefts_start, lefts_end, {
+            uint32_t result = result_mask &
+                    (term_results[left] & term_results[right]);
+            if (seen.test_and_set(result)) {
+                continue;
             }
-        }
+
+            uint32_t left_cast = left;
+            uint32_t right_cast = right;
+            add_binary_terms(1, &result, &left_cast, &right_cast);
+
+            if (result == spec.sol_result) {
+                return num_terms - 1;
+            }
+        })
 
         return NOT_FOUND;
     }
@@ -166,22 +182,22 @@ private:
         int64_t lefts_start = terms_with_height_start(height - 1);
         int64_t lefts_end = terms_with_height_end(height - 1);
 
-        for (int64_t left = lefts_start; left < lefts_end; left++) {
-            // OR uses < instead of <= because ORing a term with itself is useless.
-            for (int64_t right = 0; right < left; right++) {
-                uint32_t result = result_mask &
-                        (term_results[left] | term_results[right]);
-                if (seen.test_and_set(result)) {
-                    continue;
-                }
-
-                add_binary_term(result, left, right);
-
-                if (result == spec.sol_result) {
-                    return num_terms - 1;
-                }
+// #pragma omp parallel for
+        TRAPEZOID_LOOP(lefts_start, lefts_end, {
+            uint32_t result = result_mask &
+                    (term_results[left] & term_results[right]);
+            if (seen.test_and_set(result)) {
+                continue;
             }
-        }
+
+            uint32_t left_cast = left;
+            uint32_t right_cast = right;
+            add_binary_terms(1, &result, &left_cast, &right_cast);
+
+            if (result == spec.sol_result) {
+                return num_terms - 1;
+            }
+        })
 
         return NOT_FOUND;
     }
@@ -191,22 +207,22 @@ private:
         int64_t lefts_start = terms_with_height_start(height - 1);
         int64_t lefts_end = terms_with_height_end(height - 1);
 
-        for (int64_t left = lefts_start; left < lefts_end; left++) {
-            // XOR uses <= instead of < because XORing a term with itself gives 0.
-            for (int64_t right = 0; right <= left; right++) {
-                uint32_t result = result_mask &
-                        (term_results[left] ^ term_results[right]);
-                if (seen.test_and_set(result)) {
-                    continue;
-                }
-
-                add_binary_term(result, left, right);
-
-                if (result == spec.sol_result) {
-                    return num_terms - 1;
-                }
+// #pragma omp parallel for
+        TRAPEZOID_LOOP(lefts_start, lefts_end, {
+            uint32_t result = result_mask &
+                    (term_results[left] & term_results[right]);
+            if (seen.test_and_set(result)) {
+                continue;
             }
-        }
+
+            uint32_t left_cast = left;
+            uint32_t right_cast = right;
+            add_binary_terms(1, &result, &left_cast, &right_cast);
+
+            if (result == spec.sol_result) {
+                return num_terms - 1;
+            }
+        });
 
         return NOT_FOUND;
     }
