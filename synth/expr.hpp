@@ -1,6 +1,7 @@
 #ifndef EXPR_H
 #define EXPR_H
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <iostream>
@@ -14,39 +15,39 @@ private:
     static const int32_t NOT = -4;
 
     // AND, OR, XOR, NOT, or the number of a variable (e.g. 2 for x2).
-    int32_t type;
+    const int32_t type;
 
     // Left and right children, if present.
-    Expr* left;
-    Expr* right;
+    const Expr* left;
+    const Expr* right;
 
-    Expr(int32_t type, Expr* left, Expr* right) :
+    Expr(const int32_t type, const Expr* left, const Expr* right) :
         type(type), left(left), right(right) {}
 
 public:
     // Static helpers to construct various expressions.
 
-    static Expr* And(Expr *left, Expr *right) {
+    static const Expr* And(const Expr *left, const Expr *right) {
         return new Expr(Expr::AND, left, right);
     }
 
-    static Expr* Or(Expr *left, Expr *right) {
+    static const Expr* Or(const Expr *left, const Expr *right) {
         return new Expr(Expr::OR, left, right);
     }
 
-    static Expr* Xor(Expr *left, Expr *right) {
+    static const Expr* Xor(const Expr *left, const Expr *right) {
         return new Expr(Expr::XOR, left, right);
     }
 
-    static Expr* Not(Expr *left) {
+    static const Expr* Not(const Expr *left) {
         return new Expr(Expr::NOT, left, nullptr);
     }
 
-    static Expr* Var(int32_t var_num) {
+    static const Expr* Var(int32_t var_num) {
         return new Expr(var_num, nullptr, nullptr);
     }
 
-    void print(std::ostream &out, std::vector<std::string> *var_names) const {
+    void print(std::ostream &out, const std::vector<std::string> *var_names) const {
         switch (type) {
             case Expr::AND:
                 out << "(";
@@ -83,20 +84,98 @@ public:
         }
     }
 
-    void assert_depth(uint32_t depth, const std::vector<uint32_t> &var_depths) {
+    int32_t height(const std::vector<int32_t> &var_heights) const {
         switch (type) {
             case Expr::NOT:
-                left->assert_depth(depth - 1, var_depths);
+                return 1 + left->height(var_heights);
+            case Expr::AND:
+            case Expr::OR:
+            case Expr::XOR:
+                return 1 + std::max(left->height(var_heights), right->height(var_heights));
+            default:
+                assert(0 <= type && (size_t) type < var_heights.size());
+                return var_heights[type];
+        }
+    }
+
+    const Expr* pad_height(int32_t amount) const {
+        assert(amount >= 0);
+        switch (amount) {
+            case 0:
+                return this;
+            case 1:
+                return Expr::And(this, this);
+            default:
+                return Expr::Not(Expr::Not(pad_height(amount - 2)));
+        }
+    }
+
+    const Expr* with_constant_height(int32_t height, const std::vector<int32_t> &var_heights) const {
+        const Expr* new_expr;
+
+        switch (type) {
+            case Expr::NOT: {
+                // Make the operand constant height.
+                int32_t left_height = left->height(var_heights);
+                const Expr* new_left = left->with_constant_height(left_height, var_heights);
+
+                new_expr = Expr::Not(new_left);
+                break;
+            }
+            case Expr::AND:
+            case Expr::OR:
+            case Expr::XOR: {
+                // Make both operands constant height.
+                int32_t left_height = left->height(var_heights);
+                const Expr* new_left = left->with_constant_height(left_height, var_heights);
+                int32_t right_height = right->height(var_heights);
+                const Expr* new_right = right->with_constant_height(right_height, var_heights);
+
+                // Make both operands the same height.
+                int32_t child_height = std::max(left_height, right_height);
+                new_left = new_left->pad_height(child_height - left_height);
+                new_right = new_right->pad_height(child_height - right_height);
+
+                switch (type) {
+                    case Expr::AND:
+                        new_expr = Expr::And(new_left, new_right);
+                        break;
+                    case Expr::OR:
+                        new_expr = Expr::Or(new_left, new_right);
+                        break;
+                    case Expr::XOR:
+                        new_expr = Expr::Xor(new_left, new_right);
+                        break;
+                    default:
+                        assert(false);
+                        break;
+                }
+                break;
+            }
+            default:
+                // Variables are left as-is.
+                assert(0 <= type && (size_t) type < var_heights.size());
+                assert(var_heights[type] <= height);
+                new_expr = this;
+        }
+
+        return new_expr->pad_height(height - new_expr->height(var_heights));
+    }
+
+    void assert_constant_height(int32_t height, const std::vector<int32_t> &var_heights) const {
+        switch (type) {
+            case Expr::NOT:
+                left->assert_constant_height(height - 1, var_heights);
                 break;
             case Expr::AND:
             case Expr::OR:
             case Expr::XOR:
-                left->assert_depth(depth - 1, var_depths);
-                right->assert_depth(depth - 1, var_depths);
+                left->assert_constant_height(height - 1, var_heights);
+                right->assert_constant_height(height - 1, var_heights);
                 break;
             default:
-                assert(type >= 0 && (size_t) type < var_depths.size());
-                assert(var_depths[type] == depth);
+                assert(type >= 0 && (size_t) type < var_heights.size());
+                assert(var_heights[type] == height);
         }
     }
 
@@ -107,7 +186,7 @@ public:
 
     // Evaluate an expression with the given variable values.
     // The i'th element of vars is the value of the i'th variable.
-    bool eval(const std::vector<bool> &vars) {
+    bool eval(const std::vector<bool> &vars) const {
         switch (type) {
             case Expr::AND:
                 return left->eval(vars) && right->eval(vars);

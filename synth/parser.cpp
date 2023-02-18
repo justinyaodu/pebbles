@@ -141,8 +141,8 @@ vector<uint32_t> Parser::getVarValues(uint32_t numVariables, uint32_t numExample
 }
 Spec Parser::parseInput(string inputFileName) {
     uint32_t numVariables = 0;
-    uint32_t maxDepth = 0;//e.g. this will be 4 for the D5 files since the grammar has "Start" as a sort of 0 level depth
-    vector<uint32_t> var_depths;//depths range from 0 to maxDepth, represent the "weight" of the variable in the tree
+    int32_t maxDepth = 0;//e.g. this will be 4 for the D5 files since the grammar has "Start" as a sort of 0 level depth
+    vector<int32_t> var_depths;//depths range from 0 to maxDepth, represent the "weight" of the variable in the tree
     vector<string> var_names;
     uint32_t sol_result;
     uint32_t num_examples;
