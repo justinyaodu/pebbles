@@ -68,7 +68,9 @@ int main(void) {
             0b0101010101010101010101010,
         },
         0b0011100111001110011100111,
-        32
+        32,
+        std::vector<std::vector<bool>>(0),
+        std::vector<bool>(0)
     );
 
     Synthesizer synthesizer(spec);
