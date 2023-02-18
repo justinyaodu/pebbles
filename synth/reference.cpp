@@ -290,21 +290,43 @@ int main(void) {
 
         outputFile << current_path << std::endl;
 
+        std::cout<<"hello!"<<std::endl;
         Spec spec = Parser::parseInput(current_path);
 
-        if (spec.num_vars > 5) {
-            outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
-            continue;
-        }
+        // if (spec.num_vars > 5) {
+        //     outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
+        //     continue;
+        // }
 
         //std::cout << spec << std::endl;
 
         //std::cout << "look at: " << (1L << spec.num_examples) << std::endl;
         //std::cout << "look at: " << (1ULL << 32) << std::endl;
 
-        Synthesizer synthesizer(spec);
-
-        const Expr* expr = synthesizer.synthesize(outputFile);
+        std::cout<<"hello2!"<<std::endl;
+        Expr* expr = nullptr;
+        int i=0;
+        while(true) {
+            Synthesizer synthesizer(spec);
+            cout<<"synthesizing"<<std::endl;
+            expr = synthesizer.synthesize(outputFile);
+            cout<<"done synthesizing"<<std::endl;
+            if(expr==nullptr) break;
+            int counterExample = spec.counterexample(expr);
+            if(counterExample == -1) break;
+            outputFile << "Candidate (counterexample found "<<counterExample<<"): ";
+            expr->print(outputFile, &spec.var_names);
+            outputFile << std::endl;
+            int r=i%32;
+            for(uint32_t j=0; j<spec.var_values.size(); j++) {
+                spec.var_values[j]&=~(1<<r);
+                spec.var_values[j]|=(spec.all_inputs[counterExample][j]?1:0)<<r;
+            }
+            spec.sol_result&=~(1<<r);
+            spec.sol_result|=(spec.all_sols[counterExample]?1:0)<<r;
+            cout<<"Iteration "<<i<<" "<<counterExample<<std::endl;
+            i++;
+        }
         if (expr == nullptr) {
             outputFile << "no solution" << std::endl;
         } else {

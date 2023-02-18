@@ -32,6 +32,10 @@ public:
     // The height of the solution circuit.
     const int32_t sol_height;
 
+    std::vector<std::vector<bool>> all_inputs;
+
+    std::vector<bool> all_sols;
+
     Spec(
         uint32_t num_vars,
         uint32_t num_examples,
@@ -39,7 +43,9 @@ public:
         std::vector<int32_t> var_heights,
         std::vector<uint32_t> var_values,
         uint32_t sol_result,
-        int32_t sol_height
+        int32_t sol_height,
+        std::vector<std::vector<bool>> all_inputs,
+        std::vector<bool> all_sols
     ) :
         num_vars(num_vars),
         num_examples(num_examples),
@@ -47,7 +53,9 @@ public:
         var_heights(var_heights),
         var_values(var_values),
         sol_result(sol_result),
-        sol_height(sol_height) {}
+        sol_height(sol_height),
+        all_inputs(all_inputs),
+        all_sols(all_sols) {}
 
     void validate(const Expr* solution) {
         solution->assert_constant_height(sol_height, var_heights);
@@ -59,6 +67,15 @@ public:
             bool expected = (sol_result >> example) & 1;
             assert(solution->eval(vars) == expected);
         }
+    }
+
+    int counterexample(Expr* solution) {
+        for(uint32_t example=0; example<all_inputs.size(); example++) {
+            if(solution->eval(all_inputs[example])!=all_sols[example]) {
+                return example;
+            }
+        }
+        return -1;
     }
 
     friend std::ostream& operator<< (std::ostream &out, const Spec &spec) {

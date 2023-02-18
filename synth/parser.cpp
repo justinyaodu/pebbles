@@ -96,6 +96,37 @@ uint32_t truthTableIntResult(string expr, vector<string> names, vector<bool> val
     return retVal;
 }
 
+uint32_t min(int a, int b) {
+    return (a<b)?a:b;
+}
+
+uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &vals) {
+    uint32_t retVal = 0;
+    for(uint32_t i=0; i<min(power(2, names.size()), 32); i++) {
+        int x=((1+(power(2, names.size())/32))*i)%power(2, names.size());
+        vector<bool> input;
+        for(uint32_t j=0; j<names.size(); j++) {
+            vals[j] = (vals[j] << 1) | ((x>>j)&1);
+            input.push_back((x>>j)&1);
+        }
+        retVal = (retVal << 1) | evalExpr(expr, names, input);
+    }
+    return retVal;
+}
+
+vector<bool> truthTableFull(string expr, vector<string> names, vector<vector<bool>> &vals) {
+    vector<bool> retVal;
+    for(int i=0; i<power(2, names.size()); i++) {
+        vector<bool> newVec;
+        vals.push_back(newVec);
+        for(uint32_t j=0; j<names.size(); j++) {
+            vals[i].push_back((i>>j)&1);
+        }
+        retVal.push_back(evalExpr(expr, names, vals[i]));
+    }
+    return retVal;
+}
+
 vector<uint32_t> Parser::getVarValues(uint32_t numVariables, uint32_t numExamples) {
     uint32_t currVar;
     vector<uint32_t> varValues;
@@ -179,15 +210,16 @@ Spec Parser::parseInput(string inputFileName) {
     }
     maxDepth = depth;
     numVariables = var_names.size();
-    if (numVariables > 5) {
-        //we can't handle this many variables
-        return Spec(numVariables,0,std::vector<std::string>(),
-        std::vector<int32_t>(),
-        std::vector<uint32_t>(),
-        0,
-        0);
-    }
+    // if (numVariables > 5) {
+    //     //we can't handle this many variables
+    //     return Spec(numVariables,0,std::vector<std::string>(),
+    //     std::vector<uint32_t>(),
+    //     std::vector<uint32_t>(),
+    //     0,
+    //     0);
+    // }
     num_examples = power(2,numVariables);
+    if(num_examples>32) num_examples=32;
     inputFile.close();
 
     //Flip depths to be "weight"s instead
@@ -202,14 +234,31 @@ Spec Parser::parseInput(string inputFileName) {
         cout << var_names[i] << ": depth " << var_depths[i] << endl;
     }*/
 
-    vector<bool> vals;
+    vector<uint32_t> vals;
     for (uint32_t i = 0; i < numVariables; i++) {
-        vals.push_back(true);
+        vals.push_back(0);
     }
-    //truthTable(origCir, var_names, vals);
-    sol_result = truthTableIntResult(origCir, var_names, vals);
 
-    return Spec(numVariables, num_examples, var_names, var_depths, getVarValues(numVariables, num_examples), sol_result, maxDepth);
+    cout<<"wot";
+
+    sol_result = truthTableWithVec(origCir, var_names, vals);
+
+    cout<<"spec making";
+
+    vector<vector<bool>> all_inputs;
+    vector<bool> full_sol = truthTableFull(origCir, var_names, all_inputs);
+
+    cout<<"spec made";
+
+    return Spec(numVariables, 
+                num_examples, 
+                var_names, 
+                var_depths, 
+                vals, 
+                sol_result, 
+                maxDepth,
+                all_inputs,
+                full_sol);
 }
 
 

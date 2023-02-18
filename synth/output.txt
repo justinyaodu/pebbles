@@ -1,0 +1,343 @@
+./inputs/CrCy_10-sbox2-D5-sIn26.sl
+bank size: 705
+Candidate: ((((LN1 & LN1) & LN33) ^ !LN62) ^ LN231)
+solution: ((((LN1 & LN1) & LN33) ^ !LN62) ^ LN231)
+
+./inputs/CrCy_10-sbox2-D5-sIn77.sl
+bank size: 5401918
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn84.sl
+bank size: 70311
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn43.sl
+bank size: 396
+no solution
+
+./inputs/CrCy_6-P10-D7-sIn3.sl
+bank size: 32910651
+Candidate: !!(((LN60 ^ LN56) ^ !LN64) ^ !((k4 ^ k3) ^ LN67))
+solution: !!(((LN60 ^ LN56) ^ !LN64) ^ !((k4 ^ k3) ^ LN67))
+
+./inputs/CrCy_10-sbox2-D5-sIn12.sl
+bank size: 31899
+Candidate: (((LN56 & LN56) ^ LN65) ^ (((LN1 & LN1) ^ LN39) & LN166))
+solution: (((LN56 & LN56) ^ LN65) ^ (((LN1 & LN1) ^ LN39) & LN166))
+
+./inputs/CrCy_8-P12-D5-sIn3.sl
+bank size: 46754396
+Candidate: (((LN20 ^ LN3) ^ !LN23) ^ ((LN17 ^ LN7) ^ !(k1 | k4)))
+bank size: 5911043
+Candidate: (((LN17 | LN3) ^ !!k4) & ((!k4 ^ LN20) & ((k1 | k4) | LN23)))
+bank size: 7317288
+Candidate: ((((k4 & k4) | LN20) ^ (LN17 | LN3)) & ((LN17 | LN3) ^ (!k1 & LN7)))
+bank size: 30484927
+Candidate: ((((k1 & k1) | LN3) | (LN23 | LN17)) ^ ((LN20 | LN7) | !!k4))
+bank size: 8228037
+Candidate: (((LN23 ^ LN17) ^ !(k1 & k1)) & ((!k4 ^ LN20) & (LN7 ^ LN3)))
+bank size: 36917628
+Candidate: (((LN20 ^ LN3) ^ !LN23) ^ ((LN17 ^ LN7) ^ !(k1 ^ k4)))
+solution: (((LN20 ^ LN3) ^ !LN23) ^ ((LN17 ^ LN7) ^ !(k1 ^ k4)))
+
+./inputs/CrCy_7-P11-D5-sIn4.sl
+bank size: 11258
+Candidate: ((!LN48 ^ LN39) ^ !((k7 & k7) & LN1))
+solution: ((!LN48 ^ LN39) ^ !((k7 & k7) & LN1))
+
+./inputs/CrCy_10-sbox2-D7-sIn1.sl
+bank size: 14040756
+Candidate: (((!LN34 ^ LN65) | ((LN56 ^ LN34) | (LN40 & LN34))) & ((((LN17 & LN17) ^ LN34) | (LN40 & LN40)) & (!(LN17 & LN17) | LN47)))
+bank size: 1060421458
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn53.sl
+bank size: 60
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn94.sl
+bank size: 42606
+Candidate: (((LN208 ^ LN70) ^ ((LN206 ^ LN55) & (LN206 | LN55))) & LN78)
+solution: (((LN208 ^ LN70) ^ ((LN206 ^ LN55) & (LN206 | LN55))) & LN78)
+
+./inputs/CrCy_10-sbox2-D5-sIn67.sl
+bank size: 8
+Candidate: (!!(LN44 & LN44) & LN88)
+solution: (!!(LN44 & LN44) & LN88)
+
+./inputs/CrCy_10-sbox2-D5-sIn36.sl
+bank size: 27
+Candidate: (!(!LN4 ^ LN44) & LN90)
+solution: (!(!LN4 ^ LN44) & LN90)
+
+./inputs/CrCy_10-sbox2-D5-sIn16.sl
+bank size: 6861
+Candidate: ((LN63 ^ LN52) ^ (((LN4 & LN4) ^ LN44) & LN170))
+solution: ((LN63 ^ LN52) ^ (((LN4 & LN4) ^ LN44) & LN170))
+
+./inputs/CrCy_6-P10-D7-sIn7.sl
+bank size: 808
+Candidate: ((!(((k3 & k3) & LN24) ^ LN121) ^ LN131) & (!(((k3 & k3) & LN24) ^ LN121) ^ LN131))
+solution: ((!(((k3 & k3) & LN24) ^ LN121) ^ LN131) & (!(((k3 & k3) & LN24) ^ LN121) ^ LN131))
+
+./inputs/CrCy_10-sbox2-D5-sIn47.sl
+bank size: 8
+Candidate: (!!(LN1 & LN1) & LN92)
+solution: (!!(LN1 & LN1) & LN92)
+
+./inputs/CrCy_10-sbox2-D5-sIn73.sl
+bank size: 48
+no solution
+
+./inputs/CrCy_6-P10-D5-sIn8.sl
+bank size: 44
+Candidate: !(((k3 & k3) & LN24) ^ LN103)
+solution: !(((k3 & k3) & LN24) ^ LN103)
+
+./inputs/CrCy_10-sbox2-D5-sIn22.sl
+bank size: 396
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn80.sl
+bank size: 1119872
+Candidate: (((LN236 & LN70) ^ !LN73) ^ ((!LN253 ^ LN252) | !LN70))
+solution: (((LN236 & LN70) ^ !LN73) ^ ((!LN253 ^ LN252) | !LN70))
+
+./inputs/CrCy_7-P11-D9-sIn3.sl
+bank size: 52
+Candidate: !!((!!((k8 & k8) & LN33) ^ LN82) & (!!((k8 & k8) & LN33) ^ LN82))
+solution: !!((!!((k8 & k8) & LN33) ^ LN82) & (!!((k8 & k8) & LN33) ^ LN82))
+
+./inputs/CrCy_8-P12-D9-sIn4.sl
+bank size: 57
+Candidate: !!!!(((LN68 & LN68) & !!k4) ^ LN244)
+solution: !!!!(((LN68 & LN68) & !!k4) ^ LN244)
+
+./inputs/CrCy_8-P12-D7-sIn8.sl
+bank size: 158203
+Candidate: !!(((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
+solution: !!(((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
+
+./inputs/CrCy_8-P12-D5-sIn7.sl
+bank size: 396
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn90.sl
+bank size: 1530887
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn32.sl
+bank size: 396
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn63.sl
+bank size: 48
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn57.sl
+bank size: 60
+no solution
+
+./inputs/CrCy_6-P10-D7-sIn6.sl
+bank size: 8383278
+Candidate: (((!LN118 ^ LN123) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))) & ((!LN118 ^ LN123) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))))
+solution: (((!LN118 ^ LN123) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))) & ((!LN118 ^ LN123) ^ !(((k4 & k4) & LN8) ^ (LN17 & LN17))))
+
+./inputs/CrCy_10-sbox2-D5-sIn17.sl
+bank size: 392
+Candidate: ((((LN7 & LN7) & LN34) ^ LN214) ^ LN213)
+solution: ((((LN7 & LN7) & LN34) ^ LN214) ^ LN213)
+
+./inputs/CrCy_2-P6-D7-sIn1.sl
+bank size: 204
+Candidate: !!((((LN20 & LN20) & LN19) ^ !!LN13) & (((LN20 & LN20) & LN19) ^ !!LN13))
+solution: !!((((LN20 & LN20) & LN19) ^ !!LN13) & (((LN20 & LN20) & LN19) ^ !!LN13))
+
+./inputs/CrCy_10-sbox2-D5-sIn46.sl
+bank size: 48
+no solution
+
+./inputs/CrCy_6-P10-D5-sIn9.sl
+bank size: 158203
+Candidate: (((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
+solution: (((LN43 ^ LN39) ^ LN32) ^ !(!k4 ^ LN46))
+
+./inputs/CrCy_10-sbox2-D5-sIn72.sl
+bank size: 48
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn23.sl
+bank size: 44
+Candidate: !(((LN1 & LN1) & LN33) ^ LN221)
+solution: !(((LN1 & LN1) & LN33) ^ LN221)
+
+./inputs/CrCy_10-sbox2-D5-sIn81.sl
+bank size: 3598234
+Candidate: ((!LN222 ^ LN318) ^ !((LN213 ^ LN196) ^ !LN259))
+solution: ((!LN222 ^ LN318) ^ !((LN213 ^ LN196) ^ !LN259))
+
+./inputs/CrCy_7-P11-D9-sIn2.sl
+bank size: 8383278
+Candidate: !!(((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))) & ((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))))
+solution: !!(((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))) & ((!LN68 ^ LN72) ^ !(((k7 & k7) & LN4) ^ (LN25 & LN25))))
+
+./inputs/CrCy_8-P12-D7-sIn9.sl
+bank size: 8383280
+Candidate: (((!LN275 ^ LN278) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))) & ((!LN275 ^ LN278) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))))
+solution: (((!LN275 ^ LN278) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))) & ((!LN275 ^ LN278) ^ !(((k4 & k4) & LN47) ^ (LN43 & LN43))))
+
+./inputs/CrCy_7-P11-D5-sIn1.sl
+bank size: 1149546
+Candidate: ((((k6 & k6) & LN1) ^ !LN25) ^ !(LN32 ^ LN30))
+solution: ((((k6 & k6) & LN1) ^ !LN25) ^ !(LN32 ^ LN30))
+
+./inputs/CrCy_8-P12-D5-sIn6.sl
+bank size: 11258
+Candidate: ((!LN17 ^ LN234) ^ !((k4 & k4) & LN8))
+solution: ((!LN17 ^ LN234) ^ !((k4 & k4) & LN8))
+
+./inputs/CrCy_10-sbox2-D5-sIn91.sl
+bank size: 1530887
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn33.sl
+bank size: 396
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn62.sl
+bank size: 8
+Candidate: (!!(LN39 & LN39) & LN89)
+solution: (!!(LN39 & LN39) & LN89)
+
+./inputs/CrCy_10-sbox2-D5-sIn56.sl
+bank size: 60
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn27.sl
+bank size: 11208
+Candidate: ((!LN33 ^ LN234) ^ !((LN10 & LN10) & LN49))
+solution: ((!LN33 ^ LN234) ^ !((LN10 & LN10) & LN49))
+
+./inputs/CrCy_10-sbox2-D5-sIn76.sl
+bank size: 5401918
+no solution
+
+./inputs/CrCy_10-sbox2-D5-sIn85.sl
+bank size: 640
+Candidate: !(((LN231 ^ LN218) ^ LN240) & (LN252 & LN252))
+solution: !(((LN231 ^ LN218) ^ LN240) & (LN252 & LN252))
+
+./inputs/CrCy_10-sbox2-D5-sIn42.sl
+bank size: 27
+Candidate: (!(!LN1 ^ LN39) & LN87)
+solution: (!(!LN1 ^ LN39) & LN87)
+
+./inputs/CrCy_10-sbox2-D5-sIn13.sl
+bank size: 25316
+Candidate: ((((LN17 ^ LN4) ^ LN16) ^ LN65) ^ LN55)
+solution: ((((LN17 ^ LN4) ^ LN16) ^ LN65) ^ LN55)
+
+./inputs/CrCy_6-P10-D7-sIn2.sl
+bank size: 8383278
+Candidate: (((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))) & ((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))))
+solution: (((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))) & ((!LN88 ^ LN92) ^ !(((k4 & k4) & LN8) ^ (LN75 & LN75))))
+
+./inputs/CrCy_8-P12-D9-sIn1.sl
+bank size: 3887
+Candidate: !!!!((((k4 & k4) ^ LN3) ^ (LN81 ^ LN7)) & (((k4 & k4) ^ LN3) ^ (LN81 ^ LN7)))
+solution: !!!!((((k4 & k4) ^ LN3) ^ (LN81 ^ LN7)) & (((k4 & k4) ^ LN3) ^ (LN81 ^ LN7)))
+
+./inputs/CrCy_8-P12-D5-sIn2.sl
+bank size: 32910651
+Candidate: (((LN60 ^ LN56) ^ !LN64) ^ !((k4 ^ k3) ^ LN67))
+solution: (((LN60 ^ LN56) ^ !LN64) ^ !((k4 ^ k3) ^ LN67))
+
+./inputs/CrCy_9-pprmAll-D5-sIn1.sl
+bank size: 10033
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) & ((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)))
+bank size: 28603929
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k4 & k3))
+bank size: 34037232
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k5 & k3))
+bank size: 46169359
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k5 & k4))
+bank size: 60231382
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k6 & k3))
+bank size: 74585634
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k6 & k4))
+bank size: 38496156
+Candidate: ((((k5 ^ k4) | LN2254) ^ ((k6 ^ k3) & !k7)) & (((k4 | k3) ^ LN2262) | (LN2288 ^ LN2262)))
+bank size: 77910178
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k6 & k5))
+bank size: 89292535
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k7 & k3))
+bank size: 93441173
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k7 & k4))
+bank size: 99670214
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k7 & k5))
+bank size: 131644284
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | !!(k7 & k6))
+bank size: 169554580
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | ((LN2254 & LN2254) & !!k4))
+bank size: 209969347
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | ((LN2254 & LN2254) & !!k5))
+bank size: 253719873
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | ((LN2254 & LN2254) & !!k6))
+bank size: 297685943
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | ((LN2254 & LN2254) & !!k7))
+bank size: 330619918
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k3 & k3) & LN2254) & !!k4))
+bank size: 345204999
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k3 & k3) & LN2254) & !!k5))
+bank size: 333563539
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k3 & k3) & LN2254) & !!k6))
+bank size: 331553336
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k3 & k3) & LN2254) & !!k7))
+bank size: 321524673
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k4 & k3) & LN2254) & !!k5))
+bank size: 345799775
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k4 & k3) & LN2254) & !!k6))
+bank size: 416743477
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k4 & k3) & LN2254) & !!k7))
+bank size: 30672873
+Candidate: (((LN2275 ^ LN2262) | ((k6 & k5) | LN2288)) & ((LN2262 | LN2254) & !LN2301))
+bank size: 241789406
+Candidate: (((LN2275 ^ LN2262) ^ ((k3 & k3) | LN2288)) & (((k6 & k5) | !k3) & !LN2301))
+bank size: 295117102
+Candidate: (((LN2301 | LN2275) ^ (LN2288 | LN2262)) | (((k6 & k3) | LN2262) & ((k5 & k3) | LN2288)))
+bank size: 364565334
+Candidate: (((LN2275 ^ LN2262) ^ (LN2288 & LN2288)) | (((k5 & k3) | LN2301) & !(k6 ^ k3)))
+bank size: 320965269
+Candidate: (((LN2275 ^ LN2262) ^ (LN2301 | LN2288)) | (((k5 & k3) & LN2254) & !!k6))
+bank size: 321832933
+Candidate: (((LN2288 ^ LN2262) ^ (LN2301 | LN2275)) | (((k5 & k3) & LN2254) & !!k6))
+bank size: 155421945
+Candidate: (((LN2275 ^ LN2262) ^ ((k3 & k3) | LN2301)) & (((k6 & k5) | !k3) & !LN2288))
+bank size: 255801598
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 | LN2275)) | (((k5 & k3) & LN2254) & !!k6))
+bank size: 216400028
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & LN2254) & !!k6))
+bank size: 323199207
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & LN2254) & !!k7))
+bank size: 364812
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) & ((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)))
+bank size: 352879320
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & (k4 & k3)) & !!k6))
+bank size: 396951596
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & (k4 & k3)) & !!k7))
+bank size: 394674545
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k4) & LN2254) & !!k6))
+bank size: 449869549
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k4) & LN2254) & !!k7))
+bank size: 453488911
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & LN2254) & !!k7))
+bank size: 371013225
+Candidate: (((LN2288 ^ LN2275) ^ ((k3 & k3) | LN2301)) & ((!k3 ^ LN2262) | ((k7 & k3) & (k6 & k4))))
+bank size: 454147882
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & LN2254) & ((k5 & k3) & (k4 & k3))))
+bank size: 446642759
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & (k4 & k3)) & !!k7))
+bank size: 447651754
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & (k5 & k3)) & !!k7))
+bank size: 445639941
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & (k5 & k4)) & !!k7))
