@@ -14,12 +14,11 @@
 #include "expr.hpp"
 #include "spec.hpp"
 #include "synth_cpu.hpp"
-#include "timer.hpp"
 
 // Set experimentally.
 #define TILE_SIZE 64
 
-class Synthesizer : AbstractSynthesizer {
+class Synthesizer : public AbstractSynthesizer {
 private:
     // The i'th bit is on iff the bank contains a term whose bitvector
     // of evaluation results is equal to i.
@@ -28,57 +27,6 @@ private:
 public:
     Synthesizer(Spec spec) : AbstractSynthesizer(spec),
             seen(ThreadSafeBitset(max_distinct_terms)) {}
-
-    // Return an Expr satisfying spec, or nullptr if it cannot be found.
-    const Expr* synthesize() {
-        int64_t sol_index = NOT_FOUND;
-        Timer timer;
-
-        for (int32_t height = 0; height <= spec.sol_height; height++) {
-
-// Do the specified pass, and break out of the loop if a solution was found.
-#define DO_PASS(TYPE)                       \
-{                                           \
-    int64_t prev_num_terms = num_terms;     \
-    std::cerr << "height " << height        \
-        << ", " #TYPE " pass" << std::endl; \
-                                            \
-    Timer pass_timer;                       \
-    sol_index = pass_ ## TYPE(height);      \
-    uint64_t ms = pass_timer.ms();          \
-    record_pass(PassType::TYPE, height);    \
-                                            \
-    std::cerr << "\t" << ms << " ms, "      \
-        << (num_terms - prev_num_terms) << " new term(s), " \
-        << num_terms << " total term(s)"    \
-        << std::endl;                       \
-                                            \
-    if (sol_index != NOT_FOUND) {           \
-        break;                              \
-    }                                       \
-}
-
-            DO_PASS(Variable);
-
-            if (height == 0) {
-                continue;
-            }
-
-            DO_PASS(Not);
-            DO_PASS(And);
-            DO_PASS(Or);
-            DO_PASS(Xor);
-
-#undef DO_PASS
-        }
-
-        uint64_t ms = timer.ms();
-        std::cerr << ms << " ms, "
-            << num_terms << " terms, "
-            << std::endl;
-
-        return sol_index == NOT_FOUND ? nullptr : reconstruct(sol_index);
-    }
 
 private:
     int64_t alloc_terms(int64_t count) {
@@ -183,6 +131,10 @@ private:
     }
 
     // Synthesize AND terms.
+    // The code is exactly the same for AND, OR, and XOR, except for the bitwise
+    // operation used. I tried specifying the operation with a lambda/
+    // function pointer/etc., but it hurt performance because I couldn't coerce
+    // the compiler into inlining it.
     int64_t pass_And(int32_t height) {
         int64_t all_lefts_end = terms_with_height_end(height - 1);
 
