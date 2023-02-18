@@ -327,3 +327,17 @@ bank size: 396951596
 Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k3) & (k4 & k3)) & !!k7))
 bank size: 394674545
 Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k4) & LN2254) & !!k6))
+bank size: 449869549
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k5 & k4) & LN2254) & !!k7))
+bank size: 453488911
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & LN2254) & !!k7))
+bank size: 371013225
+Candidate: (((LN2288 ^ LN2275) ^ ((k3 & k3) | LN2301)) & ((!k3 ^ LN2262) | ((k7 & k3) & (k6 & k4))))
+bank size: 454147882
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & LN2254) & ((k5 & k3) & (k4 & k3))))
+bank size: 446642759
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & (k4 & k3)) & !!k7))
+bank size: 447651754
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & (k5 & k3)) & !!k7))
+bank size: 445639941
+Candidate: (((LN2301 ^ LN2262) ^ (LN2288 ^ LN2275)) | (((k6 & k3) & (k5 & k4)) & !!k7))

@@ -103,7 +103,7 @@ uint32_t min(int a, int b) {
 uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &vals) {
     uint32_t retVal = 0;
     for(uint32_t i=0; i<min(power(2, names.size()), 32); i++) {
-        int x=(3*i)%power(2, names.size());
+        int x=((1+(power(2, names.size())/32))*i)%power(2, names.size());
         vector<bool> input;
         for(uint32_t j=0; j<names.size(); j++) {
             vals[j] = (vals[j] << 1) | ((x>>j)&1);
