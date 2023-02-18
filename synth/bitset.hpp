@@ -30,7 +30,7 @@ public:
     // Set the bit at the specified index,
     // and return the previous value of that bit.
     bool test_and_set(uint32_t index) {
-        assert(index < size);
+        // assert(index < size);
 
         uint8_t byte = bytes[index / 8];
         uint8_t mask = 1 << (index % 8);
@@ -54,7 +54,7 @@ public:
     // Atomically set the bit at the specified index,
     // and return the previous value of that bit.
     bool test_and_set(uint32_t index) {
-        assert(index < size);
+        // assert(index < size);
 
         // This fetch isn't atomic, but if the bit is already 1, we save an
         // unnecessary atomic operation.

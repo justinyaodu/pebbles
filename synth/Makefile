@@ -1,4 +1,4 @@
-CXXFLAGS = -O3 -Wall -Wextra -Wshadow=local -march=native
+CXXFLAGS = -g -O3 -Wall -Wextra -Wshadow=local -march=native
 SHARED_HEADERS = alloc.hpp bitset.hpp expr.hpp spec.hpp timer.hpp
 
 reference : reference.cpp parser.cpp $(SHARED_HEADERS)
