@@ -12,6 +12,9 @@
 #elif SYNTH_VARIANT == 2
 #include "synth_cpu_mt.hpp"
 #define VARIANT_DESCRIPTION "CPU, multi-threaded"
+#elif SYNTH_VARIANT == 3
+#include "synth_gpu.cu"
+#define VARIANT_DESCRIPTION "GPU"
 #else
 #error "Unsupported SYNTH_VARIANT."
 #endif

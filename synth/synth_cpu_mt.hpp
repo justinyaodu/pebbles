@@ -9,11 +9,10 @@
 #include <iostream>
 #include <omp.h>
 
-#include "alloc.hpp"
 #include "bitset.hpp"
 #include "expr.hpp"
 #include "spec.hpp"
-#include "synth_cpu.hpp"
+#include "synth.hpp"
 
 // Set experimentally.
 #define TILE_SIZE 64

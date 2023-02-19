@@ -4,13 +4,11 @@
 #define SYNTH_CPU_ST_H
 
 #include <cstdint>
-#include <iostream>
 
-#include "alloc.hpp"
 #include "bitset.hpp"
 #include "expr.hpp"
 #include "spec.hpp"
-#include "synth_cpu.hpp"
+#include "synth.hpp"
 #include "timer.hpp"
 
 class Synthesizer : public AbstractSynthesizer {

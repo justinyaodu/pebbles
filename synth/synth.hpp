@@ -1,7 +1,7 @@
-// Shared code for CPU-based synthesizers.
+// Shared code for all synthesizers.
 
-#ifndef SYNTH_CPU_H
-#define SYNTH_CPU_H
+#ifndef SYNTH_H
+#define SYNTH_H
 
 #include <cassert>
 #include <cstdint>

@@ -5,9 +5,7 @@
 #include <cstdint>
 
 #include "alloc.hpp"
-
-// a divided by b, rounded up.
-#define CEIL_DIV(A, B) (((A) + (B) - 1) / (B))
+#include "util.hpp"
 
 class BaseBitset {
 protected:
