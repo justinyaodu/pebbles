@@ -196,8 +196,7 @@ public:
 
         uint64_t ms = timer.ms();
         std::cerr << ms << " ms, "
-            << num_terms << " terms, "
-            << std::endl;
+            << num_terms << " terms" << std::endl;
 
         return sol_index == NOT_FOUND ? nullptr : reconstruct(sol_index);
     }
