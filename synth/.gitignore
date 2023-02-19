@@ -1,5 +1,5 @@
 reference
-.vscode/
+./vscode/
 output.txt
 synth_*
 !synth_*.*
