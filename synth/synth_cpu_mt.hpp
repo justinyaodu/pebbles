@@ -131,11 +131,6 @@ private:
         int64_t all_rights_start = terms_with_height_start(height - 1);
         int64_t all_rights_end = all_lefts_end;
 
-        std::cerr << "and: all_lefts_end=" << all_lefts_end
-            << ", all_rights_start=" << all_rights_start
-            << ", all_rights_end=" << all_rights_end
-            << std::endl;
-
         int64_t solution = NOT_FOUND;
 
         // See trapezoid_indexing.py for details.
