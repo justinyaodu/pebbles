@@ -62,12 +62,13 @@ private:
     }
 
     // Add NOT terms to the bank.
-    int64_t pass_Not(int32_t height __attribute__((unused))) {
+    int64_t pass_Not(int32_t height) {
         int64_t lefts_start = terms_with_height_start(height - 1);
         int64_t lefts_end = terms_with_height_end(height - 1);
 
         for (int64_t left = lefts_start; left < lefts_end; left++) {
-            uint32_t result = result_mask & (~term_results[left]);
+            uint32_t left_result = term_results[left];
+            uint32_t result = result_mask & ~left_result;
             if (seen.test_and_set(result)) {
                 continue;
             }
@@ -82,79 +83,45 @@ private:
         return NOT_FOUND;
     }
 
-    // Add AND terms to the bank.
-    int64_t pass_And(int32_t height) {
-        int64_t lefts_start = terms_with_height_start(height - 1);
-        int64_t lefts_end = terms_with_height_end(height - 1);
+    // Add binary operator terms (AND, OR, XOR) to the bank.
+    template <typename Op>
+    friend int64_t pass_binary(Synthesizer &self, int32_t height, Op op) {
+        int64_t lefts_start = self.terms_with_height_start(height - 1);
+        int64_t lefts_end = self.terms_with_height_end(height - 1);
 
         for (int64_t left = lefts_start; left < lefts_end; left++) {
-            // AND uses < instead of <= because ANDing a term with itself is useless.
-            for (int64_t right = 0; right < left; right++) {
-                uint32_t result = result_mask &
-                        (term_results[left] & term_results[right]);
-                if (seen.test_and_set(result)) {
-                    continue;
-                }
-
-                add_binary_term(result, left, right);
-
-                if (result == spec.sol_result) {
-                    return num_terms - 1;
-                }
-            }
-        }
-
-        return NOT_FOUND;
-    }
-
-    // Add OR terms to the bank.
-    int64_t pass_Or(int32_t height) {
-        int64_t lefts_start = terms_with_height_start(height - 1);
-        int64_t lefts_end = terms_with_height_end(height - 1);
-
-        for (int64_t left = lefts_start; left < lefts_end; left++) {
-            // OR uses < instead of <= because ORing a term with itself is useless.
-            for (int64_t right = 0; right < left; right++) {
-                uint32_t result = result_mask &
-                        (term_results[left] | term_results[right]);
-                if (seen.test_and_set(result)) {
-                    continue;
-                }
-
-                add_binary_term(result, left, right);
-
-                if (result == spec.sol_result) {
-                    return num_terms - 1;
-                }
-            }
-        }
-
-        return NOT_FOUND;
-    }
-
-    // Add XOR terms to the bank.
-    int64_t pass_Xor(int32_t height) {
-        int64_t lefts_start = terms_with_height_start(height - 1);
-        int64_t lefts_end = terms_with_height_end(height - 1);
-
-        for (int64_t left = lefts_start; left < lefts_end; left++) {
-            // XOR uses <= instead of < because XORing a term with itself gives 0.
             for (int64_t right = 0; right <= left; right++) {
-                uint32_t result = result_mask &
-                        (term_results[left] ^ term_results[right]);
-                if (seen.test_and_set(result)) {
+                uint32_t left_result = self.term_results[left];
+                uint32_t right_result = self.term_results[right];
+                uint32_t result = self.result_mask & op(left_result, right_result);
+                if (self.seen.test_and_set(result)) {
                     continue;
                 }
 
-                add_binary_term(result, left, right);
+                self.add_binary_term(result, left, right);
 
-                if (result == spec.sol_result) {
-                    return num_terms - 1;
+                if (result == self.spec.sol_result) {
+                    return self.num_terms - 1;
                 }
             }
         }
 
-        return NOT_FOUND;
+        return Synthesizer::NOT_FOUND;
+    }
+
+    int64_t pass_And(int32_t height) {
+        auto op = [](uint32_t a, uint32_t b) { return a & b; };
+        return pass_binary(*this, height, op);
+    }
+
+    int64_t pass_Or(int32_t height) {
+        auto op = [](uint32_t a, uint32_t b) { return a | b; };
+        return pass_binary(*this, height, op);
+    }
+
+    int64_t pass_Xor(int32_t height) {
+        auto op = [](uint32_t a, uint32_t b) { return a ^ b; };
+        return pass_binary(*this, height, op);
     }
 };
 

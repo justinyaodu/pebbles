@@ -401,6 +401,10 @@ public:
                 cudaMemcpyHostToDevice));
     }
 
+    ~Synthesizer() {
+        gpuAssert(cudaFree(device_pass_state));
+    }
+
 private:
 
 #define KERNEL_SYNC_IF_DONE_RETURN \
