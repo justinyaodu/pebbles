@@ -304,7 +304,14 @@ int main(void) {
         //std::cout << "look at: " << (1ULL << 32) << std::endl;
 
         std::cout<<"hello2!"<<std::endl;
-        Expr* expr = nullptr;
+        const Expr* expr = nullptr;
+        // The i'th element specifies the values of the i'th variable,
+        // where the j'th bit of that integer is the variable's value in example j.
+        // used to update spec.var_values
+        std::vector<uint32_t> updated_var_vals(spec.num_vars);
+        // The i'th bit is the desired output in example i.
+        // used to update spec.sol_result
+        uint32_t updated_sol_result;
         int i=0;
         while(true) {
             Synthesizer synthesizer(spec);
@@ -317,13 +324,17 @@ int main(void) {
             outputFile << "Candidate (counterexample found "<<counterExample<<"): ";
             expr->print(outputFile, &spec.var_names);
             outputFile << std::endl;
+
+            // Update the spec
             int r=i%32;
             for(uint32_t j=0; j<spec.var_values.size(); j++) {
-                spec.var_values[j]&=~(1<<r);
-                spec.var_values[j]|=(spec.all_inputs[counterExample][j]?1:0)<<r;
+                updated_var_vals[j] = spec.var_values[j] & ~(1<<r);
+                updated_var_vals[j] |= (spec.all_inputs[counterExample][j]?1:0)<<r;
             }
-            spec.sol_result&=~(1<<r);
-            spec.sol_result|=(spec.all_sols[counterExample]?1:0)<<r;
+            updated_sol_result = spec.sol_result & ~(1<<r);
+            updated_sol_result |= (spec.all_sols[counterExample]?1:0)<<r;
+            spec.updateIOExamples(updated_var_vals,updated_sol_result);
+            
             cout<<"Iteration "<<i<<" "<<counterExample<<std::endl;
             i++;
         }

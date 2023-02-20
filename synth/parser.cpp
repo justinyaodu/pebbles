@@ -210,14 +210,6 @@ Spec Parser::parseInput(string inputFileName) {
     }
     maxDepth = depth;
     numVariables = var_names.size();
-    // if (numVariables > 5) {
-    //     //we can't handle this many variables
-    //     return Spec(numVariables,0,std::vector<std::string>(),
-    //     std::vector<uint32_t>(),
-    //     std::vector<uint32_t>(),
-    //     0,
-    //     0);
-    // }
     num_examples = power(2,numVariables);
     if(num_examples>32) num_examples=32;
     inputFile.close();
@@ -238,8 +230,6 @@ Spec Parser::parseInput(string inputFileName) {
     for (uint32_t i = 0; i < numVariables; i++) {
         vals.push_back(0);
     }
-
-    cout<<"wot";
 
     sol_result = truthTableWithVec(origCir, var_names, vals);
 

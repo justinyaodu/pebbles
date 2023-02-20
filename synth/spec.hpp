@@ -24,10 +24,10 @@ public:
 
     // The i'th element specifies the values of the i'th variable,
     // where the j'th bit of that integer is the variable's value in example j.
-    const std::vector<uint32_t> var_values;
+    std::vector<uint32_t> var_values;
 
     // The i'th bit is the desired output in example i.
-    const uint32_t sol_result;
+    uint32_t sol_result;
 
     // The height of the solution circuit.
     const int32_t sol_height;
@@ -69,7 +69,7 @@ public:
         }
     }
 
-    int counterexample(Expr* solution) {
+    int counterexample(const Expr* solution) {
         for(uint32_t example=0; example<all_inputs.size(); example++) {
             if(solution->eval(all_inputs[example])!=all_sols[example]) {
                 return example;
@@ -102,6 +102,11 @@ public:
             << ", sol_height: " << spec.sol_height;
 
         return out;
+    }
+
+    void updateIOExamples(std::vector<uint32_t> updated_var_values, uint32_t updated_sol_result) {
+        var_values = updated_var_values;
+        sol_result = updated_sol_result;
     }
 };
 
