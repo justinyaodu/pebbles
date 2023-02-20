@@ -168,7 +168,6 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
     //open truth table-formatted input file
     ifstream inputFile;
     inputFile.open(inputFileName);
-    int lineNumber = 1;
     int spaceAt;
     string inputs;
     // for a particular example
@@ -189,13 +188,19 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
         } else if (section == InputOutput) {
             spaceAt = line.find(' ');
             //output
-            full_sol.push_back(line.at(spaceAt+1));
+            full_sol.push_back(line.at(spaceAt+1)-'0');
             //input
             inputs = line.substr(0,spaceAt);
+	    cout << inputs << " " << line.at(spaceAt+1) << endl;
             vector<bool> inputVals(var_names.size());
-            for (char c : inputs) {
-                inputVals.push_back(c);
+            for (uint32_t i = 0; i < inputs.length(); i++) {
+		char c = inputs.at(i);
+                inputVals[i] = c-'0';
             }
+	    for (bool b : inputVals) {
+		    cout << b << ", ";
+	    }
+	    cout << endl;
             all_inputs.push_back(inputVals);
         } else if (line.find("max-depth:") != string::npos) {
             section = Depth;
@@ -209,6 +214,13 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
     num_examples = power(2,numVariables);
     if(num_examples>32) num_examples=32;
     inputFile.close();
+
+    for (uint32_t i = 0; i < all_inputs.size(); i++) {
+	    for (uint32_t j = 0; j < all_inputs[i].size(); j++) {
+		    cout << all_inputs[i][j] << ", ";
+	     }
+	    cout << "output: " << full_sol[i] << endl;
+    }
 
     // restricted input/output
     vector<uint32_t> vals;
