@@ -63,14 +63,7 @@ private:
 
     // Add NOT terms to the bank.
     int64_t pass_Not(int32_t height __attribute__((unused))) {
-        // Start at the first term after the preceding NOT pass (if any).
-        int64_t lefts_start = 0;
-        for (size_t i = 0; i < pass_types.size(); i++) {
-            if (pass_types[i] == PassType::Not) {
-                lefts_start = pass_ends[i];
-            }
-        }
-
+        int64_t lefts_start = terms_with_height_start(height - 1);
         int64_t lefts_end = terms_with_height_end(height - 1);
 
         for (int64_t left = lefts_start; left < lefts_end; left++) {
