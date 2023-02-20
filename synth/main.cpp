@@ -40,7 +40,6 @@ int main(void) {
     );
     */
 
-    /*
     Spec spec(
         5,
         32,
@@ -54,10 +53,12 @@ int main(void) {
             0b01010101010101010101010101010101
         },
         0b00111001110011100000000011001110,
-        32
+        32,
+        std::vector<std::vector<bool>>(0),
+        std::vector<bool>(0)
     );
-    */
 
+    /*
     Spec spec(
         5,
         24,
@@ -75,6 +76,7 @@ int main(void) {
         std::vector<std::vector<bool>>(0),
         std::vector<bool>(0)
     );
+    */
 
     Synthesizer synthesizer(spec);
 

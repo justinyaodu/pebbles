@@ -73,16 +73,7 @@ private:
 
     // Synthesize NOT terms.
     int64_t pass_Not(int32_t height) {
-        // Start at the first term after the preceding NOT pass (if any).
-        // This avoids synthesizing terms like NOT (NOT x), which would be
-        // equivalent to the existing term x.
-        int64_t all_lefts_start = 0;
-        for (size_t i = 0; i < pass_types.size(); i++) {
-            if (pass_types[i] == PassType::Not) {
-                all_lefts_start = pass_ends[i];
-            }
-        }
-
+        int64_t all_lefts_start = terms_with_height_start(height - 1);
         int64_t all_lefts_end = terms_with_height_end(height - 1);
 
         int64_t solution = NOT_FOUND;
@@ -139,6 +130,11 @@ private:
 
         int64_t all_rights_start = terms_with_height_start(height - 1);
         int64_t all_rights_end = all_lefts_end;
+
+        std::cerr << "and: all_lefts_end=" << all_lefts_end
+            << ", all_rights_start=" << all_rights_start
+            << ", all_rights_end=" << all_rights_end
+            << std::endl;
 
         int64_t solution = NOT_FOUND;
 
