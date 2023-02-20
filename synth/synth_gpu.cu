@@ -30,7 +30,10 @@ struct DevicePassState {
 };
 
 // See inclusive_scan.py for details.
-__device__ inline void inclusive_scan(uint32_t* values, uint32_t length) {
+__device__ inline void inclusive_scan_and_syncthreads(
+    uint32_t* values,
+    uint32_t length
+) {
     uint32_t step, idx;
     for (step = 1, idx = threadIdx.x * 2 + 1;
             step < length;
@@ -45,6 +48,109 @@ __device__ inline void inclusive_scan(uint32_t* values, uint32_t length) {
             step /= 2, idx /= 2, __syncthreads()) {
         if (idx < length) {
             values[idx] += values[idx - step];
+        }
+    }
+}
+
+// Add new terms to the bank.
+__device__ inline void add_binary_terms(
+    DevicePassState* __restrict__ state,
+    uint32_t sol_result,
+    uint32_t* __restrict__ term_results,
+    uint32_t* __restrict__ term_lefts,
+    uint32_t* __restrict__ term_rights,
+    uint32_t is_new,
+    uint32_t result,
+    uint32_t left,
+    uint32_t right
+) {
+    __shared__ uint32_t new_count[BLOCK_SIZE];
+    new_count[threadIdx.x] = is_new;
+    __syncthreads();
+    inclusive_scan_and_syncthreads(new_count, BLOCK_SIZE);
+
+    uint32_t batch_size = new_count[BLOCK_SIZE - 1];
+    if (batch_size == 0) {
+        return;
+    }
+
+    __shared__ uint32_t batch_results[BLOCK_SIZE];
+    __shared__ uint32_t batch_lefts[BLOCK_SIZE];
+    __shared__ uint32_t batch_rights[BLOCK_SIZE];
+
+    if (is_new) {
+        uint32_t batch_idx = new_count[threadIdx.x] - 1;
+        batch_results[batch_idx] = result;
+        batch_lefts[batch_idx] = left;
+        batch_rights[batch_idx] = right;
+    }
+    __syncthreads();
+
+    __shared__ uint32_t bank_segment_start;
+    if (threadIdx.x == 0) {
+        bank_segment_start = atomicAdd(&state->num_terms, batch_size);
+    }
+    __syncthreads();
+
+    if (threadIdx.x < batch_size) {
+        uint32_t bank_idx = bank_segment_start + threadIdx.x;
+        uint32_t batch_result = batch_results[threadIdx.x];
+        term_results[bank_idx] = batch_result;
+        term_lefts[bank_idx] = batch_lefts[threadIdx.x];
+        term_rights[bank_idx] = batch_rights[threadIdx.x];
+
+        if (batch_result == sol_result) {
+            state->found_sol = true;
+            state->sol_idx = bank_idx;
+        }
+    }
+}
+
+// This is the same code as add_binary_terms, minus the code for right children.
+__device__ inline void add_unary_terms(
+    DevicePassState* __restrict__ state,
+    uint32_t sol_result,
+    uint32_t* __restrict__ term_results,
+    uint32_t* __restrict__ term_lefts,
+    uint32_t is_new,
+    uint32_t result,
+    uint32_t left
+) {
+    __shared__ uint32_t new_count[BLOCK_SIZE];
+    new_count[threadIdx.x] = is_new;
+    __syncthreads();
+    inclusive_scan_and_syncthreads(new_count, BLOCK_SIZE);
+
+    uint32_t batch_size = new_count[BLOCK_SIZE - 1];
+    if (batch_size == 0) {
+        return;
+    }
+
+    __shared__ uint32_t batch_results[BLOCK_SIZE];
+    __shared__ uint32_t batch_lefts[BLOCK_SIZE];
+
+    if (is_new) {
+        uint32_t batch_idx = new_count[threadIdx.x] - 1;
+        batch_results[batch_idx] = result;
+        batch_lefts[batch_idx] = left;
+    }
+    __syncthreads();
+
+    __shared__ uint32_t bank_segment_start;
+    if (threadIdx.x == 0) {
+        bank_segment_start = atomicAdd(&state->num_terms, batch_size);
+    }
+    __syncthreads();
+
+    if (threadIdx.x < batch_size) {
+        uint32_t bank_idx = bank_segment_start + threadIdx.x;
+        uint32_t batch_result = batch_results[threadIdx.x];
+        term_results[bank_idx] = batch_result;
+        term_lefts[bank_idx] = batch_lefts[threadIdx.x];
+
+        if (batch_result == sol_result) {
+            state->found_sol = true;
+            state->sol_idx = bank_idx;
         }
     }
 }
@@ -87,26 +193,8 @@ __global__ void pass_variable(
         }
     }
 
-    __shared__ uint32_t new_count[BLOCK_SIZE];
-    new_count[threadIdx.x] = is_new;
-    __syncthreads();
-    inclusive_scan(new_count, BLOCK_SIZE);
-
-    __shared__ uint32_t bank_segment_start;
-    if (threadIdx.x == 0) {
-        bank_segment_start = atomicAdd(&state->num_terms, new_count[BLOCK_SIZE - 1]);
-    }
-    __syncthreads();
-
-    if (is_new) {
-        uint32_t bank_idx = bank_segment_start + new_count[threadIdx.x] - 1;
-        term_results[bank_idx] = var_value;
-        term_lefts[bank_idx] = var_idx;
-        if (var_value == sol_result) {
-            state->found_sol = true;
-            state->sol_idx = bank_idx;
-        }
-    }
+    add_unary_terms(state, sol_result, term_results, term_lefts,
+            is_new, var_value, var_idx);
 }
 
 __global__ void pass_not(
@@ -132,26 +220,8 @@ __global__ void pass_not(
         }
     }
 
-    __shared__ uint32_t new_count[BLOCK_SIZE];
-    new_count[threadIdx.x] = is_new;
-    __syncthreads();
-    inclusive_scan(new_count, BLOCK_SIZE);
-
-    __shared__ uint32_t bank_segment_start;
-    if (threadIdx.x == 0) {
-        bank_segment_start = atomicAdd(&state->num_terms, new_count[BLOCK_SIZE - 1]);
-    }
-    __syncthreads();
-
-    if (is_new) {
-        uint32_t bank_idx = bank_segment_start + new_count[threadIdx.x] - 1;
-        term_results[bank_idx] = result;
-        term_lefts[bank_idx] = left;
-        if (result == sol_result) {
-            state->found_sol = true;
-            state->sol_idx = bank_idx;
-        }
-    }
+    add_unary_terms(state, sol_result, term_results, term_lefts,
+            is_new, result, left);
 }
 
 __global__ void pass_and(
@@ -177,41 +247,38 @@ __global__ void pass_and(
         rights_tile = n - (rights_tile - k) - 1;
     }
 
-    uint32_t left = lefts_tile * TILE_SIZE + (threadIdx.x / TILE_SIZE);
-    uint32_t right = rights_tile * TILE_SIZE + (threadIdx.x % TILE_SIZE);
+    uint32_t lefts_base = lefts_tile * TILE_SIZE;
+    uint32_t rights_base = rights_tile * TILE_SIZE;
+
+    // TODO: unclear if tiling actually improves performance here.
+    __shared__ uint32_t term_results_left_tile[TILE_SIZE];
+    __shared__ uint32_t term_results_right_tile[TILE_SIZE];
+    if (threadIdx.x < TILE_SIZE) {
+        term_results_left_tile[threadIdx.x] = term_results[lefts_base + threadIdx.x];
+        term_results_right_tile[threadIdx.x] = term_results[rights_base + threadIdx.x];
+    }
+    __syncthreads();
+
+    uint32_t lefts_offset = threadIdx.x / TILE_SIZE;
+    uint32_t rights_offset = threadIdx.x % TILE_SIZE;
+    uint32_t left = lefts_base + lefts_offset;
+    uint32_t right = rights_base + rights_offset;
 
     uint32_t is_new = 0;
     uint32_t result;
-    // TODO: try giving up if left > right
     if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
-        // TODO: use shared memory
-        result = result_mask & (term_results[left] & term_results[right]);
+        uint32_t left_result = term_results_left_tile[lefts_offset];
+        uint32_t right_result = term_results_right_tile[rights_offset];
+        result = result_mask & (left_result & right_result);
+        // Experimentally, checking result != left_result && result != right_result
+        // before checking the bitset doesn't improve performance.
         if (!GPUBitset_test_and_set(seen, result)) {
             is_new = 1;
         }
     }
 
-    __shared__ uint32_t new_count[BLOCK_SIZE];
-    new_count[threadIdx.x] = is_new;
-    __syncthreads();
-    inclusive_scan(new_count, BLOCK_SIZE);
-
-    __shared__ uint32_t bank_segment_start;
-    if (threadIdx.x == 0) {
-        bank_segment_start = atomicAdd(&state->num_terms, new_count[BLOCK_SIZE - 1]);
-    }
-    __syncthreads();
-
-    if (is_new) {
-        uint32_t bank_idx = bank_segment_start + new_count[threadIdx.x] - 1;
-        term_results[bank_idx] = result;
-        term_lefts[bank_idx] = left;
-        term_rights[bank_idx] = right;
-        if (result == sol_result) {
-            state->found_sol = true;
-            state->sol_idx = bank_idx;
-        }
-    }
+    add_binary_terms(state, sol_result, term_results, term_lefts, term_rights,
+            is_new, result, left, right);
 }
 
 __global__ void pass_or(
@@ -237,41 +304,35 @@ __global__ void pass_or(
         rights_tile = n - (rights_tile - k) - 1;
     }
 
-    uint32_t left = lefts_tile * TILE_SIZE + (threadIdx.x / TILE_SIZE);
-    uint32_t right = rights_tile * TILE_SIZE + (threadIdx.x % TILE_SIZE);
+    uint32_t lefts_base = lefts_tile * TILE_SIZE;
+    uint32_t rights_base = rights_tile * TILE_SIZE;
+
+    __shared__ uint32_t term_results_left_tile[TILE_SIZE];
+    __shared__ uint32_t term_results_right_tile[TILE_SIZE];
+    if (threadIdx.x < TILE_SIZE) {
+        term_results_left_tile[threadIdx.x] = term_results[lefts_base + threadIdx.x];
+        term_results_right_tile[threadIdx.x] = term_results[rights_base + threadIdx.x];
+    }
+    __syncthreads();
+
+    uint32_t lefts_offset = threadIdx.x / TILE_SIZE;
+    uint32_t rights_offset = threadIdx.x % TILE_SIZE;
+    uint32_t left = lefts_base + lefts_offset;
+    uint32_t right = rights_base + rights_offset;
 
     uint32_t is_new = 0;
     uint32_t result;
-    // TODO: try giving up if left > right
     if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
-        // TODO: use shared memory
-        result = result_mask & (term_results[left] | term_results[right]);
+        uint32_t left_result = term_results_left_tile[lefts_offset];
+        uint32_t right_result = term_results_right_tile[rights_offset];
+        result = result_mask & (left_result | right_result);
         if (!GPUBitset_test_and_set(seen, result)) {
             is_new = 1;
         }
     }
 
-    __shared__ uint32_t new_count[BLOCK_SIZE];
-    new_count[threadIdx.x] = is_new;
-    __syncthreads();
-    inclusive_scan(new_count, BLOCK_SIZE);
-
-    __shared__ uint32_t bank_segment_start;
-    if (threadIdx.x == 0) {
-        bank_segment_start = atomicAdd(&state->num_terms, new_count[BLOCK_SIZE - 1]);
-    }
-    __syncthreads();
-
-    if (is_new) {
-        uint32_t bank_idx = bank_segment_start + new_count[threadIdx.x] - 1;
-        term_results[bank_idx] = result;
-        term_lefts[bank_idx] = left;
-        term_rights[bank_idx] = right;
-        if (result == sol_result) {
-            state->found_sol = true;
-            state->sol_idx = bank_idx;
-        }
-    }
+    add_binary_terms(state, sol_result, term_results, term_lefts, term_rights,
+            is_new, result, left, right);
 }
 
 __global__ void pass_xor(
@@ -297,41 +358,33 @@ __global__ void pass_xor(
         rights_tile = n - (rights_tile - k) - 1;
     }
 
-    uint32_t left = lefts_tile * TILE_SIZE + (threadIdx.x / TILE_SIZE);
-    uint32_t right = rights_tile * TILE_SIZE + (threadIdx.x % TILE_SIZE);
+    uint32_t lefts_base = lefts_tile * TILE_SIZE;
+    uint32_t rights_base = rights_tile * TILE_SIZE;
+
+    __shared__ uint32_t term_results_left_tile[TILE_SIZE];
+    __shared__ uint32_t term_results_right_tile[TILE_SIZE];
+    if (threadIdx.x < TILE_SIZE) {
+        term_results_left_tile[threadIdx.x] = term_results[lefts_base + threadIdx.x];
+        term_results_right_tile[threadIdx.x] = term_results[rights_base + threadIdx.x];
+    }
+    __syncthreads();
+
+    uint32_t lefts_offset = threadIdx.x / TILE_SIZE;
+    uint32_t rights_offset = threadIdx.x % TILE_SIZE;
+    uint32_t left = lefts_base + lefts_offset;
+    uint32_t right = rights_base + rights_offset;
 
     uint32_t is_new = 0;
     uint32_t result;
-    // TODO: try giving up if left > right
     if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
-        // TODO: use shared memory
-        result = result_mask & (term_results[left] ^ term_results[right]);
+        result = result_mask & (term_results_left_tile[lefts_offset] ^ term_results_right_tile[rights_offset]);
         if (!GPUBitset_test_and_set(seen, result)) {
             is_new = 1;
         }
     }
 
-    __shared__ uint32_t new_count[BLOCK_SIZE];
-    new_count[threadIdx.x] = is_new;
-    __syncthreads();
-    inclusive_scan(new_count, BLOCK_SIZE);
-
-    __shared__ uint32_t bank_segment_start;
-    if (threadIdx.x == 0) {
-        bank_segment_start = atomicAdd(&state->num_terms, new_count[BLOCK_SIZE - 1]);
-    }
-    __syncthreads();
-
-    if (is_new) {
-        uint32_t bank_idx = bank_segment_start + new_count[threadIdx.x] - 1;
-        term_results[bank_idx] = result;
-        term_lefts[bank_idx] = left;
-        term_rights[bank_idx] = right;
-        if (result == sol_result) {
-            state->found_sol = true;
-            state->sol_idx = bank_idx;
-        }
-    }
+    add_binary_terms(state, sol_result, term_results, term_lefts, term_rights,
+            is_new, result, left, right);
 }
 
 class Synthesizer : public AbstractSynthesizer {
