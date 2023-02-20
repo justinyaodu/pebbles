@@ -283,7 +283,8 @@ int main(void) {
     ofstream outputFile;
     outputFile.open("output.txt");
 
-    std::string dir_path = "./inputs/";
+    //std::string dir_path = "./inputs/";
+    std::string dir_path = "./our_inputs/";
     std::string current_path;
     for (const auto & entry : fs::directory_iterator(dir_path)) {
         current_path = entry.path().string();
@@ -291,7 +292,8 @@ int main(void) {
         outputFile << current_path << std::endl;
 
         std::cout<<"hello!"<<std::endl;
-        Spec spec = Parser::parseInput(current_path);
+        //Spec spec = Parser::parseInput(current_path);
+        Spec spec = Parser::parseTruthTableInput(current_path);
 
         // if (spec.num_vars > 5) {
         //     outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
