@@ -1,4 +1,4 @@
-CXXFLAGS = -g -O3 -Wall -Wextra -Wshadow=local -march=native
+CXXFLAGS = -g -O3 -Wall -Wextra -Wshadow=local -march=native -std=c++17
 SHARED_HEADERS = alloc.hpp bitset.hpp expr.hpp spec.hpp synth.hpp timer.hpp util.hpp
 CPU_HEADERS = alloc_cpu.hpp
 GPU_HEADERS = bitset_gpu.cu gpu_assert.cu
