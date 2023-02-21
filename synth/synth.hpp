@@ -12,6 +12,9 @@
 #include "spec.hpp"
 #include "timer.hpp"
 
+// The synthesis procedure is organized as a series of passes, where each pass
+// indicates what type of terms are being synthesized, and the height of those
+// terms.
 enum class PassType {
     Variable,
     Not,
@@ -182,6 +185,8 @@ public:
 
             DO_PASS(Variable);
 
+            // The subsequent passes look for terms in the bank whose height is
+            // one less. When the height is 0, we should skip them.
             if (height == 0) {
                 continue;
             }

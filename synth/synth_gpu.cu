@@ -167,7 +167,6 @@ __device__ inline void add_unary_terms(
         }                                   \
     } while (0);
 
-
 __global__ void pass_variable(
     int32_t height,
     DevicePassState* __restrict__ state,
@@ -224,7 +223,8 @@ __global__ void pass_not(
             is_new, result, left);
 }
 
-__global__ void pass_and(
+template <typename Op>
+__global__ void pass_binary(
     DevicePassState* __restrict__ state,
     uint32_t result_mask,
     GPUBitset __restrict__ seen,
@@ -236,7 +236,8 @@ __global__ void pass_and(
     uint32_t n,
     uint32_t all_lefts_end,
     uint32_t all_rights_start,
-    uint32_t all_rights_end
+    uint32_t all_rights_end,
+    Op op
 ) {
     RETURN_IF_FOUND_SOL;
 
@@ -269,115 +270,9 @@ __global__ void pass_and(
     if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
         uint32_t left_result = term_results_left_tile[lefts_offset];
         uint32_t right_result = term_results_right_tile[rights_offset];
-        result = result_mask & (left_result & right_result);
+        result = result_mask & op(left_result, right_result);
         // Experimentally, checking result != left_result && result != right_result
         // before checking the bitset doesn't improve performance.
-        if (!GPUBitset_test_and_set(seen, result)) {
-            is_new = 1;
-        }
-    }
-
-    add_binary_terms(state, sol_result, term_results, term_lefts, term_rights,
-            is_new, result, left, right);
-}
-
-__global__ void pass_or(
-    DevicePassState* __restrict__ state,
-    uint32_t result_mask,
-    GPUBitset __restrict__ seen,
-    uint32_t sol_result,
-    uint32_t* __restrict__ term_results,
-    uint32_t* __restrict__ term_lefts,
-    uint32_t* __restrict__ term_rights,
-    uint32_t k,
-    uint32_t n,
-    uint32_t all_lefts_end,
-    uint32_t all_rights_start,
-    uint32_t all_rights_end
-) {
-    RETURN_IF_FOUND_SOL;
-
-    uint32_t lefts_tile = blockIdx.x;
-    uint32_t rights_tile = n - 1 - blockIdx.y;
-    if (lefts_tile > rights_tile) {
-        lefts_tile = n - (lefts_tile - (k + 1)) - 1;
-        rights_tile = n - (rights_tile - k) - 1;
-    }
-
-    uint32_t lefts_base = lefts_tile * TILE_SIZE;
-    uint32_t rights_base = rights_tile * TILE_SIZE;
-
-    __shared__ uint32_t term_results_left_tile[TILE_SIZE];
-    __shared__ uint32_t term_results_right_tile[TILE_SIZE];
-    if (threadIdx.x < TILE_SIZE) {
-        term_results_left_tile[threadIdx.x] = term_results[lefts_base + threadIdx.x];
-        term_results_right_tile[threadIdx.x] = term_results[rights_base + threadIdx.x];
-    }
-    __syncthreads();
-
-    uint32_t lefts_offset = threadIdx.x / TILE_SIZE;
-    uint32_t rights_offset = threadIdx.x % TILE_SIZE;
-    uint32_t left = lefts_base + lefts_offset;
-    uint32_t right = rights_base + rights_offset;
-
-    uint32_t is_new = 0;
-    uint32_t result;
-    if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
-        uint32_t left_result = term_results_left_tile[lefts_offset];
-        uint32_t right_result = term_results_right_tile[rights_offset];
-        result = result_mask & (left_result | right_result);
-        if (!GPUBitset_test_and_set(seen, result)) {
-            is_new = 1;
-        }
-    }
-
-    add_binary_terms(state, sol_result, term_results, term_lefts, term_rights,
-            is_new, result, left, right);
-}
-
-__global__ void pass_xor(
-    DevicePassState* __restrict__ state,
-    uint32_t result_mask,
-    GPUBitset __restrict__ seen,
-    uint32_t sol_result,
-    uint32_t* __restrict__ term_results,
-    uint32_t* __restrict__ term_lefts,
-    uint32_t* __restrict__ term_rights,
-    uint32_t k,
-    uint32_t n,
-    uint32_t all_lefts_end,
-    uint32_t all_rights_start,
-    uint32_t all_rights_end
-) {
-    RETURN_IF_FOUND_SOL;
-
-    uint32_t lefts_tile = blockIdx.x;
-    uint32_t rights_tile = n - 1 - blockIdx.y;
-    if (lefts_tile > rights_tile) {
-        lefts_tile = n - (lefts_tile - (k + 1)) - 1;
-        rights_tile = n - (rights_tile - k) - 1;
-    }
-
-    uint32_t lefts_base = lefts_tile * TILE_SIZE;
-    uint32_t rights_base = rights_tile * TILE_SIZE;
-
-    __shared__ uint32_t term_results_left_tile[TILE_SIZE];
-    __shared__ uint32_t term_results_right_tile[TILE_SIZE];
-    if (threadIdx.x < TILE_SIZE) {
-        term_results_left_tile[threadIdx.x] = term_results[lefts_base + threadIdx.x];
-        term_results_right_tile[threadIdx.x] = term_results[rights_base + threadIdx.x];
-    }
-    __syncthreads();
-
-    uint32_t lefts_offset = threadIdx.x / TILE_SIZE;
-    uint32_t rights_offset = threadIdx.x % TILE_SIZE;
-    uint32_t left = lefts_base + lefts_offset;
-    uint32_t right = rights_base + rights_offset;
-
-    uint32_t is_new = 0;
-    uint32_t result;
-    if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
-        result = result_mask & (term_results_left_tile[lefts_offset] ^ term_results_right_tile[rights_offset]);
         if (!GPUBitset_test_and_set(seen, result)) {
             is_new = 1;
         }
@@ -407,21 +302,20 @@ public:
 
 private:
 
-#define KERNEL_SYNC_IF_DONE_RETURN \
+#define DEVICE_SYNC_AND_RETURN_IF_SOLUTION_FOUND(SELF) \
     do {                                    \
         cudaDeviceSynchronize();            \
         DevicePassState state(0);           \
         gpuAssert(cudaMemcpy(               \
                 &state,                     \
-                device_pass_state,          \
+                (SELF).device_pass_state,     \
                 sizeof(DevicePassState),    \
                 cudaMemcpyDeviceToHost));   \
-        num_terms = state.num_terms;        \
+        (SELF).num_terms = state.num_terms;   \
         if (state.found_sol) {              \
             return state.sol_idx;           \
         }                                   \
     } while(0);
-
 
     int64_t pass_Variable(int32_t height) {
         size_t vars_size = spec.num_vars * sizeof(uint32_t);
@@ -448,7 +342,7 @@ private:
             device_var_values,
             device_var_heights
         );
-        KERNEL_SYNC_IF_DONE_RETURN;
+        DEVICE_SYNC_AND_RETURN_IF_SOLUTION_FOUND(*this);
         return NOT_FOUND;
     }
 
@@ -468,104 +362,89 @@ private:
             all_lefts_start,
             all_lefts_end
         );
-        KERNEL_SYNC_IF_DONE_RETURN;
+        DEVICE_SYNC_AND_RETURN_IF_SOLUTION_FOUND(*this);
+        return NOT_FOUND;
+    }
+
+// These methods aren't actually used outside of this class, but nvcc requires
+// these to be public to use lambdas.
+public:
+    template <typename Op>
+    friend int64_t pass_binary(Synthesizer &self, int32_t height, Op op) {
+        int64_t all_lefts_end = self.terms_with_height_end(height - 1);
+
+        int64_t all_rights_start = self.terms_with_height_start(height - 1);
+        int64_t all_rights_end = all_lefts_end;
+
+        // Here, we also use trapezoidal indexing as described in
+        // synth_cpu_mt.hpp. However, we make some modifications to better suit
+        // GPU execution.
+        //
+        // The width of the 2D space of tiles can be up to 2^32 (the maximum
+        // number of distinct terms we can store) divided by TILE_SIZE.
+        // Thus, a 1D index into this space could be up to (2^32 / TILE_SIZE)
+        // squared, which would have to be stored in a 64-bit integer. However,
+        // 64-bit integer division is very slow on CUDA cores, since it is
+        // emulated with 32-bit integer operations.
+        //
+        // Instead, we can start with coordinates on the rectangular region, and
+        // map those to coordinates on the trapezoid as before. The easiest way
+        // to give each thread block a distinct 2D coordinate is to use the
+        // block index. The x coordinate of a block is the vertical position,
+        // starting at 0 for the topmost row of blocks and counting down. The y
+        // coordinate of a block is the horizontal position, starting at 0 for
+        // the rightmost column of blocks in the trapezoid and counting leftward.
+        //
+        // There is also a limit on the maximum y-coordinate of a block, so we
+        // might not be able to fit the entire trapezoidal region into a single
+        // kernel launch. Instead, we split the trapezoid into multiple narrower
+        // vertical strips. Conveniently, these vertical strips are also
+        // trapezoids, and can be indexed in the same manner.
+
+        // Here, k is the index of the first column in the current vertical
+        // strip, n is the index after the last column in the current vertical
+        // strip, and max_n is the index after the last column in the full
+        // trapezoidal region.
+        int64_t max_n = CEIL_DIV(all_rights_end, TILE_SIZE);
+        for (int64_t k = all_rights_start / TILE_SIZE; k < max_n; k += MAX_GRID_DIM_Y) {
+            int64_t n = std::min(k + MAX_GRID_DIM_Y, max_n);
+
+            dim3 dim_grid(CEIL_DIV((k + 1) + n, 2), n - k);
+            dim3 dim_block(BLOCK_SIZE);
+
+            pass_binary<<<dim_grid, dim_block>>>(
+                self.device_pass_state,
+                self.result_mask,
+                self.seen,
+                self.spec.sol_result,
+                self.term_results,
+                self.term_lefts,
+                self.term_rights,
+                k,
+                n,
+                all_lefts_end,
+                all_rights_start,
+                all_rights_end,
+                op
+            );
+            DEVICE_SYNC_AND_RETURN_IF_SOLUTION_FOUND(self);
+        }
         return NOT_FOUND;
     }
 
     int64_t pass_And(int32_t height) {
-        int64_t all_lefts_end = terms_with_height_end(height - 1);
-
-        int64_t all_rights_start = terms_with_height_start(height - 1);
-        int64_t all_rights_end = all_lefts_end;
-
-        int64_t max_n = CEIL_DIV(all_rights_end, TILE_SIZE);
-        for (int64_t k = all_rights_start / TILE_SIZE; k < max_n; k += MAX_GRID_DIM_Y) {
-            int64_t n = std::min(k + MAX_GRID_DIM_Y, max_n);
-
-            dim3 dim_grid(CEIL_DIV((k + 1) + n, 2), n - k);
-            dim3 dim_block(BLOCK_SIZE);
-
-            pass_and<<<dim_grid, dim_block>>>(
-                device_pass_state,
-                result_mask,
-                seen,
-                spec.sol_result,
-                term_results,
-                term_lefts,
-                term_rights,
-                k,
-                n,
-                all_lefts_end,
-                all_rights_start,
-                all_rights_end
-            );
-            KERNEL_SYNC_IF_DONE_RETURN;
-        }
-        return NOT_FOUND;
+        auto op = [] __host__ __device__ (uint32_t a, uint32_t b) { return a & b; };
+        return pass_binary(*this, height, op);
     }
 
     int64_t pass_Or(int32_t height) {
-        int64_t all_lefts_end = terms_with_height_end(height - 1);
-
-        int64_t all_rights_start = terms_with_height_start(height - 1);
-        int64_t all_rights_end = all_lefts_end;
-
-        int64_t max_n = CEIL_DIV(all_rights_end, TILE_SIZE);
-        for (int64_t k = all_rights_start / TILE_SIZE; k < max_n; k += MAX_GRID_DIM_Y) {
-            int64_t n = std::min(k + MAX_GRID_DIM_Y, max_n);
-
-            dim3 dim_grid(CEIL_DIV((k + 1) + n, 2), n - k);
-            dim3 dim_block(BLOCK_SIZE);
-
-            pass_or<<<dim_grid, dim_block>>>(
-                device_pass_state,
-                result_mask,
-                seen,
-                spec.sol_result,
-                term_results,
-                term_lefts,
-                term_rights,
-                k,
-                n,
-                all_lefts_end,
-                all_rights_start,
-                all_rights_end
-            );
-            KERNEL_SYNC_IF_DONE_RETURN;
-        }
-        return NOT_FOUND;
+        auto op = [] __host__ __device__ (uint32_t a, uint32_t b) { return a | b; };
+        return pass_binary(*this, height, op);
     }
 
     int64_t pass_Xor(int32_t height) {
-        int64_t all_lefts_end = terms_with_height_end(height - 1);
-
-        int64_t all_rights_start = terms_with_height_start(height - 1);
-        int64_t all_rights_end = all_lefts_end;
-
-        int64_t max_n = CEIL_DIV(all_rights_end, TILE_SIZE);
-        for (int64_t k = all_rights_start / TILE_SIZE; k < max_n; k += MAX_GRID_DIM_Y) {
-            int64_t n = std::min(k + MAX_GRID_DIM_Y, max_n);
-
-            dim3 dim_grid(CEIL_DIV((k + 1) + n, 2), n - k);
-            dim3 dim_block(BLOCK_SIZE);
-
-            pass_xor<<<dim_grid, dim_block>>>(
-                device_pass_state,
-                result_mask,
-                seen,
-                spec.sol_result,
-                term_results,
-                term_lefts,
-                term_rights,
-                k,
-                n,
-                all_lefts_end,
-                all_rights_start,
-                all_rights_end
-            );
-            KERNEL_SYNC_IF_DONE_RETURN;
-        }
-        return NOT_FOUND;
+        auto op = [] __host__ __device__ (uint32_t a, uint32_t b) { return a ^ b; };
+        return pass_binary(*this, height, op);
     }
 };
 
