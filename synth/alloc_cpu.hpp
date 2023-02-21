@@ -3,6 +3,8 @@
 
 #include <cstdio>
 #include <cstdlib>
+
+#ifdef __linux__
 #include <sys/mman.h>
 
 // Allocate the specified number of bytes. Using this instead of malloc or
@@ -31,5 +33,17 @@ void dealloc(void* ptr, size_t size) {
         std::exit(1);
     }
 }
+#else
+// Allocate the specified number of bytes. Using this instead of malloc or
+// new makes it possible to try huge pages and other tweaks.
+void* alloc(size_t size) {
+    return malloc(size);
+}
+
+void dealloc(void* ptr, size_t size) {
+    free(ptr);
+}
+
+#endif
 
 #endif

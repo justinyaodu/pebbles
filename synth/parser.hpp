@@ -17,6 +17,7 @@ private:
     static vector<uint32_t> getVarValues(uint32_t numVariables, uint32_t numExamples);
 public:
     static Spec parseInput(string inputFileName);
+    static Spec parseTruthTableInput(string inputFileName);
 };
 
 #endif

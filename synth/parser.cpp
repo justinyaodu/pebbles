@@ -10,6 +10,8 @@ using namespace std;
 #include "spec.hpp"
 #include "parser.hpp"
 
+enum FileSection { Depth, Variables, InputOutput, None };
+
 /**
  * Java styled ReplaceAll, taken from StackOverflow
 */
@@ -100,6 +102,20 @@ uint32_t min(int a, int b) {
     return (a<b)?a:b;
 }
 
+uint32_t truthTableWithVecFromFull(const vector<bool> &all_sols, vector<string> names, vector<uint32_t> &vals) {
+    uint32_t retVal = 0;
+    for(uint32_t i=0; i<min(power(2, names.size()), 32); i++) {
+        int x=((1+(power(2, names.size())/32))*i)%power(2, names.size());
+        vector<bool> input;
+        for(uint32_t j=0; j<names.size(); j++) {
+            vals[j] = (vals[j] << 1) | ((x>>j)&1);
+            input.push_back((x>>j)&1);
+        }
+        retVal = (retVal << 1) | all_sols[x];
+    }
+    return retVal;
+}
+
 uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &vals) {
     uint32_t retVal = 0;
     for(uint32_t i=0; i<min(power(2, names.size()), 32); i++) {
@@ -138,6 +154,80 @@ vector<uint32_t> Parser::getVarValues(uint32_t numVariables, uint32_t numExample
         varValues.push_back(currVar);
     }
     return varValues;
+}
+Spec Parser::parseTruthTableInput(string inputFileName) {
+    uint32_t numVariables = 0;
+    int32_t maxDepth = 0;//e.g. this will be 4 for the D5 files since the grammar has "Start" as a sort of 0 level depth
+    vector<int32_t> var_depths;//depths range from 0 to maxDepth, represent the "weight" of the variable in the tree
+    vector<string> var_names;
+    uint32_t sol_result;
+    uint32_t num_examples;
+    vector<vector<bool>> all_inputs;
+    vector<bool> full_sol;
+
+    //open truth table-formatted input file
+    ifstream inputFile;
+    inputFile.open(inputFileName);
+    int lineNumber = 1;
+    int spaceAt;
+    string inputs;
+    // for a particular example
+    string line;
+
+    //where we are in the file:
+    FileSection section = None;
+
+    while (getline(inputFile, line)) {
+        if (line.find("done") != string::npos) {
+            section = None;
+        } else if (section == Depth) {
+            maxDepth = stoi(line);
+        } else if (section == Variables) {
+            spaceAt = line.find(' ');
+            var_names.push_back(line.substr(0,spaceAt));
+            var_depths.push_back(stoi(line.substr(spaceAt+1)));
+        } else if (section == InputOutput) {
+            spaceAt = line.find(' ');
+            //output
+            full_sol.push_back(line.at(spaceAt+1));
+            //input
+            inputs = line.substr(0,spaceAt);
+            vector<bool> inputVals(var_names.size());
+            for (char c : inputs) {
+                inputVals.push_back(c);
+            }
+            all_inputs.push_back(inputVals);
+        } else if (line.find("max-depth:") != string::npos) {
+            section = Depth;
+        } else if (line.find("variables:") != string::npos) {
+            section = Variables;
+        } else if (line.find("input/output:") != string::npos) {
+            section = InputOutput;
+        }
+    }
+    numVariables = var_names.size();
+    num_examples = power(2,numVariables);
+    if(num_examples>32) num_examples=32;
+    inputFile.close();
+
+    // restricted input/output
+    vector<uint32_t> vals;
+    for (uint32_t i = 0; i < numVariables; i++) {
+        vals.push_back(0);
+    }
+    sol_result = truthTableWithVecFromFull(full_sol, var_names, vals);
+
+    cout<<"spec making";
+
+    return Spec(numVariables, 
+                num_examples, 
+                var_names, 
+                var_depths, 
+                vals, 
+                sol_result, 
+                maxDepth,
+                all_inputs,
+                full_sol);
 }
 Spec Parser::parseInput(string inputFileName) {
     uint32_t numVariables = 0;
