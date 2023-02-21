@@ -29,8 +29,14 @@ struct DevicePassState {
             sol_idx(0) {}
 };
 
-// See inclusive_scan.py for details.
-__device__ inline void inclusive_scan_and_syncthreads(
+// We want to check the total number of new terms and exit early if there aren't
+// any. After the upsweep, we already have the total number of new terms, so we
+// can check that and return early. This saves time because we don't have to run
+// the downsweep unless it's actually needed.
+//
+// See inclusive_scan.py for a standalone implementation.
+
+__device__ inline void inclusive_scan_upsweep_and_syncthreads(
     uint32_t* values,
     uint32_t length
 ) {
@@ -43,6 +49,13 @@ __device__ inline void inclusive_scan_and_syncthreads(
             idx = idx * 2 + 1;
         }
     }
+}
+
+__device__ inline void inclusive_scan_downsweep_and_syncthreads(
+    uint32_t* values,
+    uint32_t length
+) {
+    uint32_t step, idx;
     for (step = length / 4, idx = threadIdx.x * (2 * step) + (3 * step) - 1;
             step > 0;
             step /= 2, idx /= 2, __syncthreads()) {
@@ -52,61 +65,7 @@ __device__ inline void inclusive_scan_and_syncthreads(
     }
 }
 
-// Add new terms to the bank.
-__device__ inline void add_binary_terms(
-    DevicePassState* __restrict__ state,
-    uint32_t sol_result,
-    uint32_t* __restrict__ term_results,
-    uint32_t* __restrict__ term_lefts,
-    uint32_t* __restrict__ term_rights,
-    uint32_t is_new,
-    uint32_t result,
-    uint32_t left,
-    uint32_t right
-) {
-    __shared__ uint32_t new_count[BLOCK_SIZE];
-    new_count[threadIdx.x] = is_new;
-    __syncthreads();
-    inclusive_scan_and_syncthreads(new_count, BLOCK_SIZE);
-
-    uint32_t batch_size = new_count[BLOCK_SIZE - 1];
-    if (batch_size == 0) {
-        return;
-    }
-
-    __shared__ uint32_t batch_results[BLOCK_SIZE];
-    __shared__ uint32_t batch_lefts[BLOCK_SIZE];
-    __shared__ uint32_t batch_rights[BLOCK_SIZE];
-
-    if (is_new) {
-        uint32_t batch_idx = new_count[threadIdx.x] - 1;
-        batch_results[batch_idx] = result;
-        batch_lefts[batch_idx] = left;
-        batch_rights[batch_idx] = right;
-    }
-    __syncthreads();
-
-    __shared__ uint32_t bank_segment_start;
-    if (threadIdx.x == 0) {
-        bank_segment_start = atomicAdd(&state->num_terms, batch_size);
-    }
-    __syncthreads();
-
-    if (threadIdx.x < batch_size) {
-        uint32_t bank_idx = bank_segment_start + threadIdx.x;
-        uint32_t batch_result = batch_results[threadIdx.x];
-        term_results[bank_idx] = batch_result;
-        term_lefts[bank_idx] = batch_lefts[threadIdx.x];
-        term_rights[bank_idx] = batch_rights[threadIdx.x];
-
-        if (batch_result == sol_result) {
-            state->found_sol = true;
-            state->sol_idx = bank_idx;
-        }
-    }
-}
-
-// This is the same code as add_binary_terms, minus the code for right children.
+// TODO: update this to match pass_binary
 __device__ inline void add_unary_terms(
     DevicePassState* __restrict__ state,
     uint32_t sol_result,
@@ -119,12 +78,15 @@ __device__ inline void add_unary_terms(
     __shared__ uint32_t new_count[BLOCK_SIZE];
     new_count[threadIdx.x] = is_new;
     __syncthreads();
-    inclusive_scan_and_syncthreads(new_count, BLOCK_SIZE);
+
+    inclusive_scan_upsweep_and_syncthreads(new_count, BLOCK_SIZE);
 
     uint32_t batch_size = new_count[BLOCK_SIZE - 1];
     if (batch_size == 0) {
         return;
     }
+
+    inclusive_scan_downsweep_and_syncthreads(new_count, BLOCK_SIZE);
 
     __shared__ uint32_t batch_results[BLOCK_SIZE];
     __shared__ uint32_t batch_lefts[BLOCK_SIZE];
@@ -223,6 +185,31 @@ __global__ void pass_not(
             is_new, result, left);
 }
 
+// For all threads where is_new is true, write value to batch_buffer[batch_idx].
+// Then copy batch_size values from batch_buffer to dest. This ensures that
+// the threads in a warp write to the same contiguous regions of global memory.
+//
+// This provides a ~2x speedup over the simpler approach of having each thread
+// write its value directly to global memory.
+__device__ inline void compacted_write(
+    uint32_t* dest,
+    uint32_t* batch_buffer,
+    uint32_t batch_size,
+    uint32_t batch_idx,
+    uint32_t is_new,
+    uint32_t value
+) {
+    if (is_new) {
+        batch_buffer[batch_idx] = value;
+    }
+    __syncthreads();
+
+    if (threadIdx.x < batch_size) {
+        dest[threadIdx.x] = batch_buffer[threadIdx.x];
+    }
+    __syncthreads();
+}
+
 template <typename Op>
 __global__ void pass_binary(
     DevicePassState* __restrict__ state,
@@ -241,45 +228,126 @@ __global__ void pass_binary(
 ) {
     RETURN_IF_FOUND_SOL;
 
-    uint32_t lefts_tile = blockIdx.x;
-    uint32_t rights_tile = n - 1 - blockIdx.y;
-    if (lefts_tile > rights_tile) {
-        lefts_tile = n - (lefts_tile - (k + 1)) - 1;
-        rights_tile = n - (rights_tile - k) - 1;
-    }
-
-    uint32_t lefts_base = lefts_tile * TILE_SIZE;
-    uint32_t rights_base = rights_tile * TILE_SIZE;
-
-    // TODO: unclear if tiling actually improves performance here.
-    __shared__ uint32_t term_results_left_tile[TILE_SIZE];
-    __shared__ uint32_t term_results_right_tile[TILE_SIZE];
-    if (threadIdx.x < TILE_SIZE) {
-        term_results_left_tile[threadIdx.x] = term_results[lefts_base + threadIdx.x];
-        term_results_right_tile[threadIdx.x] = term_results[rights_base + threadIdx.x];
-    }
-    __syncthreads();
-
-    uint32_t lefts_offset = threadIdx.x / TILE_SIZE;
-    uint32_t rights_offset = threadIdx.x % TILE_SIZE;
-    uint32_t left = lefts_base + lefts_offset;
-    uint32_t right = rights_base + rights_offset;
-
-    uint32_t is_new = 0;
     uint32_t result;
-    if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
-        uint32_t left_result = term_results_left_tile[lefts_offset];
-        uint32_t right_result = term_results_right_tile[rights_offset];
-        result = result_mask & op(left_result, right_result);
-        // Experimentally, checking result != left_result && result != right_result
-        // before checking the bitset doesn't improve performance.
-        if (!GPUBitset_test_and_set(seen, result)) {
-            is_new = 1;
+    uint32_t left;
+    uint32_t right;
+    uint32_t is_new = 0;
+
+    // Synthesize new terms.
+    {
+        __shared__ uint32_t lefts_tile_results[TILE_SIZE];
+        __shared__ uint32_t rights_tile_results[TILE_SIZE];
+
+        uint32_t lefts_tile = blockIdx.x;
+        uint32_t rights_tile = n - 1 - blockIdx.y;
+        if (lefts_tile > rights_tile) {
+            lefts_tile = n - (lefts_tile - (k + 1)) - 1;
+            rights_tile = n - (rights_tile - k) - 1;
         }
+
+        uint32_t lefts_base = lefts_tile * TILE_SIZE;
+        uint32_t rights_base = rights_tile * TILE_SIZE;
+
+        // TODO: unclear if tiling actually improves performance here.
+        if (threadIdx.x < TILE_SIZE) {
+            lefts_tile_results[threadIdx.x] = term_results[lefts_base + threadIdx.x];
+            rights_tile_results[threadIdx.x] = term_results[rights_base + threadIdx.x];
+        }
+        __syncthreads();
+
+
+        uint32_t lefts_offset = threadIdx.x / TILE_SIZE;
+        uint32_t rights_offset = threadIdx.x % TILE_SIZE;
+        left = lefts_base + lefts_offset;
+        right = rights_base + rights_offset;
+
+        if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
+            uint32_t left_result = lefts_tile_results[lefts_offset];
+            uint32_t right_result = rights_tile_results[rights_offset];
+            result = result_mask & op(left_result, right_result);
+            // Experimentally, checking result != left_result && result != right_result
+            // before checking the bitset doesn't improve performance.
+            if (!GPUBitset_test_and_set(seen, result)) {
+                is_new = 1;
+            }
+        }
+        __syncthreads();
     }
 
-    add_binary_terms(state, sol_result, term_results, term_lefts, term_rights,
-            is_new, result, left, right);
+    // Find the total number of new terms, and the index of the current term
+    // in the batch (assuming the current term is new).
+    uint32_t batch_size;
+    uint32_t batch_idx;
+    {
+        __shared__ uint32_t new_count[BLOCK_SIZE];
+
+        new_count[threadIdx.x] = is_new;
+        __syncthreads();
+
+        inclusive_scan_upsweep_and_syncthreads(new_count, BLOCK_SIZE);
+
+        batch_size = new_count[BLOCK_SIZE - 1];
+        if (batch_size == 0) {
+            return;
+        }
+        __syncthreads();
+
+        inclusive_scan_downsweep_and_syncthreads(new_count, BLOCK_SIZE);
+
+        batch_idx = new_count[threadIdx.x] - 1;
+        __syncthreads();
+    }
+
+    // Find the offset into the bank where new terms should be inserted.
+    uint32_t bank_segment_start;
+    {
+        __shared__ uint32_t shared_bank_segment_start;
+
+        if (threadIdx.x == 0) {
+            shared_bank_segment_start = atomicAdd(&state->num_terms, batch_size);
+        }
+        __syncthreads();
+
+        bank_segment_start = shared_bank_segment_start;
+        __syncthreads();
+    }
+
+    // Check whether this term is a valid solution.
+    if (result == sol_result) {
+        state->found_sol = true;
+        state->sol_idx = bank_segment_start + batch_idx;
+    }
+
+    {
+        __shared__ uint32_t batch_buffer[BLOCK_SIZE];
+
+        compacted_write(
+            &term_results[bank_segment_start],
+            batch_buffer,
+            batch_size,
+            batch_idx,
+            is_new,
+            result
+        );
+
+        compacted_write(
+            &term_lefts[bank_segment_start],
+            batch_buffer,
+            batch_size,
+            batch_idx,
+            is_new,
+            left
+        );
+
+        compacted_write(
+            &term_rights[bank_segment_start],
+            batch_buffer,
+            batch_size,
+            batch_idx,
+            is_new,
+            right
+        );
+    }
 }
 
 class Synthesizer : public AbstractSynthesizer {

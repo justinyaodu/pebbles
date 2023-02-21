@@ -18,6 +18,8 @@ __device__ bool GPUBitset_test_and_set(GPUBitset bitset, uint32_t index) {
     uint32_t word = bitset[index / 32];
     uint32_t mask = 1 << (index % 32);
 
+    // If the bit is already set, return early without doing an atomic
+    // operation. This provides a speedup of ~1.2x.
     if (word & mask) {
         return 1;
     }
