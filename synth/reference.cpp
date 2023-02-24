@@ -291,6 +291,7 @@ int main(void) {
 
         outputFile << current_path << std::endl;
 
+<<<<<<< HEAD
         //std::cout<<"hello!"<<std::endl;
         //Spec spec = Parser::parseInput(current_path);
         Spec spec = Parser::parseTruthTableInput(current_path);
@@ -306,6 +307,11 @@ int main(void) {
 	std::cout << std::endl;
 	std::cout << spec.sol_result << std::endl;*/
 
+=======
+        std::cout<<"hello!"<<std::endl;
+        //Spec spec = Parser::parseInput(current_path);
+        Spec spec = Parser::parseTruthTableInput(current_path);
+>>>>>>> d079b74026a3e324b6e97beb8b0b43ffaeb85e77
 
         // if (spec.num_vars > 5) {
         //     outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
@@ -317,7 +323,11 @@ int main(void) {
         //std::cout << "look at: " << (1L << spec.num_examples) << std::endl;
         //std::cout << "look at: " << (1ULL << 32) << std::endl;
 
+<<<<<<< HEAD
         //std::cout<<"hello2!"<<std::endl;
+=======
+        std::cout<<"hello2!"<<std::endl;
+>>>>>>> d079b74026a3e324b6e97beb8b0b43ffaeb85e77
         const Expr* expr = nullptr;
         // The i'th element specifies the values of the i'th variable,
         // where the j'th bit of that integer is the variable's value in example j.
