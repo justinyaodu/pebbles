@@ -9,8 +9,8 @@
 #include "spec.hpp"
 #include "synth.hpp"
 
-#define BLOCK_SIZE 1024
-#define TILE_SIZE 32
+#define TILE_SIZE 8
+#define BLOCK_SIZE (TILE_SIZE * TILE_SIZE)
 #define MAX_GRID_DIM_Y 65535
 
 struct DevicePassState {
