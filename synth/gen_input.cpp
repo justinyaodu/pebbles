@@ -8,6 +8,24 @@
 #include <bitset>
 using namespace std;
 
+// Returns either or 0 or 1 (equal chance of each)
+uint32_t randomValue(vector<bool> varVals) {
+    uint32_t retVal = (int) (rand() % 2);
+    assert(retVal == 0 || retVal == 1);
+    return retVal;
+}
+
+// Returns 1 if there's an odd number of trues and 0 if there's an even number
+uint32_t bigXOR(vector<bool> varVals) {
+    bool retVal = 0;
+    for (bool val : varVals) {
+        retVal ^= val;
+    }
+    return (uint32_t) retVal;
+}
+
+
+// Use this function if you want the truth table to match a specific function that you've written
 void makeInputFileFromFunction(string outFile, int maxHeight, int numVariables, vector<string> varNames, vector<int> varHeights, function<uint32_t(vector<bool>)> evalFunction) {
     ofstream outputFile;
     outputFile.open(outFile);
@@ -40,22 +58,7 @@ void makeInputFileFromFunction(string outFile, int maxHeight, int numVariables, 
     outputFile.close();
 }
 
-// Returns either or 0 or 1 (equal chance of each)
-uint32_t randomValue(vector<bool> varVals) {
-    uint32_t retVal = (int) (rand() % 2);
-    assert(retVal == 0 || retVal == 1);
-    return retVal;
-}
-
-// Returns 1 if there's an odd number of trues and 0 if there's an even number
-uint32_t bigXOR(vector<bool> varVals) {
-    bool retVal = 0;
-    for (bool val : varVals) {
-        retVal ^= val;
-    }
-    return (uint32_t) retVal;
-}
-
+// Use this function if you just want random values in the truth table
 void makeInputFileFromRandom(string outFile, int maxHeight, int numVariables, vector<string> varNames, vector<int> varHeights) {
     srand(time(NULL));
     makeInputFileFromFunction(outFile,maxHeight,numVariables,varNames,varHeights,randomValue);
