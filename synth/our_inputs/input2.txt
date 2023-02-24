@@ -1,0 +1,46 @@
+max-height:
+7
+done
+
+variables: (format is declare-var [variable name] [variable height]) (variable names can't include spaces)
+v1 2
+v2 0
+v3 1
+red 3
+variable 1
+done
+
+input/output:
+00000 0
+10000 1
+01000 1
+11000 0
+00100 0
+10100 0
+01100 0
+11110 0
+00010 0
+10010 1
+01010 1
+11010 0
+00110 0
+10110 0
+01110 1
+11110 0
+00001 0
+10001 1
+01001 0
+11001 0
+00101 0
+10101 1
+01101 0
+11101 0
+00011 0
+10011 1
+01011 1
+11011 0
+00111 1
+10111 1
+01111 0
+11111 0
+done

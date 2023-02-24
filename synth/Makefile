@@ -15,3 +15,6 @@ synth_cpu_mt : synth_cpu_mt.hpp $(SHARED_HEADERS) $(CPU_HEADERS)
 synth_gpu : main.cu synth_gpu.cu $(SHARED_HEADERS) $(GPU_HEADERS)
 	nvcc -D SYNTH_VARIANT=3 -O3 -arch compute_61 --extended-lambda $< -o $@
 
+gen_input : gen_input.cpp
+	g++ $(CXXFLAGS) $^ -o $@
+
