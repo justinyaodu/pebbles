@@ -65,6 +65,9 @@ public:
                 vars.push_back((var_values[var] >> example) & 1);
             }
             bool expected = (sol_result >> example) & 1;
+	    //std::cout << "Validating: " << std::endl;
+	    //std::cout << solution->eval(vars) << std::endl;
+	    //std::cout << expected << std::endl;
             assert(solution->eval(vars) == expected);
         }
     }
