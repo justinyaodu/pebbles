@@ -6,6 +6,7 @@
 #include <stack>
 #include <bitset>
 #include <random>
+#include <random>
 using namespace std;
 
 #include "spec.hpp"
@@ -103,41 +104,40 @@ uint32_t min(int a, int b) {
     return (a<b)?a:b;
 }
 
-uint32_t truthTableWithVecFromFull(const vector<bool> &all_sols, vector<string> names, vector<uint32_t> &vals) {
-    uint32_t retVal = 0;
-    for(uint32_t i=0; i<min(power(2, names.size()), 32); i++) {
-        int x=((1+(power(2, names.size())/32))*i)%power(2, names.size());
-        vector<bool> input;
-        for(uint32_t j=0; j<names.size(); j++) {
-            vals[j] = (vals[j] << 1) | ((x>>j)&1);
-            input.push_back((x>>j)&1);
-        }
-        retVal = (retVal << 1) | all_sols[x];
-    }
-    return retVal;
-}
-
 // Pull a random set of 32 input/output examples from the entire truth table (truth table could be incomplete)
+// Returns an integer holding the output values for the selected examples (ith bit has the output for the ith example)
 uint32_t truthTableWithVecFromTruthTable(const vector<bool> &all_sols, const vector<vector<bool>> &all_inputs, vector<uint32_t> &vals) {
-	uint32_t retVal = 0;
+    // this is what we'll return at the end
+    uint32_t outVals = 0;
+
+    // We want to select 32 indices into all_sols/all_inputs for our set of examples
+    // To do this, start by making a vector containing all possible indices into those vectors (0 through length-1)
 	vector<uint32_t> indices(all_sols.size());
 	for (uint32_t i = 0; i < all_sols.size(); i++) {
 		indices[i]=i;
 	}
+
+    // Now we shuffle the indices
+    // Before the first 32 entries in indices were 0-32. After the first 32 entries will be some random indices
+    // (If we have fewer than 5 variables, we'll just shuffle the < 32 indices into some other order, 
+    // and we'll end up taking all of them anyway)
 	auto rng = default_random_engine{};
+    rng.seed(time(NULL));
 	shuffle(begin(indices), end(indices), rng);
+
 	vector<bool> currExample;
+    // Ideally we'd want to have 2^(#varaibles) examples, one for each possible set of inputs, but we're capped at 32
 	uint32_t numExamples = min(32, power(2, all_inputs[0].size()));
-	//cout << "Number of examples: " << numExamples << endl;
 	for (uint32_t i = 0; i < numExamples; i++) {
-		//cout << "curren index: i=" << i << ", index=" << indices[i] << endl;
 		currExample = all_inputs[indices[i]];
 		for (uint32_t j = 0; j < currExample.size(); j++) {
+            // append the value of variable j in example i to the integer holding the values of variable j
 			vals[j] = (vals[j] << 1) | currExample[j];
 		}
-		retVal = (retVal << 1) | all_sols[indices[i]];
+        // append the output value in example i to the integer holding all of the output values
+		outVals = (outVals << 1) | all_sols[indices[i]];
 	}
-	return retVal;
+	return outVals;
 }
 
 uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &vals) {
@@ -218,7 +218,7 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
 	    //cout << inputs << " " << line.at(spaceAt+1) << endl;
             vector<bool> inputVals(var_names.size());
             for (uint32_t i = 0; i < inputs.length(); i++) {
-		char c = inputs.at(i);
+		        char c = inputs.at(i);
                 inputVals[i] = c-'0';
             }
 	    /*for (bool b : inputVals) {
@@ -252,8 +252,6 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
         vals.push_back(0);
     }
     sol_result = truthTableWithVecFromTruthTable(full_sol, all_inputs, vals);
-
-    //cout<<"spec making";
 
     return Spec(numVariables, 
                 num_examples, 

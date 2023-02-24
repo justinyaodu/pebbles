@@ -291,7 +291,6 @@ int main(void) {
 
         outputFile << current_path << std::endl;
 
-        //std::cout<<"hello!"<<std::endl;
         //Spec spec = Parser::parseInput(current_path);
         Spec spec = Parser::parseTruthTableInput(current_path);
 
@@ -312,12 +311,9 @@ int main(void) {
         //     continue;
         // }
 
-        //std::cout << spec << std::endl;
-
         //std::cout << "look at: " << (1L << spec.num_examples) << std::endl;
         //std::cout << "look at: " << (1ULL << 32) << std::endl;
 
-        //std::cout<<"hello2!"<<std::endl;
         const Expr* expr = nullptr;
         // The i'th element specifies the values of the i'th variable,
         // where the j'th bit of that integer is the variable's value in example j.
