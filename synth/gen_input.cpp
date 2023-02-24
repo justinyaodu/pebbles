@@ -63,9 +63,9 @@ void makeInputFileFromRandom(string outFile, int maxHeight, int numVariables, ve
 
 int main() {
     makeInputFileFromRandom("./our_inputs/input5.txt",
-        7,
         5,
-        vector<string>{"var1","var2","var3","var4","var5"},
-        vector<int>{0,1,1,3,2});
+        3,
+        vector<string>{"var1","var2","var3"},
+        vector<int>{0,1,1});
     return 0;
 }
