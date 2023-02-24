@@ -1,4 +1,4 @@
-max-depth:
+max-height:
 4
 done
 

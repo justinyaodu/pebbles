@@ -11,7 +11,7 @@ using namespace std;
 #include "spec.hpp"
 #include "parser.hpp"
 
-enum FileSection { Depth, Variables, InputOutput, None };
+enum FileSection { Height, Variables, InputOutput, None };
 
 /**
  * Java styled ReplaceAll, taken from StackOverflow
@@ -181,8 +181,8 @@ vector<uint32_t> Parser::getVarValues(uint32_t numVariables, uint32_t numExample
 }
 Spec Parser::parseTruthTableInput(string inputFileName) {
     uint32_t numVariables = 0;
-    int32_t maxDepth = 0;//e.g. this will be 4 for the D5 files since the grammar has "Start" as a sort of 0 level depth
-    vector<int32_t> var_depths;//depths range from 0 to maxDepth, represent the "weight" of the variable in the tree
+    int32_t maxHeight = 0;//e.g. this will be 4 for the D5 files since the grammar has "Start" as a sort of 0 level height
+    vector<int32_t> var_heights;//heights range from 0 to maxHeight, represent the "weight" of the variable in the tree
     vector<string> var_names;
     uint32_t sol_result;
     uint32_t num_examples;
@@ -203,12 +203,12 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
     while (getline(inputFile, line)) {
         if (line.find("done") != string::npos) {
             section = None;
-        } else if (section == Depth) {
-            maxDepth = stoi(line);
+        } else if (section == Height) {
+            maxHeight = stoi(line);
         } else if (section == Variables) {
             spaceAt = line.find(' ');
             var_names.push_back(line.substr(0,spaceAt));
-            var_depths.push_back(stoi(line.substr(spaceAt+1)));
+            var_heights.push_back(stoi(line.substr(spaceAt+1)));
         } else if (section == InputOutput) {
             spaceAt = line.find(' ');
             //output
@@ -226,8 +226,8 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
 	    }
 	    cout << endl;*/
             all_inputs.push_back(inputVals);
-        } else if (line.find("max-depth:") != string::npos) {
-            section = Depth;
+        } else if (line.find("max-height:") != string::npos) {
+            section = Height;
         } else if (line.find("variables:") != string::npos) {
             section = Variables;
         } else if (line.find("input/output:") != string::npos) {
@@ -258,10 +258,10 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
     return Spec(numVariables, 
                 num_examples, 
                 var_names, 
-                var_depths, 
+                var_heights, 
                 vals, 
                 sol_result, 
-                maxDepth,
+                maxHeight,
                 all_inputs,
                 full_sol);
 }
