@@ -6,6 +6,7 @@
 #include <stack>
 #include <bitset>
 #include <random>
+#include <random>
 using namespace std;
 
 #include "spec.hpp"
@@ -214,11 +215,16 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
             full_sol.push_back(line.at(spaceAt+1)-'0');
             //input
             inputs = line.substr(0,spaceAt);
+	    //cout << inputs << " " << line.at(spaceAt+1) << endl;
             vector<bool> inputVals(var_names.size());
             for (uint32_t i = 0; i < inputs.length(); i++) {
 		        char c = inputs.at(i);
                 inputVals[i] = c-'0';
             }
+	    /*for (bool b : inputVals) {
+		    cout << b << ", ";
+	    }
+	    cout << endl;*/
             all_inputs.push_back(inputVals);
         } else if (line.find("max-height:") != string::npos) {
             section = Height;
@@ -232,6 +238,13 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
     num_examples = power(2,numVariables);
     if(num_examples>32) num_examples=32;
     inputFile.close();
+
+    /*for (uint32_t i = 0; i < all_inputs.size(); i++) {
+	    for (uint32_t j = 0; j < all_inputs[i].size(); j++) {
+		    cout << all_inputs[i][j] << ", ";
+	     }
+	    cout << "output: " << full_sol[i] << endl;
+    }*/
 
     // restricted input/output
     vector<uint32_t> vals;

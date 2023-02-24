@@ -294,6 +294,18 @@ int main(void) {
         //Spec spec = Parser::parseInput(current_path);
         Spec spec = Parser::parseTruthTableInput(current_path);
 
+	/*std::cout<<"Number of variables: "<<spec.num_vars << ", number of examples: "<<spec.num_examples << std::endl;
+	for (int i = 0; i < spec.var_names.size(); i++)
+		std::cout << spec.var_names[i] << " with height " << spec.var_heights[i] << ", ";
+	std::cout << std::endl;*/
+	//std::cout<<"I/O examples:"<<std::endl;
+
+	/*for (int i = 0; i < spec.var_names.size(); i++)
+		std::cout << spec.var_values[i] << ", ";
+	std::cout << std::endl;
+	std::cout << spec.sol_result << std::endl;*/
+
+
         // if (spec.num_vars > 5) {
         //     outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
         //     continue;
