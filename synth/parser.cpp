@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <stack>
 #include <bitset>
+#include <random>
 using namespace std;
 
 #include "spec.hpp"
@@ -116,6 +117,29 @@ uint32_t truthTableWithVecFromFull(const vector<bool> &all_sols, vector<string> 
     return retVal;
 }
 
+// Pull a random set of 32 input/output examples from the entire truth table (truth table could be incomplete)
+uint32_t truthTableWithVecFromTruthTable(const vector<bool> &all_sols, const vector<vector<bool>> &all_inputs, vector<uint32_t> &vals) {
+	uint32_t retVal = 0;
+	vector<uint32_t> indices(all_sols.size());
+	for (uint32_t i = 0; i < all_sols.size(); i++) {
+		indices[i]=i;
+	}
+	auto rng = default_random_engine{};
+	shuffle(begin(indices), end(indices), rng);
+	vector<bool> currExample;
+	uint32_t numExamples = min(32, power(2, all_inputs[0].size()));
+	//cout << "Number of examples: " << numExamples << endl;
+	for (uint32_t i = 0; i < numExamples; i++) {
+		//cout << "curren index: i=" << i << ", index=" << indices[i] << endl;
+		currExample = all_inputs[indices[i]];
+		for (uint32_t j = 0; j < currExample.size(); j++) {
+			vals[j] = (vals[j] << 1) | currExample[j];
+		}
+		retVal = (retVal << 1) | all_sols[indices[i]];
+	}
+	return retVal;
+}
+
 uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &vals) {
     uint32_t retVal = 0;
     for(uint32_t i=0; i<min(power(2, names.size()), 32); i++) {
@@ -191,16 +215,16 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
             full_sol.push_back(line.at(spaceAt+1)-'0');
             //input
             inputs = line.substr(0,spaceAt);
-	    cout << inputs << " " << line.at(spaceAt+1) << endl;
+	    //cout << inputs << " " << line.at(spaceAt+1) << endl;
             vector<bool> inputVals(var_names.size());
             for (uint32_t i = 0; i < inputs.length(); i++) {
 		char c = inputs.at(i);
                 inputVals[i] = c-'0';
             }
-	    for (bool b : inputVals) {
+	    /*for (bool b : inputVals) {
 		    cout << b << ", ";
 	    }
-	    cout << endl;
+	    cout << endl;*/
             all_inputs.push_back(inputVals);
         } else if (line.find("max-depth:") != string::npos) {
             section = Depth;
@@ -215,21 +239,21 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
     if(num_examples>32) num_examples=32;
     inputFile.close();
 
-    for (uint32_t i = 0; i < all_inputs.size(); i++) {
+    /*for (uint32_t i = 0; i < all_inputs.size(); i++) {
 	    for (uint32_t j = 0; j < all_inputs[i].size(); j++) {
 		    cout << all_inputs[i][j] << ", ";
 	     }
 	    cout << "output: " << full_sol[i] << endl;
-    }
+    }*/
 
     // restricted input/output
     vector<uint32_t> vals;
     for (uint32_t i = 0; i < numVariables; i++) {
         vals.push_back(0);
     }
-    sol_result = truthTableWithVecFromFull(full_sol, var_names, vals);
+    sol_result = truthTableWithVecFromTruthTable(full_sol, all_inputs, vals);
 
-    cout<<"spec making";
+    //cout<<"spec making";
 
     return Spec(numVariables, 
                 num_examples, 
