@@ -13,6 +13,8 @@
 #define TILE_SIZE 32
 #define MAX_GRID_DIM_Y 65535
 
+#define NUM_SHARED_MEM_BANKS 32
+
 struct DevicePassState {
     // Number of terms in the bank.
     uint32_t num_terms;
@@ -29,6 +31,21 @@ struct DevicePassState {
             sol_idx(0) {}
 };
 
+__device__ inline uint32_t scrambled_index(uint32_t i) {
+    uint32_t chunk_base = i / NUM_SHARED_MEM_BANKS * NUM_SHARED_MEM_BANKS;
+    uint32_t chunk_offset = (i % NUM_SHARED_MEM_BANKS + i / NUM_SHARED_MEM_BANKS) % NUM_SHARED_MEM_BANKS;
+    return chunk_base + chunk_offset;
+}
+
+__device__ inline uint32_t scrambled_get(uint32_t *scrambled, uint32_t i) {
+    return scrambled[scrambled_index(i)];
+}
+
+__device__ inline void scrambled_set(uint32_t *scrambled, uint32_t i, uint32_t value) {
+    scrambled[scrambled_index(i)] = value;
+}
+
+
 // We want to check the total number of new terms and exit early if there aren't
 // any. After the upsweep, we already have the total number of new terms, so we
 // can check that and return early. This saves time because we don't have to run
@@ -37,7 +54,7 @@ struct DevicePassState {
 // See inclusive_scan.py for a standalone implementation.
 
 __device__ inline void inclusive_scan_upsweep_and_syncthreads(
-    uint32_t* values,
+    uint32_t* scrambled,
     uint32_t length
 ) {
     uint32_t step, idx;
@@ -45,14 +62,14 @@ __device__ inline void inclusive_scan_upsweep_and_syncthreads(
             step < length;
             step *= 2, __syncthreads()) {
         if (idx < length) {
-            values[idx] += values[idx - step];
+            scrambled_set(scrambled, idx, scrambled_get(scrambled, idx) + scrambled_get(scrambled, idx - step));
             idx = idx * 2 + 1;
         }
     }
 }
 
 __device__ inline void inclusive_scan_downsweep_and_syncthreads(
-    uint32_t* values,
+    uint32_t* scrambled,
     uint32_t length
 ) {
     uint32_t step, idx;
@@ -60,7 +77,7 @@ __device__ inline void inclusive_scan_downsweep_and_syncthreads(
             step > 0;
             step /= 2, idx /= 2, __syncthreads()) {
         if (idx < length) {
-            values[idx] += values[idx - step];
+            scrambled_set(scrambled, idx, scrambled_get(scrambled, idx) + scrambled_get(scrambled, idx - step));
         }
     }
 }
@@ -75,24 +92,24 @@ __device__ inline void add_unary_terms(
     uint32_t result,
     uint32_t left
 ) {
-    __shared__ uint32_t new_count[BLOCK_SIZE];
-    new_count[threadIdx.x] = is_new;
+    __shared__ uint32_t scrambled[BLOCK_SIZE];
+    scrambled_set(scrambled, threadIdx.x, is_new);
     __syncthreads();
 
-    inclusive_scan_upsweep_and_syncthreads(new_count, BLOCK_SIZE);
+    inclusive_scan_upsweep_and_syncthreads(scrambled, BLOCK_SIZE);
 
-    uint32_t batch_size = new_count[BLOCK_SIZE - 1];
+    uint32_t batch_size = scrambled_get(scrambled, BLOCK_SIZE - 1);
     if (batch_size == 0) {
         return;
     }
 
-    inclusive_scan_downsweep_and_syncthreads(new_count, BLOCK_SIZE);
+    inclusive_scan_downsweep_and_syncthreads(scrambled, BLOCK_SIZE);
 
     __shared__ uint32_t batch_results[BLOCK_SIZE];
     __shared__ uint32_t batch_lefts[BLOCK_SIZE];
 
     if (is_new) {
-        uint32_t batch_idx = new_count[threadIdx.x] - 1;
+        uint32_t batch_idx = scrambled_get(scrambled, threadIdx.x) - 1;
         batch_results[batch_idx] = result;
         batch_lefts[batch_idx] = left;
     }
@@ -279,22 +296,22 @@ __global__ void pass_binary(
     uint32_t batch_size;
     uint32_t batch_idx;
     {
-        __shared__ uint32_t new_count[BLOCK_SIZE];
+        __shared__ uint32_t scrambled[BLOCK_SIZE];
 
-        new_count[threadIdx.x] = is_new;
+        scrambled_set(scrambled, threadIdx.x, is_new);
         __syncthreads();
 
-        inclusive_scan_upsweep_and_syncthreads(new_count, BLOCK_SIZE);
+        inclusive_scan_upsweep_and_syncthreads(scrambled, BLOCK_SIZE);
 
-        batch_size = new_count[BLOCK_SIZE - 1];
+        batch_size = scrambled_get(scrambled, BLOCK_SIZE - 1);
         if (batch_size == 0) {
             return;
         }
         __syncthreads();
 
-        inclusive_scan_downsweep_and_syncthreads(new_count, BLOCK_SIZE);
+        inclusive_scan_downsweep_and_syncthreads(scrambled, BLOCK_SIZE);
 
-        batch_idx = new_count[threadIdx.x] - 1;
+        batch_idx = scrambled_get(scrambled, threadIdx.x) - 1;
         __syncthreads();
     }
 
