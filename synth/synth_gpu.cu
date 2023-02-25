@@ -208,8 +208,7 @@ __global__ void pass_xorcheck(
     if (left < all_lefts_end) {
         uint32_t left_result = term_results[left];
         uint32_t right_result = left_result ^ sol_result;
-        result = result_mask & (~term_results[left]);
-        if (GPUBitset_test(seen, result) && atomicExch(&state->found_sol, 1) == 0) {
+        if (GPUBitset_test(seen, right_result) && atomicExch(&state->found_sol, 1) == 0) {
             state->sol_left = left;
             state->sol_right_result = right_result;
         }
@@ -400,7 +399,7 @@ public:
     }
 
 private:
-    sync_pass_state() {
+    SharedState sync_pass_state() {
         cudaDeviceSynchronize();
 
         SharedState state;
@@ -442,7 +441,7 @@ private:
 
         SharedState state = sync_pass_state();
         if (state.found_sol) {
-            return state.sol_index;
+            return state.sol_idx;
         }
 
         return NOT_FOUND;
@@ -467,7 +466,7 @@ private:
 
         SharedState state = sync_pass_state();
         if (state.found_sol) {
-            return state.sol_index;
+            return state.sol_idx;
         }
 
         return NOT_FOUND;
@@ -537,7 +536,7 @@ public:
 
             SharedState state = self.sync_pass_state();
             if (state.found_sol) {
-                return state.sol_index;
+                return state.sol_idx;
             }
         }
         return NOT_FOUND;
