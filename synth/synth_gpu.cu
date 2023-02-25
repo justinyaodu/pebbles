@@ -155,7 +155,7 @@ __global__ void pass_variable(
     uint32_t is_new = 0;
     uint32_t var_value;
     if (var_idx < num_vars && var_heights[var_idx] == height) {
-        var_value = result_mask & var_values[var_idx];
+        var_value = var_values[var_idx];
         if (!GPUBitset_test_and_set(seen, var_value)) {
             is_new = 1;
         }
@@ -294,7 +294,7 @@ __global__ void pass_binary(
         if (left < all_lefts_end && all_rights_start <= right && right < all_rights_end) {
             uint32_t left_result = lefts_tile_results[lefts_offset];
             uint32_t right_result = rights_tile_results[rights_offset];
-            result = result_mask & op(left_result, right_result);
+            result = op(left_result, right_result, result_mask);
             // Experimentally, checking result != left_result && result != right_result
             // before checking the bitset doesn't improve performance.
             if (!GPUBitset_test_and_set(seen, result)) {
@@ -383,19 +383,19 @@ __global__ void pass_binary(
 class Synthesizer : public AbstractSynthesizer {
 private:
     GPUBitset seen;
-    SharedState* device_pass_state;
+    SharedState* device_state;
 
 public:
     Synthesizer(Spec spec) : AbstractSynthesizer(spec),
             seen(GPUBitset_new(max_distinct_terms)) {
         SharedState state;
-        gpuAssert(cudaMalloc(&device_pass_state, sizeof(SharedState)));
-        gpuAssert(cudaMemcpy(device_pass_state, &state, sizeof(SharedState),
+        gpuAssert(cudaMalloc(&device_state, sizeof(SharedState)));
+        gpuAssert(cudaMemcpy(device_state, &state, sizeof(SharedState),
                 cudaMemcpyHostToDevice));
     }
 
     ~Synthesizer() {
-        gpuAssert(cudaFree(device_pass_state));
+        gpuAssert(cudaFree(device_state));
     }
 
 private:
@@ -405,7 +405,7 @@ private:
         SharedState state;
         gpuAssert(cudaMemcpy(               
                 &state,
-                device_pass_state,
+                device_state,
                 sizeof(SharedState),
                 cudaMemcpyDeviceToHost));
 
@@ -428,7 +428,7 @@ private:
         dim3 dim_block(BLOCK_SIZE);
         pass_variable<<<dim_grid, dim_block>>>(
             height,
-            device_pass_state,
+            device_state,
             result_mask,
             seen,
             spec.sol_result,
@@ -454,7 +454,7 @@ private:
         dim3 dim_grid(CEIL_DIV(all_lefts_end - all_lefts_start, BLOCK_SIZE));
         dim3 dim_block(BLOCK_SIZE);
         pass_not<<<dim_grid, dim_block>>>(
-            device_pass_state,
+            device_state,
             result_mask,
             seen,
             spec.sol_result,
@@ -519,7 +519,7 @@ public:
             dim3 dim_block(BLOCK_SIZE);
 
             pass_binary<<<dim_grid, dim_block>>>(
-                self.device_pass_state,
+                self.device_state,
                 self.result_mask,
                 self.seen,
                 self.spec.sol_result,
@@ -543,18 +543,28 @@ public:
     }
 
     int64_t pass_And(int32_t height) {
-        auto op = [] __host__ __device__ (uint32_t a, uint32_t b) { return a & b; };
+        auto op = [] __host__ __device__ (uint32_t a, uint32_t b, uint32_t result_mask) { return a & b; };
         return pass_binary(*this, height, op);
     }
 
     int64_t pass_Or(int32_t height) {
-        auto op = [] __host__ __device__ (uint32_t a, uint32_t b) { return a | b; };
+        auto op = [] __host__ __device__ (uint32_t a, uint32_t b, uint32_t result_mask) { return a | b; };
         return pass_binary(*this, height, op);
     }
 
     int64_t pass_XorSynth(int32_t height) {
-        auto op = [] __host__ __device__ (uint32_t a, uint32_t b) { return a ^ b; };
+        auto op = [] __host__ __device__ (uint32_t a, uint32_t b, uint32_t result_mask) { return a ^ b; };
         return pass_binary(*this, height, op);
+    }
+
+    // Insert a term which is a solution found by a -Check pass. This should
+    // not be used under other circumstances, because it does not update
+    // num_terms in device_state.
+    int64_t insert_solution(uint32_t result, uint32_t left, uint32_t right) {
+        term_results[num_terms] = result;
+        term_lefts[num_terms] = left;
+        term_rights[num_terms] = right;
+        return num_terms++;
     }
 
     int64_t pass_XorCheck(int32_t height) {
@@ -564,7 +574,7 @@ public:
         dim3 dim_grid(CEIL_DIV(all_lefts_end - all_lefts_start, BLOCK_SIZE));
         dim3 dim_block(BLOCK_SIZE);
         pass_xorcheck<<<dim_grid, dim_block>>>(
-            device_pass_state,
+            device_state,
             result_mask,
             seen,
             spec.sol_result,
@@ -576,13 +586,7 @@ public:
         SharedState state = sync_pass_state();
         if (state.found_sol) {
             uint32_t sol_right = find_term_with_result(state.sol_right_result);
-
-            term_results[num_terms] = spec.sol_result;
-            term_lefts[num_terms] = state.sol_left;
-            term_rights[num_terms] = sol_right;
-            num_terms++;
-
-            return num_terms - 1;
+            return insert_solution(spec.sol_result, state.sol_left, sol_right);
         }
 
         return NOT_FOUND;

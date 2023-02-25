@@ -67,13 +67,20 @@ protected:
     std::vector<PassType> pass_types;
 
     AbstractSynthesizer(Spec spec) :
-        spec(spec),
-        max_distinct_terms(1ULL << spec.num_examples),
-        result_mask(max_distinct_terms - 1),
-        num_terms(0),
-        term_results((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))),
-        term_lefts((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))),
-        term_rights((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))) {}
+            spec(spec),
+            max_distinct_terms(1ULL << spec.num_examples),
+            result_mask(max_distinct_terms - 1),
+            num_terms(0),
+            term_results((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))),
+            term_lefts((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))),
+            term_rights((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))) {
+        // Ensure that the bits outside the mask are always 0.
+        // TODO: move this and max_distinct_terms to the Spec constructor?
+        assert((spec.sol_result & ~result_mask) == 0);
+        for (int64_t i = 0; i < spec.num_vars; i++) {
+            assert((spec.var_values[i] & ~result_mask) == 0);
+        }
+    }
 
     ~AbstractSynthesizer() {
         dealloc(term_results, max_distinct_terms * sizeof(uint32_t));

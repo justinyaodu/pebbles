@@ -51,7 +51,7 @@ private:
                 continue;
             }
 
-            uint32_t result = result_mask & spec.var_values[i];
+            uint32_t result = spec.var_values[i];
             if (seen.test_and_set(result)) {
                 continue;
             }
@@ -99,7 +99,7 @@ private:
 
         for (int64_t left = lefts_start; left < lefts_end; left++) {
             uint32_t left_result = term_results[left];
-            uint32_t right_result = result_mask & (left_result ^ spec.sol_result);
+            uint32_t right_result = left_result ^ spec.sol_result;
             if (!seen.test(right_result)) {
                 continue;
             }
@@ -137,7 +137,7 @@ private:
             // constructing redundant terms.
             for (int64_t left = 0; left <= right; left++) {
                 uint32_t left_result = self.term_results[left];
-                uint32_t result = self.result_mask & op(left_result, right_result);
+                uint32_t result = op(left_result, right_result, self.result_mask);
                 if (self.seen.test_and_set(result)) {
                     continue;
                 }
@@ -154,17 +154,17 @@ private:
     }
 
     int64_t pass_And(int32_t height) {
-        auto op = [](uint32_t a, uint32_t b) { return a & b; };
+        auto op = [](uint32_t a, uint32_t b, uint32_t result_mask __attribute__((unused))) { return a & b; };
         return pass_binary(*this, height, op);
     }
 
     int64_t pass_Or(int32_t height) {
-        auto op = [](uint32_t a, uint32_t b) { return a | b; };
+        auto op = [](uint32_t a, uint32_t b, uint32_t result_mask __attribute__((unused))) { return a | b; };
         return pass_binary(*this, height, op);
     }
 
     int64_t pass_XorSynth(int32_t height) {
-        auto op = [](uint32_t a, uint32_t b) { return a ^ b; };
+        auto op = [](uint32_t a, uint32_t b, uint32_t result_mask __attribute__((unused))) { return a ^ b; };
         return pass_binary(*this, height, op);
     }
 };

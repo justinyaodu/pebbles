@@ -72,7 +72,7 @@ private:
                 continue;
             }
 
-            uint32_t result = result_mask & spec.var_values[i];
+            uint32_t result = spec.var_values[i];
             if (seen.test_and_set(result)) {
                 continue;
             }
@@ -183,7 +183,7 @@ private:
                     left < std::min((lefts_tile + 1) * UNARY_TILE_SIZE, all_lefts_end);
                     left++) {
                 uint32_t left_result = term_results[left];
-                uint32_t right_result = result_mask & (left_result ^ spec.sol_result);
+                uint32_t right_result = left_result ^ spec.sol_result;
 
                 if (seen.test(right_result)
                         // Guarantee that only one thread will execute the following code.
@@ -322,7 +322,7 @@ private:
                         right < std::min((rights_tile + 1) * TILE_SIZE, all_rights_end);
                         right++) {
                     uint32_t right_result = self.term_results[right];
-                    uint32_t result = self.result_mask & op(left_result, right_result);
+                    uint32_t result = op(left_result, right_result, self.result_mask);
                     if (self.seen.test_and_set(result)) {
                         continue;
                     }
@@ -353,17 +353,17 @@ private:
     }
 
     int64_t pass_And(int32_t height) {
-        auto op = [](uint32_t a, uint32_t b) { return a & b; };
+        auto op = [](uint32_t a, uint32_t b, uint32_t result_mask __attribute__((unused))) { return a & b; };
         return pass_binary(*this, height, op);
     }
 
     int64_t pass_Or(int32_t height) {
-        auto op = [](uint32_t a, uint32_t b) { return a | b; };
+        auto op = [](uint32_t a, uint32_t b, uint32_t result_mask __attribute__((unused))) { return a | b; };
         return pass_binary(*this, height, op);
     }
 
     int64_t pass_XorSynth(int32_t height) {
-        auto op = [](uint32_t a, uint32_t b) { return a ^ b; };
+        auto op = [](uint32_t a, uint32_t b, uint32_t result_mask __attribute__((unused))) { return a ^ b; };
         return pass_binary(*this, height, op);
     }
 };
