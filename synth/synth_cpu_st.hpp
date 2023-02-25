@@ -90,6 +90,28 @@ private:
         return NOT_FOUND;
     }
 
+    int64_t pass_XorCheck(int32_t height) {
+        // One of the operands must be a term whose height is one less than the
+        // current height; otherwise, we would have found this solution in a
+        // previous iteration.
+        int64_t lefts_start = terms_with_height_start(height - 1);
+        int64_t lefts_end = terms_with_height_end(height - 1);
+
+        for (int64_t left = lefts_start; left < lefts_end; left++) {
+            uint32_t left_result = term_results[left];
+            uint32_t right_result = result_mask & (left_result ^ spec.sol_result);
+            if (!seen.test(right_result)) {
+                continue;
+            }
+
+            int64_t right = find_term_with_result(right_result);
+            add_binary_term(spec.sol_result, left, right);
+            return num_terms - 1;
+        }
+
+        return NOT_FOUND;
+    }
+
     // Synthesize binary operator terms (AND, OR, and XOR).
     //
     // We make this a template to avoid duplicating code between the three
@@ -141,7 +163,7 @@ private:
         return pass_binary(*this, height, op);
     }
 
-    int64_t pass_Xor(int32_t height) {
+    int64_t pass_XorSynth(int32_t height) {
         auto op = [](uint32_t a, uint32_t b) { return a ^ b; };
         return pass_binary(*this, height, op);
     }

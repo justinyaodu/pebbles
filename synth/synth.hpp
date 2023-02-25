@@ -20,7 +20,8 @@ enum class PassType {
     Not,
     And,
     Or,
-    Xor
+    XorCheck,
+    XorSynth
 };
 
 class AbstractSynthesizer {
@@ -114,7 +115,8 @@ protected:
                 return Expr::Or(
                         reconstruct(term_lefts[index]),
                         reconstruct(term_rights[index]));
-            case PassType::Xor:
+            case PassType::XorCheck:
+            case PassType::XorSynth:
                 return Expr::Xor(
                         reconstruct(term_lefts[index]),
                         reconstruct(term_rights[index]));
@@ -147,11 +149,30 @@ protected:
         return index;
     }
 
+    // Return the index of the term with the given result.
+    uint32_t find_term_with_result(uint32_t result) {
+        // In a multithreaded environment, num_terms might get updated during
+        // the execution of the following loop. However, if a term with the
+        // specified result is present in the bank when this method is called,
+        // we don't need to consider terms that are added concurrently.
+        int64_t end = num_terms;
+        for (int64_t i = 0; i < end; i++) {
+            if (term_results[i] == result) {
+                return i;
+            }
+        }
+
+        // No term with this result exists.
+        assert(false);
+        return 0;
+    }
+
     virtual int64_t pass_Variable(int32_t height) = 0;
     virtual int64_t pass_Not(int32_t height) = 0;
     virtual int64_t pass_And(int32_t height) = 0;
     virtual int64_t pass_Or(int32_t height) = 0;
-    virtual int64_t pass_Xor(int32_t height) = 0;
+    virtual int64_t pass_XorCheck(int32_t height) = 0;
+    virtual int64_t pass_XorSynth(int32_t height) = 0;
 
 public:
     // Return an Expr satisfying spec, or nullptr if it cannot be found.
@@ -192,9 +213,15 @@ public:
             }
 
             DO_PASS(Not);
+            DO_PASS(XorCheck);
+
             DO_PASS(And);
             DO_PASS(Or);
-            DO_PASS(Xor);
+
+            // Only synthesize new terms if we need them for the next iteration.
+            if (height < spec.sol_height) {
+                DO_PASS(XorSynth);
+            }
 
 #undef DO_PASS
         }

@@ -28,4 +28,8 @@ __device__ bool GPUBitset_test_and_set(GPUBitset bitset, uint32_t index) {
     return (word & mask) >> (index % 32);
 }
 
+__device__ bool GPUBitset_test(GPUBitset bitset, uint32_t index) {
+    return (bitset[index / 32] >> (index % 32)) & 1;
+}
+
 #endif

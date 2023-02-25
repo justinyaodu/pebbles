@@ -54,6 +54,17 @@ private:
         return start;
     }
 
+    int64_t add_binary_term(uint32_t result, uint32_t left, uint32_t right) {
+        return add_binary_terms(1, &result, &left, &right);
+    }
+
+    int64_t add_unary_term(uint32_t result, uint32_t left) {
+        // The right index of a unary term is unused, so we can use whatever
+        // value we want.
+        uint32_t right = 0;
+        return add_binary_term(result, left, right);
+    }
+
     // Add variables of the specified height to the bank.
     int64_t pass_Variable(int32_t height) {
         for (size_t i = 0; i < spec.num_vars; i++) {
@@ -66,8 +77,7 @@ private:
                 continue;
             }
 
-            uint32_t left_cast = i;
-            add_unary_terms(1, &result, &left_cast);
+            add_unary_term(result, i);
 
             if (result == spec.sol_result) {
                 return num_terms - 1;
@@ -145,6 +155,41 @@ private:
                     // No synchronization needed, because if two threads find a
                     // solution simultaneously, it doesn't matter which we use.
                     solution = bank_index + i;
+                }
+            }
+        }
+
+        return solution;
+    }
+
+    int64_t pass_XorCheck(int32_t height) {
+        // One of the operands must be a term whose height is one less than the
+        // current height; otherwise, we would have found this solution in a
+        // previous iteration.
+        int64_t all_lefts_start = terms_with_height_start(height - 1);
+        int64_t all_lefts_end = terms_with_height_end(height - 1);
+
+        int64_t solution = NOT_FOUND;
+
+        #pragma omp parallel for
+        for (int64_t lefts_tile = all_lefts_start / UNARY_TILE_SIZE;
+                lefts_tile < CEIL_DIV(all_lefts_end, UNARY_TILE_SIZE);
+                lefts_tile++) {
+            if (solution != NOT_FOUND) {
+                continue;
+            }
+
+            for (int64_t left = std::max(lefts_tile * UNARY_TILE_SIZE, all_lefts_start);
+                    left < std::min((lefts_tile + 1) * UNARY_TILE_SIZE, all_lefts_end);
+                    left++) {
+                uint32_t left_result = term_results[left];
+                uint32_t right_result = result_mask & (left_result ^ spec.sol_result);
+
+                if (seen.test(right_result)
+                        // Guarantee that only one thread will execute the following code.
+                        && __atomic_exchange_n(&solution, 0, __ATOMIC_SEQ_CST) == NOT_FOUND) {
+                    uint32_t right = find_term_with_result(right_result);
+                    solution = add_binary_term(spec.sol_result, left, right);
                 }
             }
         }
@@ -317,7 +362,7 @@ private:
         return pass_binary(*this, height, op);
     }
 
-    int64_t pass_Xor(int32_t height) {
+    int64_t pass_XorSynth(int32_t height) {
         auto op = [](uint32_t a, uint32_t b) { return a ^ b; };
         return pass_binary(*this, height, op);
     }
