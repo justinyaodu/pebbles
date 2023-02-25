@@ -19,9 +19,15 @@ protected:
     ~BaseBitset() {
         dealloc(bytes, CEIL_DIV(size, 8));
     }
+
+public:
+    // Get the bit at the specified index.
+    bool test(uint32_t index) {
+        return (bytes[index / 8] >> (index % 8)) & 1;
+    }
 };
 
-class SingleThreadedBitset : BaseBitset {
+class SingleThreadedBitset : public BaseBitset {
 public:
     SingleThreadedBitset(const size_t size) : BaseBitset(size) {}
 
@@ -45,7 +51,7 @@ public:
     }
 };
 
-class ThreadSafeBitset : BaseBitset {
+class ThreadSafeBitset : public BaseBitset {
 public:
     ThreadSafeBitset(const size_t size) : BaseBitset(size) {}
 
