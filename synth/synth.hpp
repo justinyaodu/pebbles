@@ -18,7 +18,8 @@
 enum class PassType {
     Variable,
     Not,
-    And,
+    AndCheck,
+    AndSynth,
     Or,
     XorCheck,
     XorSynth
@@ -34,11 +35,18 @@ protected:
     // The maximum number of observationally distinct terms.
     const size_t max_distinct_terms;
 
+    // The maximum number of observationally distinct terms that are also viable
+    // operands for a solution with an AND at the top level.
+    const size_t max_filtered_and;
+
     // Bitmask indicating which bits contain valid examples.
     const uint32_t result_mask;
 
     // Number of terms in the bank.
     int64_t num_terms;
+
+    // Number of viable operands for a solution with an AND at the top level.
+    int64_t num_filtered_and;
 
     // The i'th element stores the evaluation results for the i'th term, where
     // the j'th bit from the right is the evaluation result on example j.
@@ -52,9 +60,12 @@ protected:
     // the term is a variable or a NOT.
     uint32_t* const term_rights;
 
-    // The i'th element is the size of the bank when the i'th pass started,
-    // or equivalently, the index of the first element in the i'th pass.
-    std::vector<int64_t> pass_starts;
+    // If there is a solution with an AND at the top level, the operands of the
+    // top-level AND will both evaluate to 1 if the solution evaluates to 1.
+    // When looking for solutions with an AND at the top level, we only need to
+    // consider operands satisfying this condition. The evaluation results of
+    // those operands are stored here.
+    uint32_t* const term_results_filtered_and;
 
     // The i'th element is the size of the bank when the i'th pass ended,
     // or equivalently, the index after the last element in the i'th pass.
@@ -69,11 +80,15 @@ protected:
     AbstractSynthesizer(Spec spec) :
             spec(spec),
             max_distinct_terms(1ULL << spec.num_examples),
+            // Divide by the number of 1s in sol_result.
+            max_filtered_and(max_distinct_terms >> __builtin_popcount(spec.sol_result)),
             result_mask(max_distinct_terms - 1),
             num_terms(0),
+            num_filtered_and(0),
             term_results((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))),
             term_lefts((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))),
-            term_rights((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))) {
+            term_rights((uint32_t*) alloc(max_distinct_terms * sizeof(uint32_t))),
+            term_results_filtered_and((uint32_t*) alloc(max_filtered_and * sizeof(uint32_t))) {
         // Ensure that the bits outside the mask are always 0.
         // TODO: move this and max_distinct_terms to the Spec constructor?
         assert((spec.sol_result & ~result_mask) == 0);
@@ -86,11 +101,11 @@ protected:
         dealloc(term_results, max_distinct_terms * sizeof(uint32_t));
         dealloc(term_lefts, max_distinct_terms * sizeof(uint32_t));
         dealloc(term_rights, max_distinct_terms * sizeof(uint32_t));
+        dealloc(term_results_filtered_and, max_filtered_and * sizeof(uint32_t));
     }
 
     // Called every time a pass is completed.
     void record_pass(PassType type, int32_t height) {
-        pass_starts.push_back(pass_ends.size() ? pass_ends.back() : 0);
         pass_ends.push_back(num_terms);
         pass_heights.push_back(height);
         pass_types.push_back(type);
@@ -114,7 +129,8 @@ protected:
                 return Expr::Var(term_lefts[index]);
             case PassType::Not:
                 return Expr::Not(reconstruct(term_lefts[index]));
-            case PassType::And:
+            case PassType::AndCheck:
+            case PassType::AndSynth:
                 return Expr::And(
                         reconstruct(term_lefts[index]),
                         reconstruct(term_rights[index]));
@@ -138,7 +154,7 @@ protected:
         int64_t index = 0;
         for (size_t i = 0; i < pass_types.size(); i++) {
             if (pass_heights[i] == height) {
-                index = pass_starts[i];
+                index = i == 0 ? 0 : pass_ends[i - 1];
                 break;
             }
         }
@@ -176,7 +192,8 @@ protected:
 
     virtual int64_t pass_Variable(int32_t height) = 0;
     virtual int64_t pass_Not(int32_t height) = 0;
-    virtual int64_t pass_And(int32_t height) = 0;
+    virtual int64_t pass_AndCheck(int32_t height) = 0;
+    virtual int64_t pass_AndSynth(int32_t height) = 0;
     virtual int64_t pass_Or(int32_t height) = 0;
     virtual int64_t pass_XorCheck(int32_t height) = 0;
     virtual int64_t pass_XorSynth(int32_t height) = 0;
@@ -221,13 +238,13 @@ public:
 
             DO_PASS(Not);
             DO_PASS(XorCheck);
-
-            DO_PASS(And);
+            DO_PASS(AndCheck);
             DO_PASS(Or);
 
             // Only synthesize new terms if we need them for the next iteration.
             if (height < spec.sol_height) {
                 DO_PASS(XorSynth);
+		DO_PASS(AndSynth);
             }
 
 #undef DO_PASS

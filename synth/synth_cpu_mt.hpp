@@ -187,9 +187,96 @@ private:
 
                 if (seen.test(right_result)
                         // Guarantee that only one thread will execute the following code.
+                        // 0 is a dummy value that will be overwritten later.
                         && __atomic_exchange_n(&solution, 0, __ATOMIC_SEQ_CST) == NOT_FOUND) {
                     uint32_t right = find_term_with_result(right_result);
                     solution = add_binary_term(spec.sol_result, left, right);
+                }
+            }
+        }
+
+        return solution;
+    }
+
+    int64_t pass_AndCheck(int32_t height) {
+        int64_t prev_num_filtered_and = num_filtered_and;
+
+        int64_t filter_start = terms_with_height_start(height - 1);
+        int64_t filter_end = terms_with_height_end(height - 1);
+
+        #pragma omp parallel for
+        for (int64_t filter_tile = filter_start / UNARY_TILE_SIZE;
+                filter_tile < CEIL_DIV(filter_end, UNARY_TILE_SIZE);
+                filter_tile++) {
+
+            int32_t batch_size = 0;
+            uint32_t batch_results[UNARY_TILE_SIZE];
+
+            for (int64_t i = std::max(filter_tile * UNARY_TILE_SIZE, filter_start);
+                    i < std::min((filter_tile + 1) * UNARY_TILE_SIZE, filter_end);
+                    i++) {
+                uint32_t result = term_results[i];
+                if ((result & spec.sol_result) == spec.sol_result) {
+                    batch_results[batch_size] = result;
+                    batch_size++;
+                }
+            }
+
+            int64_t start_index = __atomic_fetch_add(
+                    &num_filtered_and, batch_size, __ATOMIC_SEQ_CST);
+            memcpy(&term_results_filtered_and[start_index], batch_results,
+                    batch_size * sizeof(uint32_t));
+        }
+
+        int64_t filtered_rights_start = prev_num_filtered_and;
+        int64_t filtered_rights_end = num_filtered_and;
+
+        int64_t filtered_lefts_start = 0;
+        int64_t filtered_lefts_end = filtered_rights_end;
+
+        int64_t solution = NOT_FOUND;
+
+        int64_t k = filtered_rights_start / TILE_SIZE;
+        int64_t n = CEIL_DIV(filtered_rights_end, TILE_SIZE);
+
+        #pragma omp parallel for
+        for (int64_t b = 0; b < k * (n - k) + (n - k) * (n - k + 1) / 2; b++) {
+            if (solution != NOT_FOUND) {
+                continue;
+            }
+
+            int64_t filtered_lefts_tile = b / (n - k);
+            int64_t filtered_rights_tile = n - 1 - b % (n - k);
+            if (filtered_lefts_tile > filtered_rights_tile) {
+                filtered_lefts_tile = n - (filtered_lefts_tile - (k + 1)) - 1;
+                filtered_rights_tile = n - (filtered_rights_tile - k) - 1;
+            }
+
+            for (int64_t filtered_left = std::max(
+                        filtered_lefts_tile * TILE_SIZE,
+                        filtered_lefts_start);
+                    filtered_left < std::min(
+                            (filtered_lefts_tile + 1) * TILE_SIZE,
+                            filtered_lefts_end);
+                    filtered_left++) {
+                uint32_t left_result = term_results_filtered_and[filtered_left];
+
+                for (int64_t filtered_right = std::max(
+                            filtered_rights_tile * TILE_SIZE,
+                            filtered_rights_start);
+                        filtered_right < std::min(
+                            (filtered_rights_tile + 1) * TILE_SIZE,
+                            filtered_rights_end);
+                        filtered_right++) {
+                    uint32_t right_result = term_results_filtered_and[filtered_right];
+
+                    if ((left_result & right_result) == spec.sol_result
+                            && (__atomic_exchange_n(&solution, 0, __ATOMIC_SEQ_CST)
+                                    == NOT_FOUND)) {
+                        int64_t left = find_term_with_result(left_result);
+                        int64_t right = find_term_with_result(right_result);
+                        solution = add_binary_term(spec.sol_result, left, right);
+                    }
                 }
             }
         }
@@ -352,7 +439,7 @@ private:
         return solution;
     }
 
-    int64_t pass_And(int32_t height) {
+    int64_t pass_AndSynth(int32_t height) {
         auto op = [](uint32_t a, uint32_t b, uint32_t result_mask __attribute__((unused))) { return a & b; };
         return pass_binary(*this, height, op);
     }

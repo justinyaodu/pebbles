@@ -37,11 +37,12 @@ private:
     }
 
     // Add a binary operator term to the bank.
-    void add_binary_term(uint32_t result, uint32_t left, uint32_t right) {
+    int64_t add_binary_term(uint32_t result, uint32_t left, uint32_t right) {
         int64_t index = alloc_term();
         term_results[index] = result;
         term_lefts[index] = left;
         term_rights[index] = right;
+        return index;
     }
 
     // Add variables of the specified height to the bank.
@@ -105,8 +106,44 @@ private:
             }
 
             int64_t right = find_term_with_result(right_result);
-            add_binary_term(spec.sol_result, left, right);
-            return num_terms - 1;
+            return add_binary_term(spec.sol_result, left, right);
+        }
+
+        return NOT_FOUND;
+    }
+
+    int64_t pass_AndCheck(int32_t height) {
+        int64_t prev_num_filtered_and = num_filtered_and;
+
+        int64_t filter_start = terms_with_height_start(height - 1);
+        int64_t filter_end = terms_with_height_end(height - 1);
+        for (int64_t i = filter_start; i < filter_end; i++) {
+            uint32_t result = term_results[i];
+            if ((result & spec.sol_result) == spec.sol_result) {
+                term_results_filtered_and[num_filtered_and] = result;
+                num_filtered_and++;
+            }
+        }
+
+        // The right operand must be a term whose height is one less than the
+        // current height.
+        int64_t filtered_rights_start = prev_num_filtered_and;
+        int64_t filtered_rights_end = num_filtered_and;
+
+        for (int64_t filtered_right = filtered_rights_start;
+                filtered_right < filtered_rights_end;
+                filtered_right++) {
+            uint32_t right_result = term_results_filtered_and[filtered_right];
+            for (int64_t filtered_left = 0;
+                    filtered_left <= filtered_right;
+                    filtered_left++) {
+                uint32_t left_result = term_results_filtered_and[filtered_left];
+                if ((left_result & right_result) == spec.sol_result) {
+                    int64_t left = find_term_with_result(left_result);
+                    int64_t right = find_term_with_result(right_result);
+                    return add_binary_term(spec.sol_result, left, right);
+                }
+            }
         }
 
         return NOT_FOUND;
@@ -153,7 +190,7 @@ private:
         return Synthesizer::NOT_FOUND;
     }
 
-    int64_t pass_And(int32_t height) {
+    int64_t pass_AndSynth(int32_t height) {
         auto op = [](uint32_t a, uint32_t b, uint32_t result_mask __attribute__((unused))) { return a & b; };
         return pass_binary(*this, height, op);
     }
