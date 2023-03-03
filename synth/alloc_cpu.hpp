@@ -37,7 +37,7 @@ void dealloc(void* ptr, size_t size) {
 // Allocate the specified number of bytes. Using this instead of malloc or
 // new makes it possible to try huge pages and other tweaks.
 void* alloc(size_t size) {
-    return malloc(size);
+    return calloc(1,size);
 }
 
 void dealloc(void* ptr, size_t size) {
