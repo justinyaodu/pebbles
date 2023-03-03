@@ -44,8 +44,18 @@ int main(void) {
 
         Spec spec = Parser::parseInput(current_path);
 
+        /*if (spec.num_vars == 5) {
+            for (int i = 0; i < spec.num_examples; i++) {
+                for (int j = 0; j < spec.num_vars; j++) {
+                    outputFile << ((spec.var_values[j] >> i) & 1);
+                }
+                outputFile << endl;
+            }
+            outputFile << endl;
+        }*/
 
-        if (spec.num_vars > 7) {
+
+        if (spec.num_vars > 5) {
             outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
             continue;
         }
