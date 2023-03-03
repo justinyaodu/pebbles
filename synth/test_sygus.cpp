@@ -40,6 +40,7 @@ int main(void) {
         current_path = entry.path().string();
 
         outputFile << current_path << std::endl;
+        std::cout << current_path << std::endl;
 
         Spec spec = Parser::parseInput(current_path);
 
