@@ -355,12 +355,14 @@ Spec Parser::parseInput(string inputFileName) {
         vals.push_back(0);
     }
 
-    sol_result = truthTableWithVec(origCir, var_names, vals);
+    //sol_result = truthTableWithVec(origCir, var_names, vals);
 
     cout<<"spec making";
 
     vector<vector<bool>> all_inputs;
     vector<bool> full_sol = truthTableFull(origCir, var_names, all_inputs);
+
+    sol_result = truthTableWithVecFromTruthTable(full_sol, all_inputs, vals);
 
     cout<<"spec made";
 
