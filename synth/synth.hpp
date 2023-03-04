@@ -219,8 +219,8 @@ public:
                 continue;
             }
 
-            DO_PASS(Not);
             DO_PASS(XorCheck);
+            DO_PASS(Not);
 
             DO_PASS(And);
             DO_PASS(Or);
