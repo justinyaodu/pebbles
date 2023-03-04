@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#ifdef __linux__
+#if defined(__APPLE__) || defined(__linux__)
 #include <sys/mman.h>
 
 // Allocate the specified number of bytes. Using this instead of malloc or
