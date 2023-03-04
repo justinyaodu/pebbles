@@ -29,6 +29,9 @@ public:
     // The i'th bit is the desired output in example i.
     uint32_t sol_result;
 
+    // The example we are next going to replace
+    int example_iter = 0;
+
     // The height of the solution circuit.
     const int32_t sol_height;
 
@@ -70,6 +73,19 @@ public:
 	    //std::cout << expected << std::endl;
             assert(solution->eval(vars) == expected);
         }
+    }
+
+    int advanceCEGISIteration(const Expr* solution) {
+        int counter = counterexample(solution);
+        if(counter == -1) return -1;
+        for(uint32_t j=0; j<var_values.size(); j++) {
+                var_values[j] &= ~(1<<example_iter);
+                var_values[j] |= (all_inputs[counter][j]?1:0)<<example_iter;
+        }
+        sol_result &= ~(1<<example_iter);
+        sol_result |= (all_sols[counter]?1:0)<<example_iter;
+        example_iter = (example_iter + 1) % 32;
+        return counter;
     }
 
     int counterexample(const Expr* solution) {

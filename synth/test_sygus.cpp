@@ -78,22 +78,12 @@ int main(void) {
             expr = synthesizer.synthesize();
             cout<<"done synthesizing"<<std::endl;
             if(expr==nullptr) break;
-            int counterExample = spec.counterexample(expr);
+            int counterExample = spec.advanceCEGISIteration(expr);
             if(counterExample == -1) break;
             outputFile << "Candidate (counterexample found "<<counterExample<<"): ";
             expr->print(outputFile, &spec.var_names);
             outputFile << std::endl;
 
-            // Update the spec
-            int r=i%32;
-            for(uint32_t j=0; j<spec.var_values.size(); j++) {
-                updated_var_vals[j] = spec.var_values[j] & ~(1<<r);
-                updated_var_vals[j] |= (spec.all_inputs[counterExample][j]?1:0)<<r;
-            }
-            updated_sol_result = spec.sol_result & ~(1<<r);
-            updated_sol_result |= (spec.all_sols[counterExample]?1:0)<<r;
-            spec.updateIOExamples(updated_var_vals,updated_sol_result);
-            
             cout<<"Iteration "<<i<<" "<<counterExample<<std::endl;
             i++;
         }
