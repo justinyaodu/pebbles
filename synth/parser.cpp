@@ -144,6 +144,7 @@ uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &
     uint32_t retVal = 0;
     for(uint32_t i=0; i<min(power(2, names.size()), 32); i++) {
         int x=((1+(power(2, names.size())/32))*i)%power(2, names.size());
+        if(x == 2) x = 1;
         vector<bool> input;
         for(uint32_t j=0; j<names.size(); j++) {
             vals[j] = (vals[j] << 1) | ((x>>j)&1);
@@ -344,15 +345,22 @@ Spec Parser::parseInput(string inputFileName) {
         var_depths[i] = maxDepth - var_depths[i];
     }
 
-    //print out all the variables
-    /*for (int i = 0; i < numVariables; i++)
-    {
-        cout << var_names[i] << ": depth " << var_depths[i] << endl;
-    }*/
-
     vector<uint32_t> vals;
     for (uint32_t i = 0; i < numVariables; i++) {
         vals.push_back(0);
+    }
+
+    if (numVariables > 31) {
+        // we can't even parse this many. abort
+        return Spec(numVariables, 
+                0, 
+                var_names, 
+                var_depths, 
+                vals, 
+                sol_result, 
+                maxDepth,
+                vector<vector<bool>>{},
+                vector<bool>{});
     }
 
     //sol_result = truthTableWithVec(origCir, var_names, vals);
