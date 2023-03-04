@@ -55,10 +55,12 @@ int main(void) {
         }*/
 
 
-        if (spec.num_vars > 5) {
+        if (spec.num_vars > 7) {
             outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
             continue;
         }
+
+        outputFile << "Number of variables: " << spec.num_vars << std::endl;
 
         const Expr* expr = nullptr;
         // The i'th element specifies the values of the i'th variable,
