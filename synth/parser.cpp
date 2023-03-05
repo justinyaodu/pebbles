@@ -334,6 +334,7 @@ Spec Parser::parseInput(string inputFileName) {
         lineNumber++;
     }
     maxDepth = depth;
+    //maxDepth = depth+5;
     numVariables = var_names.size();
     num_examples = power(2,numVariables);
     if(num_examples>32) num_examples=32;
@@ -343,6 +344,7 @@ Spec Parser::parseInput(string inputFileName) {
     for (uint32_t i = 0; i < numVariables; i++)
     {
         var_depths[i] = maxDepth - var_depths[i];
+        //var_depths[i] = 0;
     }
 
     vector<uint32_t> vals;

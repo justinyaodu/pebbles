@@ -191,6 +191,7 @@ private:
                         && __atomic_exchange_n(&found_solution, true, __ATOMIC_SEQ_CST) == false) {
                     uint32_t right = find_term_with_result(right_result);
                     solution = add_binary_term(spec.sol_result, left, right);
+                    break;
                 }
             }
         }
