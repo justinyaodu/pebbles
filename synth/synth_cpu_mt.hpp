@@ -170,6 +170,7 @@ private:
         int64_t all_lefts_end = terms_with_height_end(height - 1);
 
         int64_t solution = NOT_FOUND;
+        bool found_solution = false;
 
         #pragma omp parallel for
         for (int64_t lefts_tile = all_lefts_start / UNARY_TILE_SIZE;
@@ -187,13 +188,13 @@ private:
 
                 if (seen.test(right_result)
                         // Guarantee that only one thread will execute the following code.
-                        && __atomic_exchange_n(&solution, 0, __ATOMIC_SEQ_CST) == NOT_FOUND) {
+                        && __atomic_exchange_n(&found_solution, true, __ATOMIC_SEQ_CST) == false) {
                     uint32_t right = find_term_with_result(right_result);
                     solution = add_binary_term(spec.sol_result, left, right);
+                    break;
                 }
             }
         }
-
         return solution;
     }
 
