@@ -79,6 +79,10 @@ public:
         sol_height(sol_height),
         all_inputs(all_inputs),
         all_sols(all_sols) {
+            // var_values = std::vector<uint32_t>(32);
+            for(int i=0; i<32; i++) {
+                var_values.push_back(0);
+            }
             setExamplesFromFullTable();
             example_iter = num_examples % 32;
         }
@@ -104,7 +108,6 @@ public:
         auto rng = std::default_random_engine{};
         rng.seed(time(NULL));
         shuffle(begin(indices), end(indices), rng);
-
         std::vector<bool> currExample;
         for (uint32_t i = 0; i < num_examples; i++) {
             currExample = all_inputs[indices[i]];
@@ -144,10 +147,10 @@ public:
         }
         sol_result &= ~(1<<example_iter);
         sol_result |= (all_sols[counter]?1:0)<<example_iter;
+        // Either we have a full set of examples, or we're adding an examplke to the next empty spot
+        // (0 indexed so the next spot is equal to the current number of examples)
+        assert(num_examples == 32 || example_iter == num_examples);
         if (example_iter >= num_examples) {
-            // We just added a new example (as opposed to replacing an existing one)
-            // We should be adding a new example just after the existing ones
-            assert(example_iter = num_examples + 1);
             num_examples++;
         }
         example_iter = (example_iter + 1) % 32;
