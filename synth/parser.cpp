@@ -6,7 +6,6 @@
 #include <stack>
 #include <bitset>
 #include <random>
-#include <random>
 using namespace std;
 
 #include "spec.hpp"
@@ -180,12 +179,12 @@ vector<uint32_t> Parser::getVarValues(uint32_t numVariables, uint32_t numExample
     }
     return varValues;
 }
+
 Spec Parser::parseTruthTableInput(string inputFileName) {
     uint32_t numVariables = 0;
     int32_t maxHeight = 0;//e.g. this will be 4 for the D5 files since the grammar has "Start" as a sort of 0 level height
     vector<int32_t> var_heights;//heights range from 0 to maxHeight, represent the "weight" of the variable in the tree
     vector<string> var_names;
-    uint32_t sol_result;
     uint32_t num_examples;
     vector<vector<bool>> all_inputs;
     vector<bool> full_sol;
@@ -247,29 +246,20 @@ Spec Parser::parseTruthTableInput(string inputFileName) {
 	    cout << "output: " << full_sol[i] << endl;
     }*/
 
-    // restricted input/output
-    vector<uint32_t> vals;
-    for (uint32_t i = 0; i < numVariables; i++) {
-        vals.push_back(0);
-    }
-    sol_result = truthTableWithVecFromTruthTable(full_sol, all_inputs, vals);
-
     return Spec(numVariables, 
                 num_examples, 
                 var_names, 
-                var_heights, 
-                vals, 
-                sol_result, 
+                var_heights,
                 maxHeight,
                 all_inputs,
                 full_sol);
 }
+
 Spec Parser::parseInput(string inputFileName) {
     uint32_t numVariables = 0;
     int32_t maxDepth = 0;//e.g. this will be 4 for the D5 files since the grammar has "Start" as a sort of 0 level depth
     vector<int32_t> var_depths;//depths range from 0 to maxDepth, represent the "weight" of the variable in the tree
     vector<string> var_names;
-    uint32_t sol_result;
     uint32_t num_examples;
 
     //open SyGuS-formatted input file
@@ -340,26 +330,20 @@ Spec Parser::parseInput(string inputFileName) {
     if(num_examples>32) num_examples=32;
     inputFile.close();
 
-    //Flip depths to be "weight"s instead
+    //Flip depths to be "height"s instead
     for (uint32_t i = 0; i < numVariables; i++)
     {
         var_depths[i] = maxDepth - var_depths[i];
         //var_depths[i] = 0;
     }
 
-    vector<uint32_t> vals;
-    for (uint32_t i = 0; i < numVariables; i++) {
-        vals.push_back(0);
-    }
-
     if (numVariables > 31) {
         // we can't even parse this many. abort
+        cout << "Abandoning this spec because it has too many (" << numVariables << ") variables" << endl;
         return Spec(numVariables, 
                 0, 
                 var_names, 
                 var_depths, 
-                vals, 
-                sol_result, 
                 maxDepth,
                 vector<vector<bool>>{},
                 vector<bool>{});
@@ -367,21 +351,17 @@ Spec Parser::parseInput(string inputFileName) {
 
     //sol_result = truthTableWithVec(origCir, var_names, vals);
 
-    cout<<"spec making";
+    cout<<"spec making"<<std::endl;
 
     vector<vector<bool>> all_inputs;
     vector<bool> full_sol = truthTableFull(origCir, var_names, all_inputs);
 
-    sol_result = truthTableWithVecFromTruthTable(full_sol, all_inputs, vals);
-
-    cout<<"spec made";
+    cout<<"spec made"<<std::endl;
 
     return Spec(numVariables, 
-                num_examples, 
+                1, // could be num_examples 
                 var_names, 
-                var_depths, 
-                vals, 
-                sol_result, 
+                var_depths,
                 maxDepth,
                 all_inputs,
                 full_sol);
