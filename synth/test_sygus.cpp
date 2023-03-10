@@ -43,7 +43,7 @@ int main(void) {
         std::cout << current_path << std::endl;
 
         Spec spec = Parser::parseInput(current_path);
-        //outputFile << spec << std::endl;
+        outputFile << spec << std::endl;
 
         if (spec.num_vars > 7) {
             outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;

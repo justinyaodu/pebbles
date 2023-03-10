@@ -155,6 +155,7 @@ uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &
 }
 
 vector<bool> truthTableFull(string expr, vector<string> names, vector<vector<bool>> &vals) {
+    cout<< "in truth table function" << endl;
     vector<bool> retVal;
     for(int i=0; i<power(2, names.size()); i++) {
         vector<bool> newVec;
@@ -164,6 +165,7 @@ vector<bool> truthTableFull(string expr, vector<string> names, vector<vector<boo
         }
         retVal.push_back(evalExpr(expr, names, vals[i]));
     }
+    cout << "made it to the end of the truth table function" << endl;
     return retVal;
 }
 
@@ -354,6 +356,10 @@ Spec Parser::parseInput(string inputFileName) {
     cout<<"spec making"<<std::endl;
 
     vector<vector<bool>> all_inputs;
+    cout<<origCir<<endl;
+    for (int i = 0; i < var_names.size(); i++) {
+        cout<<var_names[i]<<endl;
+    }
     vector<bool> full_sol = truthTableFull(origCir, var_names, all_inputs);
 
     cout<<"spec made"<<std::endl;
