@@ -40,12 +40,14 @@ bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
         expr = ReplaceAll(expr, names[i], vals[i]?"T":"F");
     }
     // replace all gates with single letters so it's easier to parse
+    expr = ReplaceAll(expr, "false", "F");
+    expr = ReplaceAll(expr, "true", "T");
     expr = ReplaceAll(expr, "xor", "^");
     expr = ReplaceAll(expr, "or", "|");
     expr = ReplaceAll(expr, "and", "&");
     expr = ReplaceAll(expr, "not", "!");
 
-    //cout<<" "<<expr;
+    cout<<" "<<expr<<std::endl;
 
     // use a stack to track operators like in postfix expressions
     stack<bool> st;
@@ -77,10 +79,8 @@ vector<bool> truthTable(string expr, vector<string> names, vector<bool> vals) {
         for(uint32_t j=0; j<vals.size(); j++) {
             // get the jth bit
             vals[j]=(i>>j)&1;
-            cout << vals[j];
         }
         retVal.push_back(evalExpr(expr, names, vals));
-        cout<<" "<<retVal.back()<<"\n";
     }
     return retVal;
 }
@@ -162,8 +162,11 @@ vector<bool> truthTableFull(string expr, vector<string> names, vector<vector<boo
         vals.push_back(newVec);
         for(uint32_t j=0; j<names.size(); j++) {
             vals[i].push_back((i>>j)&1);
+            cout << ((i>>j)&1) << " ";
         }
+        cout << std::endl;
         retVal.push_back(evalExpr(expr, names, vals[i]));
+        cout << "made it here" << std::endl;
     }
     cout << "made it to the end of the truth table function" << endl;
     return retVal;
@@ -365,7 +368,7 @@ Spec Parser::parseInput(string inputFileName) {
     cout<<"spec made"<<std::endl;
 
     return Spec(numVariables, 
-                num_examples, 
+                1, // could be num_examples
                 var_names, 
                 var_depths,
                 maxDepth,
