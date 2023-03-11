@@ -47,7 +47,7 @@ bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
     expr = ReplaceAll(expr, "and", "&");
     expr = ReplaceAll(expr, "not", "!");
 
-    cout<<" "<<expr<<std::endl;
+    // cout<<" "<<expr<<std::endl;
 
     // use a stack to track operators like in postfix expressions
     stack<bool> st;
@@ -155,20 +155,15 @@ uint32_t truthTableWithVec(string expr, vector<string> names, vector<uint32_t> &
 }
 
 vector<bool> truthTableFull(string expr, vector<string> names, vector<vector<bool>> &vals) {
-    cout<< "in truth table function" << endl;
     vector<bool> retVal;
     for(int i=0; i<power(2, names.size()); i++) {
         vector<bool> newVec;
         vals.push_back(newVec);
         for(uint32_t j=0; j<names.size(); j++) {
             vals[i].push_back((i>>j)&1);
-            cout << ((i>>j)&1) << " ";
         }
-        cout << std::endl;
         retVal.push_back(evalExpr(expr, names, vals[i]));
-        cout << "made it here" << std::endl;
     }
-    cout << "made it to the end of the truth table function" << endl;
     return retVal;
 }
 
