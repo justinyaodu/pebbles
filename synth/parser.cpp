@@ -354,10 +354,6 @@ Spec Parser::parseInput(string inputFileName) {
     cout<<"spec making"<<std::endl;
 
     vector<vector<bool>> all_inputs;
-    cout<<origCir<<endl;
-    for (int i = 0; i < var_names.size(); i++) {
-        cout<<var_names[i]<<endl;
-    }
     vector<bool> full_sol = truthTableFull(origCir, var_names, all_inputs);
 
     cout<<"spec made"<<std::endl;
