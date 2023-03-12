@@ -43,7 +43,7 @@ int main(void) {
         std::cout << current_path << std::endl;
 
         Spec spec = Parser::parseInput(current_path);
-        //outputFile << spec << std::endl;
+        outputFile << spec << std::endl;
 
         if (spec.num_vars > 8) {
             outputFile << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
@@ -78,9 +78,9 @@ int main(void) {
             i++;
         }
         if (expr == nullptr) {
-            outputFile << "no solution found in iteration " << i << std::endl;
+            outputFile << "no solution found in " << i << " iterations"<<std::endl;
         } else {
-            outputFile << "solution found in iteration " << i << ": ";
+            outputFile << "solution found in " << i << " iterations: ";
             expr->print(outputFile, &spec.var_names);
             outputFile << std::endl;
 

@@ -40,12 +40,14 @@ bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
         expr = ReplaceAll(expr, names[i], vals[i]?"T":"F");
     }
     // replace all gates with single letters so it's easier to parse
+    expr = ReplaceAll(expr, "false", "F");
+    expr = ReplaceAll(expr, "true", "T");
     expr = ReplaceAll(expr, "xor", "^");
     expr = ReplaceAll(expr, "or", "|");
     expr = ReplaceAll(expr, "and", "&");
     expr = ReplaceAll(expr, "not", "!");
 
-    //cout<<" "<<expr;
+    // cout<<" "<<expr<<std::endl;
 
     // use a stack to track operators like in postfix expressions
     stack<bool> st;
@@ -77,10 +79,8 @@ vector<bool> truthTable(string expr, vector<string> names, vector<bool> vals) {
         for(uint32_t j=0; j<vals.size(); j++) {
             // get the jth bit
             vals[j]=(i>>j)&1;
-            cout << vals[j];
         }
         retVal.push_back(evalExpr(expr, names, vals));
-        cout<<" "<<retVal.back()<<"\n";
     }
     return retVal;
 }
