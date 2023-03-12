@@ -359,7 +359,7 @@ Spec Parser::parseInput(string inputFileName) {
     cout<<"spec made"<<std::endl;
 
     return Spec(numVariables, 
-                1, // could be num_examples
+                1, // could be num_examples 
                 var_names, 
                 var_depths,
                 maxDepth,
