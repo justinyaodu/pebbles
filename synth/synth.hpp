@@ -193,18 +193,18 @@ public:
 #define DO_PASS(TYPE)                       \
 {                                           \
     int64_t prev_num_terms = num_terms;     \
-    std::cerr << "height " << height        \
-        << ", " #TYPE " pass" << std::endl; \
+    /*std::cerr << "height " << height        \
+        << ", " #TYPE " pass" << std::endl;*/ \
                                             \
     Timer pass_timer;                       \
     sol_index = pass_ ## TYPE(height);      \
     uint64_t ms = pass_timer.ms();          \
     record_pass(PassType::TYPE, height);    \
                                             \
-    std::cerr << "\t" << ms << " ms, "      \
+    /*std::cerr << "\t" << ms << " ms, "      \
         << (num_terms - prev_num_terms) << " new term(s), " \
         << num_terms << " total term(s)"    \
-        << std::endl;                       \
+        << std::endl;*/                       \
                                             \
     if (sol_index != NOT_FOUND) {           \
         break;                              \
@@ -234,8 +234,8 @@ public:
         }
 
         uint64_t ms = timer.ms();
-        std::cerr << ms << " ms, "
-            << num_terms << " terms" << std::endl;
+        /*std::cerr << ms << " ms, "
+            << num_terms << " terms" << std::endl;*/
 
         return sol_index == NOT_FOUND ? nullptr : reconstruct(sol_index);
     }

@@ -29,14 +29,11 @@ namespace fs = std::filesystem;
 #endif
 
 int main(int argc, char *argv[]) {
-    std::cerr << "Synthesizer variant: " << VARIANT_DESCRIPTION << std::endl;
-
     if (argc < 2) {
         std::cout << "Please specify an input file" << std::endl;
         return 1;
     }
     std::string file_path = argv[1];
-    std::cerr << file_path << std::endl;
 
     Spec spec = Parser::parseInput(file_path);
 
