@@ -1,0 +1,418 @@
+Synthesizer variant: GPU
+0.465
+Synthesizer variant: GPU
+0.387
+Synthesizer variant: GPU
+0.395
+Synthesizer variant: GPU
+0.412
+Synthesizer variant: GPU
+0.377
+Synthesizer variant: GPU
+0.378
+Synthesizer variant: GPU
+0.429
+Synthesizer variant: GPU
+0.374
+Synthesizer variant: GPU
+0.402
+Synthesizer variant: GPU
+0.384
+Synthesizer variant: GPU
+0.338
+Synthesizer variant: GPU
+0.444
+Synthesizer variant: GPU
+0.380
+Synthesizer variant: GPU
+0.410
+Synthesizer variant: GPU
+0.351
+Synthesizer variant: GPU
+0.392
+Synthesizer variant: GPU
+0.412
+Synthesizer variant: GPU
+0.372
+Synthesizer variant: GPU
+0.379
+Synthesizer variant: GPU
+0.391
+Synthesizer variant: GPU
+0.355
+Synthesizer variant: GPU
+0.402
+Synthesizer variant: GPU
+0.374
+Synthesizer variant: GPU
+0.350
+Synthesizer variant: GPU
+0.413
+Synthesizer variant: GPU
+0.413
+Synthesizer variant: GPU
+0.408
+Synthesizer variant: GPU
+0.388
+Synthesizer variant: GPU
+0.406
+Synthesizer variant: GPU
+0.369
+Synthesizer variant: GPU
+0.332
+Synthesizer variant: GPU
+0.387
+Synthesizer variant: GPU
+0.383
+Synthesizer variant: GPU
+0.352
+Synthesizer variant: GPU
+0.395
+Synthesizer variant: GPU
+0.394
+Synthesizer variant: GPU
+0.359
+Synthesizer variant: GPU
+0.392
+Synthesizer variant: GPU
+0.335
+Synthesizer variant: GPU
+0.379
+Synthesizer variant: GPU
+0.393
+Synthesizer variant: GPU
+0.356
+Synthesizer variant: GPU
+0.373
+Synthesizer variant: GPU
+0.399
+Synthesizer variant: GPU
+0.406
+Synthesizer variant: GPU
+0.407
+Synthesizer variant: GPU
+0.374
+Synthesizer variant: GPU
+0.385
+Synthesizer variant: GPU
+0.371
+Synthesizer variant: GPU
+0.366
+Synthesizer variant: GPU
+0.376
+Synthesizer variant: GPU
+0.372
+Synthesizer variant: GPU
+0.393
+Synthesizer variant: GPU
+0.383
+Synthesizer variant: GPU
+0.354
+Synthesizer variant: GPU
+0.389
+Synthesizer variant: GPU
+0.383
+Synthesizer variant: GPU
+0.379
+Synthesizer variant: GPU
+0.390
+Synthesizer variant: GPU
+0.382
+Synthesizer variant: GPU
+0.396
+Synthesizer variant: GPU
+0.398
+Synthesizer variant: GPU
+0.376
+Synthesizer variant: GPU
+0.389
+Synthesizer variant: GPU
+0.403
+Synthesizer variant: GPU
+0.407
+Synthesizer variant: GPU
+0.408
+Synthesizer variant: GPU
+0.382
+Synthesizer variant: GPU
+0.343
+Synthesizer variant: GPU
+0.343
+Synthesizer variant: GPU
+0.376
+Synthesizer variant: GPU
+0.376
+Synthesizer variant: GPU
+0.371
+Synthesizer variant: GPU
+0.390
+Synthesizer variant: GPU
+0.374
+Synthesizer variant: GPU
+0.408
+Synthesizer variant: GPU
+0.385
+Synthesizer variant: GPU
+0.339
+Synthesizer variant: GPU
+0.370
+Synthesizer variant: GPU
+0.372
+Synthesizer variant: GPU
+0.386
+Synthesizer variant: GPU
+0.393
+Synthesizer variant: GPU
+0.411
+Synthesizer variant: GPU
+0.396
+Synthesizer variant: GPU
+0.360
+Synthesizer variant: GPU
+0.404
+Synthesizer variant: GPU
+0.404
+Synthesizer variant: GPU
+0.399
+Synthesizer variant: GPU
+0.403
+Synthesizer variant: GPU
+0.385
+Synthesizer variant: GPU
+0.341
+Synthesizer variant: GPU
+0.397
+Synthesizer variant: GPU
+0.383
+Synthesizer variant: GPU
+0.378
+Synthesizer variant: GPU
+0.398
+Synthesizer variant: GPU
+0.374
+Synthesizer variant: GPU
+0.397
+Synthesizer variant: GPU
+0.351
+Synthesizer variant: GPU
+0.378
+Synthesizer variant: GPU
+0.394
+Synthesizer variant: GPU
+0.407
+Synthesizer variant: GPU
+0.392
+Synthesizer variant: GPU
+0.370
+Synthesizer variant: GPU
+0.369
+Synthesizer variant: GPU
+0.355
+Synthesizer variant: GPU
+0.349
+Synthesizer variant: GPU
+0.351
+Synthesizer variant: GPU
+0.383
+Synthesizer variant: GPU
+0.369
+Synthesizer variant: GPU
+0.365
+Synthesizer variant: GPU
+0.363
+Synthesizer variant: GPU
+0.367
+Synthesizer variant: GPU
+0.398
+Synthesizer variant: GPU
+0.360
+Synthesizer variant: GPU
+0.348
+Synthesizer variant: GPU
+0.399
+Synthesizer variant: GPU
+0.334
+Synthesizer variant: GPU
+0.407
+Synthesizer variant: GPU
+0.391
+Synthesizer variant: GPU
+0.377
+Synthesizer variant: GPU
+0.406
+Synthesizer variant: GPU
+0.338
+Synthesizer variant: GPU
+0.391
+Synthesizer variant: GPU
+0.383
+Synthesizer variant: GPU
+0.351
+Synthesizer variant: GPU
+0.405
+Synthesizer variant: GPU
+0.401
+Synthesizer variant: GPU
+0.372
+Synthesizer variant: GPU
+0.388
+Synthesizer variant: GPU
+0.340
+Synthesizer variant: GPU
+0.362
+Synthesizer variant: GPU
+0.347
+Synthesizer variant: GPU
+0.308
+Synthesizer variant: GPU
+0.404
+Synthesizer variant: GPU
+0.360
+Synthesizer variant: GPU
+0.384
+Synthesizer variant: GPU
+0.388
+Synthesizer variant: GPU
+0.404
+Synthesizer variant: GPU
+0.367
+Synthesizer variant: GPU
+0.379
+Synthesizer variant: GPU
+0.371
+Synthesizer variant: GPU
+0.393
+Synthesizer variant: GPU
+0.409
+Synthesizer variant: GPU
+0.381
+Synthesizer variant: GPU
+0.378
+Synthesizer variant: GPU
+0.371
+Synthesizer variant: GPU
+0.404
+Synthesizer variant: GPU
+0.419
+Synthesizer variant: GPU
+0.351
+Synthesizer variant: GPU
+0.391
+Synthesizer variant: GPU
+0.362
+Synthesizer variant: GPU
+0.409
+Synthesizer variant: GPU
+0.379
+Synthesizer variant: GPU
+0.363
+Synthesizer variant: GPU
+0.368
+Synthesizer variant: GPU
+0.388
+Synthesizer variant: GPU
+0.349
+Synthesizer variant: GPU
+0.395
+Synthesizer variant: GPU
+0.364
+Synthesizer variant: GPU
+0.397
+Synthesizer variant: GPU
+0.362
+Synthesizer variant: GPU
+0.350
+Synthesizer variant: GPU
+0.380
+Synthesizer variant: GPU
+0.340
+Synthesizer variant: GPU
+0.338
+Synthesizer variant: GPU
+0.376
+Synthesizer variant: GPU
+0.345
+Synthesizer variant: GPU
+0.380
+Synthesizer variant: GPU
+0.360
+Synthesizer variant: GPU
+0.393
+Synthesizer variant: GPU
+0.411
+Synthesizer variant: GPU
+0.346
+Synthesizer variant: GPU
+0.370
+Synthesizer variant: GPU
+0.385
+Synthesizer variant: GPU
+0.427
+Synthesizer variant: GPU
+0.392
+Synthesizer variant: GPU
+0.346
+Synthesizer variant: GPU
+0.398
+Synthesizer variant: GPU
+0.429
+Synthesizer variant: GPU
+0.353
+Synthesizer variant: GPU
+0.427
+Synthesizer variant: GPU
+0.398
+Synthesizer variant: GPU
+0.402
+Synthesizer variant: GPU
+0.399
+Synthesizer variant: GPU
+0.355
+Synthesizer variant: GPU
+0.384
+Synthesizer variant: GPU
+0.404
+Synthesizer variant: GPU
+0.357
+Synthesizer variant: GPU
+0.391
+Synthesizer variant: GPU
+0.348
+Synthesizer variant: GPU
+0.361
+Synthesizer variant: GPU
+0.423
+Synthesizer variant: GPU
+0.376
+Synthesizer variant: GPU
+0.360
+Synthesizer variant: GPU
+0.392
+Synthesizer variant: GPU
+0.413
+Synthesizer variant: GPU
+0.395
+Synthesizer variant: GPU
+0.347
+Synthesizer variant: GPU
+0.430
+Synthesizer variant: GPU
+0.430
+Synthesizer variant: GPU
+0.394
+Synthesizer variant: GPU
+0.418
+Synthesizer variant: GPU
+0.386
+Synthesizer variant: GPU
+0.388
+Synthesizer variant: GPU
+0.390
+Synthesizer variant: GPU
+0.350
+Synthesizer variant: GPU
+0.392
+Synthesizer variant: GPU
+0.380
+Synthesizer variant: GPU
+0.449
