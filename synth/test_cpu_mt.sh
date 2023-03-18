@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILES="./random_5s_10exs/*"
+FILES="./random_5s/*"
 TIMEFORMAT=%R
 
 echo
