@@ -1,0 +1,20 @@
+Synthesizer variant: GPU
+0.420
+Synthesizer variant: GPU
+0.371
+Synthesizer variant: GPU
+0.374
+Synthesizer variant: GPU
+0.337
+Synthesizer variant: GPU
+0.355
+Synthesizer variant: GPU
+0.368
+Synthesizer variant: GPU
+0.376
+Synthesizer variant: GPU
+0.377
+Synthesizer variant: GPU
+0.354
+Synthesizer variant: GPU
+0.345
