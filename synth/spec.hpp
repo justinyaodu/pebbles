@@ -33,7 +33,7 @@ public:
     uint32_t sol_result;
 
     // The example we are next going to replace
-    int example_iter = 0;
+    uint32_t example_iter = 0;
 
     // The height of the solution circuit.
     const int32_t sol_height;
