@@ -40,11 +40,11 @@ int main(void) {
     );
     */
 
-    /*Spec spec(
+    Spec spec(
         5,
         32,
         std::vector<std::string> {"a", "b", "c", "d", "e"},
-        std::vector<int32_t> {0, 0, 0, 0, 4},
+        std::vector<int32_t> {0, 0, 0, 0, 0},
         std::vector<uint32_t> {
             0b00000000000000001111111111111111,
             0b00000000111111110000000011111111,
@@ -52,11 +52,11 @@ int main(void) {
             0b00110011001100110011001100110011,
             0b01010101010101010101010101010101
         },
-        0b00111001110011100000000011001110,
+        0b10001010111100010110001110001010,
         32,
         std::vector<std::vector<bool>>(0),
         std::vector<bool>(0)
-    );*/
+    );
 
     /*
     Spec spec(
@@ -78,6 +78,7 @@ int main(void) {
     );
     */
 
+    /*
     Spec spec(
         3,
         8,
@@ -93,6 +94,7 @@ int main(void) {
         std::vector<std::vector<bool>>(0),
         std::vector<bool>(0)
     );
+    */
 
     Synthesizer synthesizer(spec);
 

@@ -304,6 +304,99 @@ __global__ void pass_binary(
         __syncthreads();
     }
 
+    {
+        __shared__ uint32_t batch_results[BLOCK_SIZE];
+        __shared__ uint32_t batch_lefts[BLOCK_SIZE];
+        __shared__ uint32_t batch_rights[BLOCK_SIZE];
+        __shared__ uint32_t batch_size;
+
+        if (threadIdx.x == 0) {
+            batch_size = 0;
+        }
+        __syncthreads();
+
+        uint32_t new_mask = __ballot_sync(0xFFFFFFFF, is_new);
+        uint32_t count = __popc(new_mask >> (threadIdx.x % 32));
+
+        uint32_t batch_base;
+        if (threadIdx.x % 32 == 0) {
+            batch_base = atomicAdd(&batch_size, count);
+        }
+        batch_base = __shfl_sync(0xFFFFFFFF, batch_base, 0);
+
+        uint32_t batch_idx = batch_base + count - 1;
+        if (is_new) {
+            batch_results[batch_idx] = result;
+            batch_lefts[batch_idx] = left;
+            batch_rights[batch_idx] = right;
+        }
+        __syncthreads();
+
+        if (batch_size == 0) {
+            return;
+        }
+
+        __shared__ uint32_t bank_segment_start;
+        if (threadIdx.x == 0) {
+            bank_segment_start = atomicAdd(&state->num_terms, batch_size);
+        }
+        __syncthreads();
+
+        // Check whether this term is a valid solution.
+        if (result == sol_result) {
+            state->found_sol = true;
+            state->sol_idx = bank_segment_start + batch_idx;
+        }
+
+        /*
+        {
+            __shared__ uint32_t batch_buffer[BLOCK_SIZE];
+
+            compacted_write(
+                &term_results[bank_segment_start],
+                batch_buffer,
+                batch_size,
+                batch_idx,
+                is_new,
+                result
+            );
+
+            compacted_write(
+                &term_lefts[bank_segment_start],
+                batch_buffer,
+                batch_size,
+                batch_idx,
+                is_new,
+                left
+            );
+
+            compacted_write(
+                &term_rights[bank_segment_start],
+                batch_buffer,
+                batch_size,
+                batch_idx,
+                is_new,
+                right
+            );
+        }
+        */
+
+        // This is about the same speed as compacted_write
+        if (threadIdx.x < batch_size) {
+            uint32_t bank_index = bank_segment_start + threadIdx.x;
+            uint32_t batch_result = batch_results[threadIdx.x];
+            term_results[bank_index] = batch_result;
+            term_lefts[bank_index] = batch_lefts[threadIdx.x];
+            term_rights[bank_index] = batch_rights[threadIdx.x];
+
+            if (batch_result == sol_result) {
+                state->found_sol = true;
+                state->sol_idx = bank_index;
+            }
+        }
+    }
+
+    /*
     // Find the total number of new terms, and the index of the current term
     // in the batch (assuming the current term is new).
     uint32_t batch_size;
@@ -378,6 +471,7 @@ __global__ void pass_binary(
             right
         );
     }
+    */
 }
 
 class Synthesizer : public AbstractSynthesizer {
