@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     }
     std::string file_path = argv[1];
 
-    Spec spec = Parser::parseInput(file_path);
+    Spec spec = (file_path[file_path.length()-1]=='l') ? Parser::parseInput(file_path) : Parser::parseTruthTableInput(file_path);
 
     if (spec.num_vars > 8) {
         std::cout << "Skipping this one because it has too many (" << spec.num_vars << ") variables" << std::endl << std::endl;
@@ -58,6 +58,11 @@ int main(int argc, char *argv[]) {
         if(expr==nullptr) break;
         int counterExample = spec.advanceCEGISIteration(expr);
         if(counterExample == -1) break;
+
+        std::cout << "Iteration " << i << " found candidate: ";
+        expr->print(std::cout, &spec.var_names);
+        std::cout << std::endl << "Counterexample found: " << counterExample << std::endl;
+
         i++;
     }
     if (expr == nullptr) {

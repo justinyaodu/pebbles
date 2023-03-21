@@ -1,8 +1,8 @@
 #!/bin/bash
 
-FILES="./cvc4_test_inputs/*"
+FILES="./random_5s_10exs/*"
 for file in $FILES
 do
     echo "$file"
-    ./synth_cpu_st_input_file $file
+    time ./synth_cpu_mt_input_file $file
 done

@@ -36,6 +36,11 @@ bool popVal(stack<bool> &st) {
 
 bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
     // replace all variables with their values
+    std::sort(names.begin(), names.end(), 
+    [](string const &a, string const &b) {
+        return a.length() > b.length();
+    });
+
     for(uint32_t i=0; i<names.size(); i++) {
         expr = ReplaceAll(expr, names[i], vals[i]?"T":"F");
     }
