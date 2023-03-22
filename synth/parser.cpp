@@ -36,14 +36,21 @@ bool popVal(stack<bool> &st) {
 
 bool evalExpr(string expr, vector<string> names, vector<bool> vals) {
     // replace all variables with their values
-    std::sort(names.begin(), names.end(), 
-    [](string const &a, string const &b) {
-        return a.length() > b.length();
-    });
+    // std::sort(names.begin(), names.end(), 
+    // [](string const &a, string const &b) {
+    //     return a.length() > b.length();
+    // });
 
+    int maxLength = 0;
     for(uint32_t i=0; i<names.size(); i++) {
-        expr = ReplaceAll(expr, names[i], vals[i]?"T":"F");
+        if(maxLength < names[i].length()) maxLength = names[i].length();
     }
+    for(uint32_t j=maxLength; j>0; j--) {
+        for(uint32_t i=0; i<names.size(); i++) {
+            if(names[i].length() == j) expr = ReplaceAll(expr, names[i], vals[i]?"T":"F");
+        }
+    }
+    
     // replace all gates with single letters so it's easier to parse
     expr = ReplaceAll(expr, "false", "F");
     expr = ReplaceAll(expr, "true", "T");
@@ -166,8 +173,18 @@ vector<bool> truthTableFull(string expr, vector<string> names, vector<vector<boo
         vals.push_back(newVec);
         for(uint32_t j=0; j<names.size(); j++) {
             vals[i].push_back((i>>j)&1);
+            // cout << ((i>>j)&1);
         }
         retVal.push_back(evalExpr(expr, names, vals[i]));
+        // int x = evalExpr(expr, names, vals[i]);
+        // cout << " " << x;
+        // vals[i][2] = (vals[i][2]==0) ? 1 : 0;
+        // cout << " ";
+        // for(uint32_t j = 0; j<vals[i].size(); j++) {
+        //     cout << vals[i][j];
+        // }
+        // assert(x == evalExpr(expr, names, vals[i]));
+        // cout << " " << evalExpr(expr, names, vals[i]) << std::endl;
     }
     return retVal;
 }
