@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILES="./random_5s_10exs/*"
+FILES="./random_5s_part2/*"
 TIMEFORMAT=%R
 
 
@@ -10,7 +10,7 @@ do
     for file in $FILES
     do
         echo "$file"
-        time_taken=$((OMP_NUM_THREADS=$NUM_THREADS time timeout 300s ./synth_cpu_mt_input_file $file) 2>&1 >/dev/null)
+        time_taken=$((time OMP_NUM_THREADS=$NUM_THREADS timeout 300s ./synth_cpu_mt_input_file $file) 2>&1 >/dev/null)
         echo "$time_taken" >>/dev/stderr
     done
 done
