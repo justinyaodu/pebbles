@@ -1,0 +1,120 @@
+1 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+2 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+3 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+4 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+5 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+6 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+7 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+8 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+9 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+10 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
+./random_5s_10exs/input9.txt
+11 threads
+./random_5s_10exs/input0.txt
+./random_5s_10exs/input1.txt
+./random_5s_10exs/input2.txt
+./random_5s_10exs/input3.txt
+./random_5s_10exs/input4.txt
+./random_5s_10exs/input5.txt
+./random_5s_10exs/input6.txt
+./random_5s_10exs/input7.txt
+./random_5s_10exs/input8.txt
