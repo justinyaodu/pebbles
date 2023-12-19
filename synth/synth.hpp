@@ -193,22 +193,23 @@ public:
 #define DO_PASS(TYPE)                       \
 {                                           \
     int64_t prev_num_terms = num_terms;     \
-    /*std::cerr << "height " << height        \
-        << ", " #TYPE " pass" << std::endl;*/ \
+    std::cerr << "height " << height        \
+        << ", " #TYPE " pass" << std::endl; \
                                             \
     Timer pass_timer;                       \
     sol_index = pass_ ## TYPE(height);      \
     uint64_t ms = pass_timer.ms();          \
     record_pass(PassType::TYPE, height);    \
                                             \
-    /*std::cerr << "\t" << ms << " ms, "      \
+    std::cerr << "\t" << ms << " ms, "      \
         << (num_terms - prev_num_terms) << " new term(s), " \
         << num_terms << " total term(s)"    \
-        << std::endl;*/                       \
+        << std::endl;                       \
                                             \
     if (sol_index != NOT_FOUND) {           \
         break;                              \
     }                                       \
+    sort_terms(prev_num_terms, num_terms);  \
 }
 
             DO_PASS(Variable);
@@ -238,6 +239,68 @@ public:
             << num_terms << " terms" << std::endl;*/
 
         return sol_index == NOT_FOUND ? nullptr : reconstruct(sol_index);
+    }
+
+    void sort_terms(int64_t from, int64_t to) {
+        if (to - from <= 8) {
+            for (int64_t i = from + 1; i < to; i++) {
+                uint32_t result = term_results[i];
+                uint32_t left = term_lefts[i];
+                uint32_t right = term_rights[i];
+                int64_t j = i;
+                while (j - 1 >= from && term_results[j - 1] > result) {
+                    term_results[j] = term_results[j - 1];
+                    term_lefts[j] = term_lefts[j - 1];
+                    term_rights[j] = term_rights[j - 1];
+                    j--;
+                }
+                term_results[j] = result;
+                term_lefts[j] = left;
+                term_rights[j] = right;
+            }
+        } else {
+            uint32_t first = term_results[from];
+            uint32_t mid = term_results[(from + to) / 2];
+            uint32_t last = term_results[to - 1];
+            uint32_t temp;
+
+            if (mid < first) {
+                temp = first;
+                first = mid;
+                mid = temp;
+            }
+
+            if (last < mid) {
+                temp = mid;
+                mid = last;
+                last = temp;
+            }
+
+            if (mid < first) {
+                temp = first;
+                first = mid;
+                mid = temp;
+            }
+
+            uint32_t pivot = mid;
+
+            int64_t split = from;
+            for (int64_t i = from; i < to; i++) {
+                uint32_t result = term_results[i];
+                uint32_t left = term_lefts[i];
+                uint32_t right = term_rights[i];
+                term_results[i] = term_results[split];
+                term_lefts[i] = term_lefts[split];
+                term_rights[i] = term_rights[split];
+                term_results[split] = result;
+                term_lefts[split] = left;
+                term_rights[split] = right;
+                split += result < pivot;
+            }
+
+            sort_terms(from, split);
+            sort_terms(split, to);
+        }
     }
 };
 
